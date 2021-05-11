@@ -7,7 +7,6 @@
 
     See documentation about this file here:
     http://en.doc.boardgamearena.com/Game_meta-information:_gameinfos.inc.php
-
 */
 
 $gameinfos = array(
