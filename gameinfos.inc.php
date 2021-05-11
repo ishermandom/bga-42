@@ -14,13 +14,13 @@ $gameinfos = array(
 
 
 // Game designer (or game designers, separated by commas)
-'designer' => 'Unknown',
+'designer' => 'W. A. Thomas',
 
 // Game artist (or game artists, separated by commas)
 'artist' => 'Unknown',
 
 // Year of FIRST publication of this game. Can be negative.
-'year' => 1850,
+'year' => 1885,
 
 // Game publisher
 'publisher' => 'Public Domain',

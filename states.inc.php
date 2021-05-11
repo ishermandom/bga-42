@@ -33,6 +33,7 @@ $machinestates = array(
   20 => array(
     "name" => "newHand",
     // TODO(isherman): Can we remove empty descriptions if they're not used for anything?
+    // (jturner) description is MANDATORY
     "description" => "",
     "type" => "game",
     "action" => "stNewHand",
@@ -40,6 +41,8 @@ $machinestates = array(
     // TODO(isherman): Change to 21 once actually working on 42.
     "transitions" => array( "" => 30 )
   ),
+
+  /// Bidding
   // TODO(isherman): Finish updating these.
   21 => array(
     "name" => "playerBid",
@@ -58,6 +61,7 @@ $machinestates = array(
     "transitions" => array( "nextPlayer" => 21, "startTrick" => 30 )
   ),
 
+// (jturner) This appears to be an orphan state; is it vestigial, or is it nascent?
   23 => array(
     "name" => "lastPlayerBid",
     "description" => "",
@@ -65,21 +69,23 @@ $machinestates = array(
     "action" => "stNextPlayerBid",
     "transitions" => array( "nextPlayer" => 21, "startTrick" => 30 )
   ),
-  // Trick
 
+  /// Trick
   30 => array(
     "name" => "newTrick",
     "description" => "",
     "type" => "game",
     "action" => "stNewTrick",
     // TODO(isherman): Do we want this, yah?
+    // (jturner) If I understand this correctly, this is mainly related to the %done messages. If so
+    //  we should probably just not worry too much about it for now.
     "updateGameProgression" => true,
     "transitions" => array( "" => 31 )
   ),
   31 => array(
     "name" => "playerTurn",
-    "description" => clienttranslate('${actplayer} must play a card'),
-    "descriptionmyturn" => clienttranslate('${you} must play a card'),
+    "description" => clienttranslate('${actplayer} must play a domino'),
+    "descriptionmyturn" => clienttranslate('${you} must play a domino'),
     "type" => "activeplayer",
     "possibleactions" => array( "playCard" ),
     "transitions" => array( "playCard" => 32 )
