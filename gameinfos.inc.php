@@ -8,6 +8,9 @@
 // Docs: http://en.doc.boardgamearena.com/Game_meta-information:_gameinfos.inc.php
 $gameinfos = array(
 
+// Name of the game in English (will serve as the basis for translation)
+'game_name' => "Texas 42",
+
 // Game designer (or game designers, separated by commas)
 'designer' => 'W. A. Thomas',
 
@@ -18,7 +21,7 @@ $gameinfos = array(
 'year' => 1885,
 
 // Game publisher.
-'publisher' => 'Public Domain',
+'publisher' => '(Public Domain)',
 
 // Url of game publisher website.
 'publisher_website' => '',
