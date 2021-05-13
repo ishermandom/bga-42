@@ -23,7 +23,7 @@ $machinestates = array(
   // Game setup. Must match BoardGameArea expectations.
   1 => array(
     "name" => "gameSetup",
-    "description" => clienttranslate("Game setup"),
+    "description" => "",
     "type" => "manager",
     "action" => "stGameSetup",
     "transitions" => array( "" => 20 )

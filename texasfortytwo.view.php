@@ -23,16 +23,16 @@
  * Note: if the HTML of your game interface is always the same, you don't have to place anything here.
  *
  */
-  
+
   require_once( APP_BASE_PATH."view/common/game.view.php" );
-  
-  class view_heartsla_heartsla extends game_view
+
+  class view_texasfortytwo_texasfortytwo extends game_view
   {
     function getGameName() {
-        return "heartsla";
-    }    
+        return "texasfortytwo";
+    }
   	function build_page( $viewArgs )
-  	{		
+  	{
   	    // Get players & players number
         $players = $this->game->loadPlayersBasicInfos();
         $players_nbr = count( $players );
@@ -40,9 +40,9 @@
          * ********* Place your code below: ***********
          */
         $template = self::getGameName() . "_" . self::getGameName();
-        
+
         $directions = array( 'S', 'W', 'N', 'E' );
-        
+
         $this->page->begin_block($template, "player");
         foreach ( $players as $player_id => $info ) {
             $dir = array_shift($directions);
@@ -51,12 +51,10 @@
                     "PLAYER_COLOR" => $players [$player_id] ['player_color'],
                     "DIR" => $dir ));
         }
-        
+
         $this->tpl['MY_HAND'] = self::_("My hand");
 
 
         /*********** Do not change anything below this line  ************/
   	}
   }
-  
-
