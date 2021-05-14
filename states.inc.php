@@ -23,7 +23,7 @@ $machinestates = array(
   // Game setup. Must match BoardGameArea expectations.
   1 => array(
     "name" => "gameSetup",
-    "description" => clienttranslate("Game setup"),
+    "description" => "",
     "type" => "manager",
     "action" => "stGameSetup",
     "transitions" => array( "" => 20 )
@@ -46,8 +46,8 @@ $machinestates = array(
   // TODO(isherman): Finish updating these.
   21 => array(
     "name" => "playerBid",
-    "description" => clienttranslate("${actplayer} must bid or pass"),
-    "myturndescription" => clienttranslate("${you} must bid or pass"),
+    "description" => clienttranslate('${actplayer} must bid or pass'),
+    "myturndescription" => clienttranslate('${you} must bid or pass'),
     "type" => "activeplayer",
     // TODO(isherman): Dunno whether these make sense...
     "possibleactions" => array( "bid", "pass" ),

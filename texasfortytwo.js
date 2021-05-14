@@ -10,7 +10,7 @@
  * heartsla.js
  *
  * template user interface script
- * 
+ *
  * In this file, you are describing the logic of your user interface, in Javascript language.
  *
  */
@@ -22,31 +22,31 @@ define([
     "ebg/stock"
 ],
 function (dojo, declare) {
-    return declare("bgagame.heartsla", ebg.core.gamegui, {
+    return declare("bgagame.texasfortytwo", ebg.core.gamegui, {
         constructor: function(){
             console.log('hearts constructor');
-              
+
             this.cardwidth = 72;
             this.cardheight = 96;
         },
-        
+
         /*
             setup:
-            
+
             This method must set up the game user interface according to current game situation specified
             in parameters.
-            
+
             The method is called each time the game interface is displayed to a player, ie:
             _ when the game starts
             _ when a player refreshes the game page (F5)
-            
+
             "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
         */
-        
+
 
         setup : function(gamedatas) {
             console.log("Starting game setup");
-           
+
             // Player hand
             this.playerHand = new ebg.stock();
             this.playerHand.create(this, $('myhand'), this.cardwidth, this.cardheight);
@@ -62,7 +62,7 @@ function (dojo, declare) {
                     this.playerHand.addItemType(card_type_id, card_type_id, g_gamethemeurl + 'img/cards.jpg', card_type_id);
                 }
             }
-            
+
 
             // Cards in player's hand
             for ( var i in this.gamedatas.hand) {
@@ -80,38 +80,38 @@ function (dojo, declare) {
                 var player_id = card.location_arg;
                 this.playCardOnTable(player_id, color, value, card.id);
             }
-            
+
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
 
             console.log( "Ending game setup" );
         },
-       
+
 
         ///////////////////////////////////////////////////
         //// Game & client states
-        
+
         // onEnteringState: this method is called each time we are entering into a new game state.
         //                  You can use this method to perform some user interface changes at this moment.
         //
         onEnteringState: function( stateName, args )
         {
             console.log( 'Entering state: '+stateName );
-            
+
             switch( stateName )
             {
-            
+
             /* Example:
-            
+
             case 'myGameState':
-            
+
                 // Show some HTML block at this game state
                 dojo.style( 'my_html_block_id', 'display', 'block' );
-                
+
                 break;
            */
-           
-           
+
+
             case 'dummmy':
                 break;
             }
@@ -123,67 +123,67 @@ function (dojo, declare) {
         onLeavingState: function( stateName )
         {
             console.log( 'Leaving state: '+stateName );
-            
+
             switch( stateName )
             {
-            
+
             /* Example:
-            
+
             case 'myGameState':
-            
+
                 // Hide the HTML block we are displaying only during this game state
                 dojo.style( 'my_html_block_id', 'display', 'none' );
-                
+
                 break;
            */
-           
-           
+
+
             case 'dummmy':
                 break;
-            }               
-        }, 
+            }
+        },
 
         // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
         //                        action status bar (ie: the HTML links in the status bar).
-        //        
+        //
         onUpdateActionButtons: function( stateName, args )
         {
             console.log( 'onUpdateActionButtons: '+stateName );
-                      
+
             if( this.isCurrentPlayerActive() )
-            {            
+            {
                 switch( stateName )
                 {
-/*               
+/*
                  Example:
- 
+
                  case 'myGameState':
-                    
+
                     // Add 3 action buttons in the action status bar:
-                    
-                    this.addActionButton( 'button_1_id', _('Button 1 label'), 'onMyMethodToCall1' ); 
-                    this.addActionButton( 'button_2_id', _('Button 2 label'), 'onMyMethodToCall2' ); 
-                    this.addActionButton( 'button_3_id', _('Button 3 label'), 'onMyMethodToCall3' ); 
+
+                    this.addActionButton( 'button_1_id', _('Button 1 label'), 'onMyMethodToCall1' );
+                    this.addActionButton( 'button_2_id', _('Button 2 label'), 'onMyMethodToCall2' );
+                    this.addActionButton( 'button_3_id', _('Button 3 label'), 'onMyMethodToCall3' );
                     break;
 */
                 }
             }
-        },        
+        },
 
         ///////////////////////////////////////////////////
         //// Utility methods
-        
+
         /*
-        
+
             Here, you can defines some utility methods that you can use everywhere in your javascript
             script.
-        
+
         */
         // Get card unique identifier based on its color and value
         getCardUniqueId : function(color, value) {
             return (color - 1) * 13 + (value - 2);
         },
-        
+
 
         playCardOnTable : function(player_id, color, value, card_id) {
             // player_id => direction
@@ -213,15 +213,15 @@ function (dojo, declare) {
 
         // /////////////////////////////////////////////////
         // // Player's action
-        
+
         /*
-         * 
+         *
          * Here, you are defining methods to handle player's action (ex: results of mouse click on game objects).
-         * 
+         *
          * Most of the time, these methods: _ check the action is possible at this game state. _ make a call to the game server
-         * 
+         *
          */
-        
+
 
 
         onPlayerHandSelectionChanged : function() {
@@ -231,7 +231,7 @@ function (dojo, declare) {
                 var action = 'playCard';
                 if (this.checkAction(action, true)) {
                     // Can play a card
-                    var card_id = items[0].id;                    
+                    var card_id = items[0].id;
                     this.ajaxcall("/" + this.game_name + "/" + this.game_name + "/" + action + ".html", {
                         id : card_id,
                         lock : true
@@ -247,39 +247,39 @@ function (dojo, declare) {
                 }
             }
         },
-        
+
         /*
          * Example:
-         * 
+         *
          * onMyMethodToCall1: function( evt ) { console.log( 'onMyMethodToCall1' ); // Preventing default browser reaction dojo.stopEvent(
          * evt ); // Check that this action is possible (see "possibleactions" in states.inc.php) if( ! this.checkAction( 'myAction' ) ) {
          * return; }
-         * 
+         *
          * this.ajaxcall( "/heartsla/heartsla/myAction.html", { lock: true, myArgument1: arg1, myArgument2: arg2, ... }, this, function(
          * result ) { // What to do after the server call if it succeeded // (most of the time: nothing) }, function( is_error) { // What to
          * do after the server call in anyway (success or failure) // (most of the time: nothing) } ); },
-         * 
+         *
          */
 
-        
+
         ///////////////////////////////////////////////////
         //// Reaction to cometD notifications
 
         /*
             setupNotifications:
-            
+
             In this method, you associate each of your game notifications with your local method to handle it.
-            
+
             Note: game notification names correspond to "notifyAllPlayers" and "notifyPlayer" calls in
                   your template.game.php file.
-        
+
         */
         setupNotifications : function() {
             console.log('notifications subscriptions setup');
 
             dojo.subscribe('newHand', this, "notif_newHand");
             dojo.subscribe('playCard', this, "notif_playCard");
-            
+
             dojo.subscribe( 'trickWin', this, "notif_trickWin" );
             this.notifqueue.setSynchronous( 'trickWin', 1000 );
             dojo.subscribe( 'giveAllCardsToPlayer', this, "notif_giveAllCardsToPlayer" );
@@ -302,7 +302,7 @@ function (dojo, declare) {
             // Play a card on the table
             this.playCardOnTable(notif.args.player_id, notif.args.color, notif.args.value, notif.args.card_id);
         },
-        
+
 
         notif_trickWin : function(notif) {
             // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
@@ -324,5 +324,5 @@ function (dojo, declare) {
                 this.scoreCtrl[player_id].toValue(notif.args.newScores[player_id]);
             }
         },
-   });             
+   });
 });
