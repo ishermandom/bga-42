@@ -97,20 +97,18 @@ class TexasFortyTwo extends Table {
 
 				// Create the deck of dominoes.
 				$NUM_SUITS = 7;
-				$deck = array();
+				//$deck = array();
 				for ($high = 0; $high < $NUM_SUITS; ++$high) {
 					for ($low = 0; $low <= $high; ++$low) {
-						$domino = array('type' => 'unused', 'type_arg' => 0, 'high' => $high, 'low' => $low, 'nbr' => 1);
-						$sql = "INSERT INTO dominoes (high, low) values ($high, $low)";
-						$deck[] = $domino;
+						//$domino = array('type' => 'unused', 'type_arg' => 0, 'high' => $high, 'low' => $low, 'nbr' => 1);
+						$sql = "INSERT INTO dominoes (high, low, location, location_arg, type, type_arg) values ($high, $low, 'deck', 0, '', '')";
+						self::DbQuery($sql);
+						//$deck[] = $domino;
 					}
 				}
-        $result['players'] = self::getCollectionFromDb( $sql );
-				$this->dominoes->createCards($deck, 'deck');
 
 				// Shuffle and deal dominoes.
-				$hand_size = count($deck) / count($players);
-				assert($hand_size == 7);
+				$hand_size = 7; // count($deck) / count($players);
 				$this->dominoes->shuffle('deck');
 				$players = self::loadPlayersBasicInfos();
 				foreach ($players as $player_id => $player) {
