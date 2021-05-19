@@ -21,9 +21,13 @@ require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 
 
 class TexasFortyTwo extends Table {
-
 	function __construct() {
+		parent::__construct();
 
+		$this->dominoes = self::getNew("module.common.deck");
+		$this->dominoes->init("dominoes");
+
+		// TODO(isherman): Everything below is from Hearts. Delete it?
 
         // Your global variables labels:
         //  Here, you can assign labels to global variables you are using for this game.
@@ -32,7 +36,6 @@ class TexasFortyTwo extends Table {
         //  the corresponding ID in gameoptions.inc.php.
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
 
-	    parent::__construct();
 	    self::initGameStateLabels( array(
 	            "currentHandType" => 10,
 	            "trickColor" => 11,
@@ -45,21 +48,33 @@ class TexasFortyTwo extends Table {
 	    $this->cards->init( "card" );
 	}
 
-    protected function getGameName( )
-    {
+  protected function getGameName() {
 		// Used for translations and stuff. Please do not modify.
-        return "texasfortytwo";
-    }
+    return "texasfortytwo";
+  }
 
-    /*
-        setupNewGame:
+  // Called once, when a new game is launched. Initializes game state.
+  protected function setupNewGame($players, $options = array()) {
+		// Create the deck of dominoes.
+		const NUM_SUITS = 7;
+		$deck = array();
+		for ($suit = 0; $suit < NUM_SUITS; ++$suit) {
+			for ($rank = 0, $rank <= $suit; ++$rank) {
+				$domino = array('type' => $suit, 'type_arg' => $rank, 'nbr' => 1)
+				array_push($deck, $domino);
+			}
+		}
+		$this->dominoes->createCards($deck, 'deck');
 
-        This method is called only once, when a new game is launched.
-        In this method, you must setup the game according to the game rules, so that
-        the game is ready to be played.
-    */
-    protected function setupNewGame( $players, $options = array() )
-    {
+		// Shuffle deck
+		$this->cards->shuffle('deck');
+		// Deal 13 cards to each players
+		$players = self::loadPlayersBasicInfos();
+		foreach ( $players as $player_id => $player ) {
+				$cards = $this->cards->pickCards(13, 'deck', $player_id);
+		}
+
+		// TODO(isherman): Everything below is from Hearts. Delete it?
         // Set the colors of the players with HTML color code
         // The default below is red/green/blue/orange/brown
         // The number of colors defined here must correspond to the maximum number of players allowed for the gams
