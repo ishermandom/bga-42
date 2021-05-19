@@ -61,7 +61,7 @@ class TexasFortyTwo extends Table {
 		$deck = array();
 		for ($high = 0; $high < $NUM_SUITS; ++$high) {
 			for ($low = 0; $low <= $high; ++$low) {
-				$domino = array('high' => $high, 'low' => $low, 'nbr' => 1);
+				$domino = array('type' => 'unused', 'type_arg' => 0, 'high' => $high, 'low' => $low, 'nbr' => 1);
 				$deck[] = $domino;
 			}
 		}
