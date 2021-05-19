@@ -69,9 +69,8 @@ function (dojo, declare) {
             // Cards in player's hand
             for (let i in this.gamedatas.dominoesinhandtho) {
                 const card = this.gamedatas.dominoesinhandtho[i];
-                console.log(card);
-                const high = card.high;
-                const low = card.low;
+                const high = parseInt(card.high);
+                const low = parseInt(card.low);
                 this.playerHand.addToStockWithId(this.getCardUniqueId(high, low), card.id);
             }
 
