@@ -59,7 +59,7 @@ class TexasFortyTwo extends Table {
 		$NUM_SUITS = 7;
 		$deck = array();
 		for ($high = 0; $high < $NUM_SUITS; ++$high) {
-			for ($low = 0, $low <= $high; ++$low) {
+			for ($low = 0; $low <= $high; ++$low) {
 				$domino = array('high' => $high, 'low' => $low, 'nbr' => 1)
 				array_push($deck, $domino);
 			}
