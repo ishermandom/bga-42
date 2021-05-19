@@ -169,6 +169,14 @@ class TexasFortyTwo extends Table {
 				$result['alldominoes'] = self::getCollectionFromDb(
 					"SELECT card_id id, high, low FROM dominoes"
 				);
+				$get_id = function($domino) {
+						return $domino['id'];	
+				};
+				$ids = array_map($get_id, $result['alldominoes']);
+				$ids_list = join(',', $ids);
+				$result['dominoesinhandtho'] = self::getCollectionFromDb(
+					"SELECT card_id id, high, low FROM dominoes WHERE id IN ($ids_list)");
+
 
         // Cards played on the table
         $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );
