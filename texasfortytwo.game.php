@@ -56,9 +56,9 @@ class TexasFortyTwo extends Table {
   // Called once, when a new game is launched. Initializes game state.
   protected function setupNewGame($players, $options = array()) {
 		// Create the deck of dominoes.
-		const NUM_SUITS = 7;
+		$NUM_SUITS = 7;
 		$deck = array();
-		for ($high = 0; $high < NUM_SUITS; ++$high) {
+		for ($high = 0; $high < $NUM_SUITS; ++$high) {
 			for ($low = 0, $low <= $high; ++$low) {
 				$domino = array('high' => $high, 'low' => $low, 'nbr' => 1)
 				array_push($deck, $domino);
