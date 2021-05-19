@@ -166,6 +166,9 @@ class TexasFortyTwo extends Table {
         // Cards in player hand
         $result['hand'] = $this->cards->getCardsInLocation( 'hand', $current_player_id );
 				$result['dominohand'] = $this->dominoes->getCardsInLocation( 'hand', $current_player_id );
+				$result['alldominoes'] = self::getCollectionFromDb(
+					"SELECT card_id id, high, low FROM dominoes"
+				);
 
         // Cards played on the table
         $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );
