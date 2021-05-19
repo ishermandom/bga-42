@@ -101,9 +101,11 @@ class TexasFortyTwo extends Table {
 				for ($high = 0; $high < $NUM_SUITS; ++$high) {
 					for ($low = 0; $low <= $high; ++$low) {
 						$domino = array('type' => 'unused', 'type_arg' => 0, 'high' => $high, 'low' => $low, 'nbr' => 1);
+						$sql = "INSERT INTO dominoes (high, low) values ($high, $low)";
 						$deck[] = $domino;
 					}
 				}
+        $result['players'] = self::getCollectionFromDb( $sql );
 				$this->dominoes->createCards($deck, 'deck');
 
 				// Shuffle and deal dominoes.
@@ -170,12 +172,12 @@ class TexasFortyTwo extends Table {
 					"SELECT card_id id, high, low FROM dominoes"
 				);
 				$get_id = function($domino) {
-						return $domino['id'];	
+						return $domino['id'];
 				};
-				$ids = array_map($get_id, $result['alldominoes']);
+				$ids = array_map($get_id, $result['dominohand']);
 				$ids_list = join(',', $ids);
 				$result['dominoesinhandtho'] = self::getCollectionFromDb(
-					"SELECT card_id id, high, low FROM dominoes WHERE id IN ($ids_list)");
+					"SELECT card_id id, high, low FROM dominoes WHERE card_id IN ($ids_list)");
 
 
         // Cards played on the table
