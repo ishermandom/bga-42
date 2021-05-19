@@ -56,25 +56,6 @@ class TexasFortyTwo extends Table {
 
   // Called once, when a new game is launched. Initializes game state.
   protected function setupNewGame($players, $options = array()) {
-		// Create the deck of dominoes.
-		$NUM_SUITS = 7;
-		$deck = array();
-		for ($high = 0; $high < $NUM_SUITS; ++$high) {
-			for ($low = 0; $low <= $high; ++$low) {
-				$domino = array('type' => 'unused', 'type_arg' => 0, 'high' => $high, 'low' => $low, 'nbr' => 1);
-				$deck[] = $domino;
-			}
-		}
-		$this->dominoes->createCards($deck, 'deck');
-
-		// Shuffle and deal dominoes.
-		$hand_size = count($deck) / count($players);
-		$this->dominoes->shuffle('deck');
-		$players = self::loadPlayersBasicInfos();
-		foreach ($players as $player_id => $player) {
-			$this->dominoes->pickCards($hand_size, 'deck', $player_id);
-		}
-
 		// TODO(isherman): Everything below is from Hearts. Delete it?
         // Set the colors of the players with HTML color code
         // The default below is red/green/blue/orange/brown
@@ -113,6 +94,27 @@ class TexasFortyTwo extends Table {
 
         // Init game statistics
         // (note: statistics are defined in your stats.inc.php file)
+
+				// Create the deck of dominoes.
+				$NUM_SUITS = 7;
+				$deck = array();
+				for ($high = 0; $high < $NUM_SUITS; ++$high) {
+					for ($low = 0; $low <= $high; ++$low) {
+						$domino = array('type' => 'unused', 'type_arg' => 0, 'high' => $high, 'low' => $low, 'nbr' => 1);
+						$deck[] = $domino;
+					}
+				}
+				$this->dominoes->createCards($deck, 'deck');
+
+				// Shuffle and deal dominoes.
+				$hand_size = count($deck) / count($players);
+				assert($hand_size == 7);
+				$this->dominoes->shuffle('deck');
+				$players = self::loadPlayersBasicInfos();
+				foreach ($players as $player_id => $player) {
+					$this->dominoes->pickCards($hand_size, 'deck', $player_id);
+				}
+
 
         // Create cards
         $cards = array ();
