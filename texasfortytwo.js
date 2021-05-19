@@ -46,6 +46,7 @@ function (dojo, declare) {
 
         setup : function(gamedatas) {
             console.log("Starting game setup");
+            console.log(this.gamedatas);
 
             // Player hand
             this.playerHand = new ebg.stock();

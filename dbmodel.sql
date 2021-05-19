@@ -35,9 +35,13 @@ CREATE TABLE IF NOT EXISTS `card` (
 -- Note: The schema is defined by https://en.doc.boardgamearena.com/Deck
 CREATE TABLE IF NOT EXISTS `dominoes` (
   `card_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  -- TODO(isherman): Can we just drop these fields?
   `card_type` varchar(16) NOT NULL,
   `card_type_arg` int(11) NOT NULL,
   `card_location` varchar(16) NOT NULL,
   `card_location_arg` int(11) NOT NULL,
+  -- TODO(isherman): We probably don't need 11 whosamawhatsits for the pips
+  `high` int(11) NOT NULL,
+  `low` int(11) NOT NULL,
   PRIMARY KEY (`card_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;

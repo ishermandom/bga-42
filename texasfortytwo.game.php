@@ -58,20 +58,20 @@ class TexasFortyTwo extends Table {
 		// Create the deck of dominoes.
 		const NUM_SUITS = 7;
 		$deck = array();
-		for ($suit = 0; $suit < NUM_SUITS; ++$suit) {
-			for ($rank = 0, $rank <= $suit; ++$rank) {
-				$domino = array('type' => $suit, 'type_arg' => $rank, 'nbr' => 1)
+		for ($high = 0; $high < NUM_SUITS; ++$high) {
+			for ($low = 0, $low <= $high; ++$low) {
+				$domino = array('high' => $high, 'low' => $low, 'nbr' => 1)
 				array_push($deck, $domino);
 			}
 		}
 		$this->dominoes->createCards($deck, 'deck');
 
-		// Shuffle deck
-		$this->cards->shuffle('deck');
-		// Deal 13 cards to each players
+		// Shuffle and deal dominoes.
+		$hand_size = count($deck) / count($players);
+		$this->dominoes->shuffle('deck');
 		$players = self::loadPlayersBasicInfos();
-		foreach ( $players as $player_id => $player ) {
-				$cards = $this->cards->pickCards(13, 'deck', $player_id);
+		foreach ($players as $player_id => $player) {
+			$this->dominoes->pickCards($hand_size, 'deck', $player_id);
 		}
 
 		// TODO(isherman): Everything below is from Hearts. Delete it?
@@ -162,6 +162,7 @@ class TexasFortyTwo extends Table {
 
         // Cards in player hand
         $result['hand'] = $this->cards->getCardsInLocation( 'hand', $current_player_id );
+				$result['dominohand'] = $this->dominoes->getCardsInLocation( 'hand', $current_player_id );
 
         // Cards played on the table
         $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );
