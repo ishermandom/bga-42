@@ -61,7 +61,7 @@ function (dojo, declare) {
                 for (let low = 0; low <= high; low++) {
                     // Build card type id
                     const card_type_id = this.getCardUniqueId(high, low);
-                    this.playerHand.addItemType(card_type_id, card_type_id, g_gamethemeurl + 'img/cards.jpg', card_type_id);
+                    this.playerHand.addItemType(card_type_id, card_type_id, g_gamethemeurl + 'img/Dominoes.jpg', card_type_id);
                 }
             }
 
