@@ -60,18 +60,18 @@ function (dojo, declare) {
             for (let high = 0; high < 7; high++) {
                 for (let low = 0; low <= high; low++) {
                     // Build card type id
-                    const card_type_id = getCardUniqueId(high, low);
+                    const card_type_id = this.getCardUniqueId(high, low);
                     this.playerHand.addItemType(card_type_id, card_type_id, g_gamethemeurl + 'img/cards.jpg', card_type_id);
                 }
             }
 
 
             // Cards in player's hand
-            for ( var i in this.gamedatas.hand) {
-                var card = this.gamedatas.hand[i];
-                var color = card.type;
-                var value = card.type_arg;
-                this.playerHand.addToStockWithId(this.getCardUniqueId(color, value), card.id);
+            for (let i in this.gamedatas.dominoesinhandtho) {
+                const card = this.gamedatas.dominoesinhandtho[i];
+                const high = card.high;
+                const low = card.low;
+                this.playerHand.addToStockWithId(this.getCardUniqueId(high, low), card.id);
             }
 
             // Cards played on table
