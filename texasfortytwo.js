@@ -75,13 +75,13 @@ function (dojo, declare) {
             }
 
             // Cards played on table
-            for (i in this.gamedatas.cardsontable) {
-                var card = this.gamedatas.cardsontable[i];
-                var color = card.type;
-                var value = card.type_arg;
-                var player_id = card.location_arg;
-                this.playCardOnTable(player_id, color, value, card.id);
-            }
+            // for (i in this.gamedatas.cardsontable) {
+            //     var card = this.gamedatas.cardsontable[i];
+            //     var color = card.type;
+            //     var value = card.type_arg;
+            //     var player_id = card.location_arg;
+            //     this.playCardOnTable(player_id, color, value, card.id);
+            // }
 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
