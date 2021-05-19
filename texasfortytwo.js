@@ -26,8 +26,9 @@ function (dojo, declare) {
         constructor: function(){
             console.log('hearts constructor');
 
-            this.cardwidth = 72;
-            this.cardheight = 96;
+            //(jturner) updated, pending testing
+            this.cardwidth = 190;
+            this.cardheight = 100;
         },
 
         /*
@@ -51,15 +52,15 @@ function (dojo, declare) {
             // Player hand
             this.playerHand = new ebg.stock();
             this.playerHand.create(this, $('myhand'), this.cardwidth, this.cardheight);
-            this.playerHand.image_items_per_row = 13;
+            this.playerHand.image_items_per_row = 7;
 
             dojo.connect( this.playerHand, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );
 
             // Create cards types:
-            for (var color = 1; color <= 4; color++) {
-                for (var value = 2; value <= 14; value++) {
+            for (let high = 0; high < 7; high++) {
+                for (let low = 0; low <= high; low++) {
                     // Build card type id
-                    var card_type_id = this.getCardUniqueId(color, value);
+                    const card_type_id = getCardUniqueId(high, low);
                     this.playerHand.addItemType(card_type_id, card_type_id, g_gamethemeurl + 'img/cards.jpg', card_type_id);
                 }
             }
@@ -181,8 +182,20 @@ function (dojo, declare) {
 
         */
         // Get card unique identifier based on its color and value
-        getCardUniqueId : function(color, value) {
-            return (color - 1) * 13 + (value - 2);
+        getCardUniqueId : function(big, little) {
+          console.log((big * (big + 1)) / 2 + little);
+          let count = 0;
+          for (let high = 0; high < 7; high++) {
+              for (let low = 0; low <= high; low++) {
+                  if (high === big && low === little) {
+                    console.log(count);
+                    return count;
+                  }
+                  // Build card type id
+                  count++;
+              }
+          }
+          return count;
         },
 
 
@@ -291,6 +304,7 @@ function (dojo, declare) {
             // We received a new full hand of 13 cards.
             this.playerHand.removeAll();
 
+            console.log(notif.args.cards);
             for ( var i in notif.args.cards) {
                 var card = notif.args.cards[i];
                 var color = card.type;
