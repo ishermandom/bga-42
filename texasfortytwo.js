@@ -69,6 +69,7 @@ function (dojo, declare) {
             // Cards in player's hand
             for (let i in this.gamedatas.dominoesinhandtho) {
                 const card = this.gamedatas.dominoesinhandtho[i];
+                console.log(card);
                 const high = card.high;
                 const low = card.low;
                 this.playerHand.addToStockWithId(this.getCardUniqueId(high, low), card.id);
@@ -307,9 +308,9 @@ function (dojo, declare) {
             console.log(notif.args.cards);
             for ( var i in notif.args.cards) {
                 var card = notif.args.cards[i];
-                var color = card.type;
-                var value = card.type_arg;
-                this.playerHand.addToStockWithId(this.getCardUniqueId(color, value), card.id);
+                // var color = card.type;
+                // var value = card.type_arg;
+                // this.playerHand.addToStockWithId(this.getCardUniqueId(color, value), card.id);
             }
         },
 
