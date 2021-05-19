@@ -101,7 +101,7 @@ class TexasFortyTwo extends Table {
 				for ($high = 0; $high < $NUM_SUITS; ++$high) {
 					for ($low = 0; $low <= $high; ++$low) {
 						//$domino = array('type' => 'unused', 'type_arg' => 0, 'high' => $high, 'low' => $low, 'nbr' => 1);
-						$sql = "INSERT INTO dominoes (high, low, location, location_arg, type, type_arg) values ($high, $low, 'deck', 0, '', 0)";
+						$sql = "INSERT INTO dominoes (high, low, card_location, card_location_arg, card_type, card_type_arg) values ($high, $low, 'deck', 0, '', 0)";
 						self::DbQuery($sql);
 						//$deck[] = $domino;
 					}
