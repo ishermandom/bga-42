@@ -27,7 +27,7 @@ function (dojo, declare) {
             console.log('hearts constructor');
 
             //(jturner) updated, pending testing
-            this.cardwidth = 193;
+            this.cardwidth = 194;
             this.cardheight = 104;
         },
 

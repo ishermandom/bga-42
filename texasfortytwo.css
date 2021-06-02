@@ -89,7 +89,7 @@
     display: inline-block;
     position: relative;
     margin-top: 5px;
-    width: 193px;
+    width: 194px;
     height: 104px;
 }
 
@@ -98,7 +98,7 @@
 .cardontable {
     position: absolute;
     /** TODO(isherman): Update these values. */
-    width: 193px;
+    width: 194px;
     height: 104px;
     background-image: url('img/Dominoes.jpeg');
 }
