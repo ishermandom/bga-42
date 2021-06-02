@@ -111,30 +111,8 @@ class TexasFortyTwo extends Table {
 					$this->dominoes->pickCards($hand_size, 'deck', $player_id);
 				}
 
-
-        // Create cards
-        $cards = array ();
-        foreach ( $this->colors as $color_id => $color ) {
-            // spade, heart, diamond, club
-            for ($value = 2; $value <= 14; $value ++) {
-                //  2, 3, 4, ... K, A
-                $cards [] = array ('type' => $color_id,'type_arg' => $value,'nbr' => 1 );
-            }
-        }
-
-        $this->dominoes->createCards( $cards, 'deck' );
-
-        // Shuffle deck
-        $this->dominoes->shuffle('deck');
-        // Deal 13 cards to each players
-        $players = self::loadPlayersBasicInfos();
-        foreach ( $players as $player_id => $player ) {
-            $cards = $this->dominoes->pickCards(13, 'deck', $player_id);
-        }
-
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
-
 
         /************ End of the game initialization *****/
     }
