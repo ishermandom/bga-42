@@ -43,10 +43,6 @@ class TexasFortyTwo extends Table {
 	            //      ...
 	            //    "my_first_game_variant" => 100,
 	    ) );
-
-			// (jturner) If these two lines are the same as your domioes deck above, can we safely delete them?
-	    $this->dominoes = self::getNew( "module.common.deck" );
-	    $this->dominoes->init( "card" );
 	}
 
   protected function getGameName() {
