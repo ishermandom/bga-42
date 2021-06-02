@@ -90,7 +90,7 @@
     position: relative;
     margin-top: 5px;
     width: 194px;
-    height: 103px;
+    height: 104px;
 }
 
 /*** cards on table ***/
@@ -99,6 +99,6 @@
     position: absolute;
     /** TODO(isherman): Update these values. */
     width: 194px;
-    height: 103px;
-    background-image: url('img/Dominoes.jpeg');
+    height: 104px;
+    background-image: url("img/dominos.png");
 }
