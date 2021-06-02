@@ -28,7 +28,7 @@ function (dojo, declare) {
 
             //(jturner) updated, pending testing
             this.cardwidth = 194;
-            this.cardheight = 104;
+            this.cardheight = 103;
         },
 
         /*
