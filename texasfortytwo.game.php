@@ -239,8 +239,9 @@ class TexasFortyTwo extends Table {
         // Deal 13 cards to each players
         // Create deck, shuffle it and give 13 initial cards
         $players = self::loadPlayersBasicInfos();
+				$hand_size = 7; // count($deck) / count($players);
         foreach ( $players as $player_id => $player ) {
-            $cards = $this->dominoes->pickCards(13, 'deck', $player_id);
+            $cards = $this->dominoes->pickCards($hand_size, 'deck', $player_id);
             // Notify player about his cards
             self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards ));
         }
