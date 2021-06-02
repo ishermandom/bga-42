@@ -38,8 +38,9 @@ class TexasFortyTwo extends Table {
 
 	    self::initGameStateLabels( array(
 	            "currentHandType" => 10,
-	            "trickColor" => 11,
 	            "alreadyPlayedHearts" => 12,
+	            "trump" => 0,
+	            "trickSuit" => 0,
 	            //      ...
 	            //    "my_first_game_variant" => 100,
 	    ) );
@@ -87,7 +88,7 @@ class TexasFortyTwo extends Table {
         self::setGameStateInitialValue( 'currentHandType', 0 );
 
         // Set current trick color to zero (= no trick color)
-        self::setGameStateInitialValue( 'trickColor', 0 );
+        self::setGameStateInitialValue( 'trickSuit', 0 );
 
         // Mark if we already played some heart during this hand
         self::setGameStateInitialValue( 'alreadyPlayedHearts', 0 );
@@ -114,27 +115,6 @@ class TexasFortyTwo extends Table {
 				foreach ($players as $player_id => $player) {
 					$this->dominoes->pickCards($hand_size, 'deck', $player_id);
 				}
-
-
-        // Create cards
-        $cards = array ();
-        foreach ( $this->colors as $color_id => $color ) {
-            // spade, heart, diamond, club
-            for ($value = 2; $value <= 14; $value ++) {
-                //  2, 3, 4, ... K, A
-                $cards [] = array ('type' => $color_id,'type_arg' => $value,'nbr' => 1 );
-            }
-        }
-
-        $this->dominoes->createCards( $cards, 'deck' );
-
-        // Shuffle deck
-        $this->dominoes->shuffle('deck');
-        // Deal 13 cards to each players
-        $players = self::loadPlayersBasicInfos();
-        foreach ( $players as $player_id => $player ) {
-            $cards = $this->dominoes->pickCards(13, 'deck', $player_id);
-        }
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -220,13 +200,15 @@ class TexasFortyTwo extends Table {
         $this->dominoes->moveCard($card_id, 'cardsontable', $player_id);
 				$currentCard = self::getCollectionFromDb(
 					"SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id")[0];
+					printf("currentCard: [%d, %d, %d], %d\n",
+								 $currentCard->id, $currentCard->high, $currentCard->low, $currentCard);
 
         // XXX check rules here
         // Set the trick color if it hasn't been set yet
-        $currentTrickColor = self::getGameStateValue( 'trickColor' ) ;
-        if( $currentTrickColor == 0 )
+        $currentTrickSuit = self::getGameStateValue( 'trickSuit' ) ;
+        if( $currentTrickSuit == 0 )
 						// TODO(sdspikes): if it's trump, use trump
-            self::setGameStateValue( 'trickColor', $currentCard['high'] );
+            self::setGameStateValue( 'trickSuit', $currentCard['high'] );
         // And notify
         self::notifyAllPlayers('playCard', clienttranslate('${player_name} plays ${value_displayed} ${color_displayed}'), array (
                 'i18n' => array ('color_displayed','value_displayed' ),'card_id' => $card_id,'player_id' => $player_id,
@@ -277,7 +259,7 @@ class TexasFortyTwo extends Table {
     function stNewTrick() {
         // New trick: active the player who wins the last trick, or the player who own the club-2 card
         // Reset trick color to 0 (= no color)
-        self::setGameStateInitialValue('trickColor', 0);
+        self::setGameStateInitialValue('trickSuit', 0);
         $this->gamestate->nextState();
     }
 
@@ -288,10 +270,10 @@ class TexasFortyTwo extends Table {
             $cards_on_table = $this->dominoes->getCardsInLocation('cardsontable');
             $best_value = 0;
             $best_value_player_id = null;
-            $currentTrickColor = self::getGameStateValue('trickColor');
+            $currentTrickSuit = self::getGameStateValue('trickSuit');
             foreach ( $cards_on_table as $card ) {
                 // Note: type = card color
-                if ($card ['type'] == $currentTrickColor) {
+                if ($card ['type'] == $currentTrickSuit) {
                     if ($best_value_player_id === null || $card ['type_arg'] > $best_value) {
                         $best_value_player_id = $card ['location_arg']; // Note: location_arg = player who played this card on table
                         $best_value = $card ['type_arg']; // Note: type_arg = value of the card
