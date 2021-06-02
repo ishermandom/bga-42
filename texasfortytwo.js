@@ -210,9 +210,13 @@ define([
             const x = index % 7;
             const y = index / 7;
             dojo.place(
-                this.format_block("jstpl_cardontable", {x, y, player_id}),
+                this.format_block("jstpl_cardontable", {
+                  x: x,
+                  y: y,
+                  player_id: player_id
+                }),
                 "playertablecard_" + player_id
-            )
+            );
 
             if (player_id != this.player_id) {
                 // Some opponent played a card
