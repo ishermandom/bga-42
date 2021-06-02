@@ -21,9 +21,13 @@ require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 
 
 class TexasFortyTwo extends Table {
-
 	function __construct() {
+		parent::__construct();
 
+		$this->dominoes = self::getNew("module.common.deck");
+		$this->dominoes->init("dominoes");
+
+		// TODO(isherman): Everything below is from Hearts. Delete it?
 
         // Your global variables labels:
         //  Here, you can assign labels to global variables you are using for this game.
@@ -32,7 +36,6 @@ class TexasFortyTwo extends Table {
         //  the corresponding ID in gameoptions.inc.php.
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
 
-	    parent::__construct();
 	    self::initGameStateLabels( array(
 	            "currentHandType" => 10,
 	            "trickColor" => 11,
@@ -41,25 +44,19 @@ class TexasFortyTwo extends Table {
 	            //    "my_first_game_variant" => 100,
 	    ) );
 
+			// (jturner) If these two lines are the same as your domioes deck above, can we safely delete them?
 	    $this->cards = self::getNew( "module.common.deck" );
 	    $this->cards->init( "card" );
 	}
 
-    protected function getGameName( )
-    {
+  protected function getGameName() {
 		// Used for translations and stuff. Please do not modify.
-        return "texasfortytwo";
-    }
+    return "texasfortytwo";
+  }
 
-    /*
-        setupNewGame:
-
-        This method is called only once, when a new game is launched.
-        In this method, you must setup the game according to the game rules, so that
-        the game is ready to be played.
-    */
-    protected function setupNewGame( $players, $options = array() )
-    {
+  // Called once, when a new game is launched. Initializes game state.
+  protected function setupNewGame($players, $options = array()) {
+		// TODO(isherman): Everything below is from Hearts. Delete it?
         // Set the colors of the players with HTML color code
         // The default below is red/green/blue/orange/brown
         // The number of colors defined here must correspond to the maximum number of players allowed for the gams
@@ -97,6 +94,27 @@ class TexasFortyTwo extends Table {
 
         // Init game statistics
         // (note: statistics are defined in your stats.inc.php file)
+
+				// Create the deck of dominoes.
+				$NUM_SUITS = 7;
+				//$deck = array();
+				for ($high = 0; $high < $NUM_SUITS; ++$high) {
+					for ($low = 0; $low <= $high; ++$low) {
+						//$domino = array('type' => 'unused', 'type_arg' => 0, 'high' => $high, 'low' => $low, 'nbr' => 1);
+						$sql = "INSERT INTO dominoes (high, low, card_location, card_location_arg, card_type, card_type_arg) values ($high, $low, 'deck', 0, '', 0)";
+						self::DbQuery($sql);
+						//$deck[] = $domino;
+					}
+				}
+
+				// Shuffle and deal dominoes.
+				$hand_size = 7; // count($deck) / count($players);
+				$this->dominoes->shuffle('deck');
+				$players = self::loadPlayersBasicInfos();
+				foreach ($players as $player_id => $player) {
+					$this->dominoes->pickCards($hand_size, 'deck', $player_id);
+				}
+
 
         // Create cards
         $cards = array ();
@@ -147,6 +165,18 @@ class TexasFortyTwo extends Table {
 
         // Cards in player hand
         $result['hand'] = $this->cards->getCardsInLocation( 'hand', $current_player_id );
+				$result['dominohand'] = $this->dominoes->getCardsInLocation( 'hand', $current_player_id );
+				$result['alldominoes'] = self::getCollectionFromDb(
+					"SELECT card_id id, high, low FROM dominoes"
+				);
+				$get_id = function($domino) {
+						return $domino['id'];
+				};
+				$ids = array_map($get_id, $result['dominohand']);
+				$ids_list = join(',', $ids);
+				$result['dominoesinhandtho'] = self::getCollectionFromDb(
+					"SELECT card_id id, high, low FROM dominoes WHERE card_id IN ($ids_list)");
+
 
         // Cards played on the table
         $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );

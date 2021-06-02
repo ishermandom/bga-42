@@ -26,8 +26,9 @@ function (dojo, declare) {
         constructor: function(){
             console.log('hearts constructor');
 
-            this.cardwidth = 72;
-            this.cardheight = 96;
+            //(jturner) updated, pending testing
+            this.cardwidth = 193;
+            this.cardheight = 104;
         },
 
         /*
@@ -46,40 +47,41 @@ function (dojo, declare) {
 
         setup : function(gamedatas) {
             console.log("Starting game setup");
+            console.log(this.gamedatas);
 
             // Player hand
             this.playerHand = new ebg.stock();
             this.playerHand.create(this, $('myhand'), this.cardwidth, this.cardheight);
-            this.playerHand.image_items_per_row = 13;
+            this.playerHand.image_items_per_row = 7;
 
             dojo.connect( this.playerHand, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );
 
             // Create cards types:
-            for (var color = 1; color <= 4; color++) {
-                for (var value = 2; value <= 14; value++) {
+            for (let high = 0; high < 7; high++) {
+                for (let low = 0; low <= high; low++) {
                     // Build card type id
-                    var card_type_id = this.getCardUniqueId(color, value);
-                    this.playerHand.addItemType(card_type_id, card_type_id, g_gamethemeurl + 'img/cards.jpg', card_type_id);
+                    const card_type_id = this.getCardUniqueId(high, low);
+                    this.playerHand.addItemType(card_type_id, card_type_id, g_gamethemeurl + 'img/Dominoes.jpeg', card_type_id);
                 }
             }
 
 
             // Cards in player's hand
-            for ( var i in this.gamedatas.hand) {
-                var card = this.gamedatas.hand[i];
-                var color = card.type;
-                var value = card.type_arg;
-                this.playerHand.addToStockWithId(this.getCardUniqueId(color, value), card.id);
+            for (let i in this.gamedatas.dominoesinhandtho) {
+                const card = this.gamedatas.dominoesinhandtho[i];
+                const high = parseInt(card.high);
+                const low = parseInt(card.low);
+                this.playerHand.addToStockWithId(this.getCardUniqueId(high, low), card.id);
             }
 
             // Cards played on table
-            for (i in this.gamedatas.cardsontable) {
-                var card = this.gamedatas.cardsontable[i];
-                var color = card.type;
-                var value = card.type_arg;
-                var player_id = card.location_arg;
-                this.playCardOnTable(player_id, color, value, card.id);
-            }
+            // for (i in this.gamedatas.cardsontable) {
+            //     var card = this.gamedatas.cardsontable[i];
+            //     var color = card.type;
+            //     var value = card.type_arg;
+            //     var player_id = card.location_arg;
+            //     this.playCardOnTable(player_id, color, value, card.id);
+            // }
 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
@@ -180,8 +182,20 @@ function (dojo, declare) {
 
         */
         // Get card unique identifier based on its color and value
-        getCardUniqueId : function(color, value) {
-            return (color - 1) * 13 + (value - 2);
+        getCardUniqueId : function(big, little) {
+          console.log((big * (big + 1)) / 2 + little);
+          let count = 0;
+          for (let high = 0; high < 7; high++) {
+              for (let low = 0; low <= high; low++) {
+                  if (high === big && low === little) {
+                    console.log(count);
+                    return count;
+                  }
+                  // Build card type id
+                  count++;
+              }
+          }
+          return count;
         },
 
 
@@ -290,11 +304,12 @@ function (dojo, declare) {
             // We received a new full hand of 13 cards.
             this.playerHand.removeAll();
 
+            console.log(notif.args.cards);
             for ( var i in notif.args.cards) {
                 var card = notif.args.cards[i];
-                var color = card.type;
-                var value = card.type_arg;
-                this.playerHand.addToStockWithId(this.getCardUniqueId(color, value), card.id);
+                // var color = card.type;
+                // var value = card.type_arg;
+                // this.playerHand.addToStockWithId(this.getCardUniqueId(color, value), card.id);
             }
         },
 
