@@ -43,10 +43,6 @@ class TexasFortyTwo extends Table {
 	            //      ...
 	            //    "my_first_game_variant" => 100,
 	    ) );
-
-			// (jturner) If these two lines are the same as your domioes deck above, can we safely delete them?
-	    $this->cards = self::getNew( "module.common.deck" );
-	    $this->cards->init( "card" );
 	}
 
   protected function getGameName() {
@@ -115,30 +111,8 @@ class TexasFortyTwo extends Table {
 					$this->dominoes->pickCards($hand_size, 'deck', $player_id);
 				}
 
-
-        // Create cards
-        $cards = array ();
-        foreach ( $this->colors as $color_id => $color ) {
-            // spade, heart, diamond, club
-            for ($value = 2; $value <= 14; $value ++) {
-                //  2, 3, 4, ... K, A
-                $cards [] = array ('type' => $color_id,'type_arg' => $value,'nbr' => 1 );
-            }
-        }
-
-        $this->cards->createCards( $cards, 'deck' );
-
-        // Shuffle deck
-        $this->cards->shuffle('deck');
-        // Deal 13 cards to each players
-        $players = self::loadPlayersBasicInfos();
-        foreach ( $players as $player_id => $player ) {
-            $cards = $this->cards->pickCards(13, 'deck', $player_id);
-        }
-
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
-
 
         /************ End of the game initialization *****/
     }
@@ -164,7 +138,7 @@ class TexasFortyTwo extends Table {
         $result['players'] = self::getCollectionFromDb( $sql );
 
         // Cards in player hand
-        $result['hand'] = $this->cards->getCardsInLocation( 'hand', $current_player_id );
+        $result['hand'] = $this->dominoes->getCardsInLocation( 'hand', $current_player_id );
 				$result['dominohand'] = $this->dominoes->getCardsInLocation( 'hand', $current_player_id );
 				$result['alldominoes'] = self::getCollectionFromDb(
 					"SELECT card_id id, high, low FROM dominoes"
@@ -179,7 +153,7 @@ class TexasFortyTwo extends Table {
 
 
         // Cards played on the table
-        $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );
+        $result['cardsontable'] = $this->dominoes->getCardsInLocation( 'cardsontable' );
 
         return $result;
     }
@@ -217,19 +191,29 @@ class TexasFortyTwo extends Table {
     function playCard($card_id) {
         self::checkAction("playCard");
         $player_id = self::getActivePlayerId();
-        $this->cards->moveCard($card_id, 'cardsontable', $player_id);
-        $currentCard = $this->cards->getCard($card_id);
+        $this->dominoes->moveCard($card_id, 'cardsontable', $player_id);
+				$currentCard = self::getCollectionFromDb(
+					"SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id")[$card_id];
+				self::debug("currentCard [%d, %d, %d]\n", $currentCard['id'], $currentCard['low'], $currentCard['high']);
+				print_r($currentCard);
+
         // XXX check rules here
         // Set the trick color if it hasn't been set yet
         $currentTrickColor = self::getGameStateValue( 'trickColor' ) ;
         if( $currentTrickColor == 0 )
-            self::setGameStateValue( 'trickColor', $currentCard['type'] );
+						// TODO(sdspikes): if it's trump, use trump
+            self::setGameStateValue( 'trickColor', $currentCard['high'] );
         // And notify
-        self::notifyAllPlayers('playCard', clienttranslate('${player_name} plays ${value_displayed} ${color_displayed}'), array (
-                'i18n' => array ('color_displayed','value_displayed' ),'card_id' => $card_id,'player_id' => $player_id,
-                'player_name' => self::getActivePlayerName(),'value' => $currentCard ['type_arg'],
-                'value_displayed' => $this->values_label [$currentCard ['type_arg']],'color' => $currentCard ['type'],
-                'color_displayed' => $this->colors [$currentCard ['type']] ['name'] ));
+        self::notifyAllPlayers('playCard',
+								clienttranslate('${player_name} plays the ${high} : ${low}'), array (
+                // 'i18n' => array ('color_displayed','value_displayed' ),
+								'card_id' => $card_id,
+								'player_id' => $player_id,
+                'player_name' => self::getActivePlayerName(),
+								'high' => $currentCard['high'],
+								'low' => $currentCard['low']));
+                // 'value_displayed' => $this->values_label [$currentCard ['type_arg']],'color' => $currentCard ['type'],
+                // 'color_displayed' => $this->colors [$currentCard ['type']] ['name'] ));
         // Next player
         $this->gamestate->nextState('playCard');
     }
@@ -255,13 +239,14 @@ class TexasFortyTwo extends Table {
      */
     function stNewHand() {
         // Take back all cards (from any location => null) to deck
-        $this->cards->moveAllCardsInLocation(null, "deck");
-        $this->cards->shuffle('deck');
+        $this->dominoes->moveAllCardsInLocation(null, "deck");
+        $this->dominoes->shuffle('deck');
         // Deal 13 cards to each players
         // Create deck, shuffle it and give 13 initial cards
         $players = self::loadPlayersBasicInfos();
+				$hand_size = 7; // count($deck) / count($players);
         foreach ( $players as $player_id => $player ) {
-            $cards = $this->cards->pickCards(13, 'deck', $player_id);
+            $cards = $this->dominoes->pickCards($hand_size, 'deck', $player_id);
             // Notify player about his cards
             self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards ));
         }
@@ -278,9 +263,9 @@ class TexasFortyTwo extends Table {
 
     function stNextPlayer() {
         // Active next player OR end the trick and go to the next trick OR end the hand
-        if ($this->cards->countCardInLocation('cardsontable') == 4) {
+        if ($this->dominoes->countCardInLocation('cardsontable') == 4) {
             // This is the end of the trick
-            $cards_on_table = $this->cards->getCardsInLocation('cardsontable');
+            $cards_on_table = $this->dominoes->getCardsInLocation('cardsontable');
             $best_value = 0;
             $best_value_player_id = null;
             $currentTrickColor = self::getGameStateValue('trickColor');
@@ -298,7 +283,7 @@ class TexasFortyTwo extends Table {
             $this->gamestate->changeActivePlayer( $best_value_player_id );
 
             // Move all cards to "cardswon" of the given player
-            $this->cards->moveAllCardsInLocation('cardsontable', 'cardswon', null, $best_value_player_id);
+            $this->dominoes->moveAllCardsInLocation('cardsontable', 'cardswon', null, $best_value_player_id);
 
             // Notify
             // Note: we use 2 notifications here in order we can pause the display during the first notification
@@ -312,7 +297,7 @@ class TexasFortyTwo extends Table {
                     'player_id' => $best_value_player_id
             ) );
 
-            if ($this->cards->countCardInLocation('hand') == 0) {
+            if ($this->dominoes->countCardInLocation('hand') == 0) {
                 // End of the hand
                 $this->gamestate->nextState("endHand");
             } else {
@@ -337,7 +322,7 @@ class TexasFortyTwo extends Table {
         foreach ( $players as $player_id => $player ) {
             $player_to_points [$player_id] = 0;
         }
-        $cards = $this->cards->getCardsInLocation("cardswon");
+        $cards = $this->dominoes->getCardsInLocation("cardswon");
         foreach ( $cards as $card ) {
             $player_id = $card ['location_arg'];
             // Note: 2 = heart
