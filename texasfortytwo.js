@@ -204,14 +204,13 @@ define([
             return count
         },
 
-        playCardOnTable: function(player_id, color, value, card_id) {
+        playCardOnTable: function(player_id, high, low, card_id) {
             // player_id => direction
+            const index = getCardUniqueId(high, low);
+            const x = index % 7;
+            const y = index / 7;
             dojo.place(
-                this.format_block("jstpl_cardontable", {
-                    x: this.cardwidth * (value - 2),
-                    y: this.cardheight * (color - 1),
-                    player_id: player_id
-                }),
+                this.format_block("jstpl_cardontable", {x, y, player_id}),
                 "playertablecard_" + player_id
             )
 
