@@ -193,8 +193,8 @@ class TexasFortyTwo extends Table {
         $player_id = self::getActivePlayerId();
         $this->dominoes->moveCard($card_id, 'cardsontable', $player_id);
 				$currentCard = self::getCollectionFromDb(
-					"SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id")[0];
-				printf("currentCard [%d, %d, %d]\n", $currentCard->id, $currentCard->low, $currentCard->high);
+					"SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id");
+				self::debug("currentCard [%d, %d, %d]\n", $currentCard->id, $currentCard->low, $currentCard->high);
 				print_r($currentCard);
 
         // XXX check rules here
