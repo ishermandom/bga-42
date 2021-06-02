@@ -206,7 +206,7 @@ define([
 
         playCardOnTable: function(player_id, high, low, card_id) {
             // player_id => direction
-            const index = getCardUniqueId(high, low);
+            const index = this.getCardUniqueId(high, low);
             const x = index % 7;
             const y = index / 7;
             dojo.place(
