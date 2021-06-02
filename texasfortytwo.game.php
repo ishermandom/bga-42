@@ -194,7 +194,7 @@ class TexasFortyTwo extends Table {
         $this->dominoes->moveCard($card_id, 'cardsontable', $player_id);
 				$currentCard = self::getCollectionFromDb(
 					"SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id");
-				self::debug("currentCard [%d, %d, %d]\n", $currentCard->id, $currentCard->low, $currentCard->high);
+				self::debug("currentCard [%d, %d, %d]\n", $currentCard->id, $currentCard->low, $currentCard->high)[$card_id];
 				print_r($currentCard);
 
         // XXX check rules here
@@ -204,11 +204,14 @@ class TexasFortyTwo extends Table {
 						// TODO(sdspikes): if it's trump, use trump
             self::setGameStateValue( 'trickColor', $currentCard['high'] );
         // And notify
-        self::notifyAllPlayers('playCard', clienttranslate('${player_name} plays ${value_displayed} ${color_displayed}'), array (
-                'i18n' => array ('color_displayed','value_displayed' ),'card_id' => $card_id,'player_id' => $player_id,
-                'player_name' => self::getActivePlayerName(),'value' => $currentCard ['type_arg'],
-								'high' => $currentCard['type'],
-								'low' => $currentCard['type_arg']));
+        self::notifyAllPlayers('playCard',
+								clienttranslate('${player_name} plays the ${high} : ${low}'), array (
+                // 'i18n' => array ('color_displayed','value_displayed' ),
+								'card_id' => $card_id,
+								'player_id' => $player_id,
+                'player_name' => self::getActivePlayerName(),
+								'high' => $currentCard['high'],
+								'low' => $currentCard['low']));
                 // 'value_displayed' => $this->values_label [$currentCard ['type_arg']],'color' => $currentCard ['type'],
                 // 'color_displayed' => $this->colors [$currentCard ['type']] ['name'] ));
         // Next player
