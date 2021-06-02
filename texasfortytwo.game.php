@@ -225,7 +225,8 @@ class TexasFortyTwo extends Table {
         // Set the trick color if it hasn't been set yet
         $currentTrickColor = self::getGameStateValue( 'trickColor' ) ;
         if( $currentTrickColor == 0 )
-            self::setGameStateValue( 'trickColor', $currentCard['type'] );
+						// TODO(sdspikes): if it's trump, use trump
+            self::setGameStateValue( 'trickColor', $currentCard['high'] );
         // And notify
         self::notifyAllPlayers('playCard', clienttranslate('${player_name} plays ${value_displayed} ${color_displayed}'), array (
                 'i18n' => array ('color_displayed','value_displayed' ),'card_id' => $card_id,'player_id' => $player_id,
