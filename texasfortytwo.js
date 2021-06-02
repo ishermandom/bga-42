@@ -211,9 +211,9 @@ define([
             const y = index / 7;
             dojo.place(
                 this.format_block("jstpl_cardontable", {
-                  x: x,
-                  y: y,
-                  player_id: player_id
+                  x: x * this.cardwidth,
+                  y: y * this.cardheight,
+                  player_id: player_id,
                 }),
                 "playertablecard_" + player_id
             );
