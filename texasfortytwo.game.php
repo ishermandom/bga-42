@@ -1,24 +1,20 @@
 <?php
  /**
   *------
-  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
-  * template implementation : © <Your name here> <Your email address here>
-  *
-  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
-  * See http://en.boardgamearena.com/#!doc/Studio for more information.
+  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> &
+	*                  Emmanuel Colin <ecolin@boardgamearena.com>
+	* Texas 42 implementation: © Stardust Spikes <sdspikes@cs.stanford.edu> &
+	*                            Jason Turner-Maier <jasonptm@gmail.com> &
+	*                            Ilya Sherman <ishermandom@gmail.com>
+  * This code has been produced on the BGA studio platform for use on
+	* http://boardgamearena.com. See http://en.boardgamearena.com/#!doc/Studio
+	* for more information.
   * -----
   *
-  * heartsla.game.php
-  *
-  * This is the main file for your game logic.
-  *
-  * In this PHP file, you are going to defines the rules of the game.
-  *
+  * The main file defining the game rules and logic.
   */
 
-
 require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
-
 
 class TexasFortyTwo extends Table {
 	function __construct() {
@@ -76,13 +72,13 @@ class TexasFortyTwo extends Table {
         //                   1 = give 3 cards to player on the right
         //                   2 = give 3 cards to player on tthe front
         //                   3 = keep cards
-        self::setGameStateInitialValue( 'currentHandType', 0 );
+        //self::setGameStateInitialValue( 'currentHandType', 0 );
 
         // Set current trick color to zero (= no trick color)
-        self::setGameStateInitialValue( 'trickColor', 0 );
+        //self::setGameStateInitialValue( 'trickColor', 0 );
 
         // Mark if we already played some heart during this hand
-        self::setGameStateInitialValue( 'alreadyPlayedHearts', 0 );
+        //self::setGameStateInitialValue( 'alreadyPlayedHearts', 0 );
 
         // Init game statistics
         // (note: statistics are defined in your stats.inc.php file)
@@ -195,10 +191,10 @@ class TexasFortyTwo extends Table {
 
         // XXX check rules here
         // Set the trick color if it hasn't been set yet
-        $currentTrickColor = self::getGameStateValue( 'trickColor' ) ;
-        if( $currentTrickColor == 0 )
+        //$currentTrickColor = self::getGameStateValue( 'trickColor' ) ;
+        //if( $currentTrickColor == 0 )
 						// TODO(sdspikes): if it's trump, use trump
-            self::setGameStateValue( 'trickColor', $currentCard['high'] );
+            //self::setGameStateValue( 'trickColor', $currentCard['high'] );
         // And notify
         self::notifyAllPlayers('playCard',
 								clienttranslate('${player_name} plays the ${high} : ${low}'), array (
@@ -246,14 +242,14 @@ class TexasFortyTwo extends Table {
             // Notify player about his cards
             self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards ));
         }
-        self::setGameStateValue('alreadyPlayedHearts', 0);
+        //self::setGameStateValue('alreadyPlayedHearts', 0);
         $this->gamestate->nextState("");
     }
 
     function stNewTrick() {
         // New trick: active the player who wins the last trick, or the player who own the club-2 card
         // Reset trick color to 0 (= no color)
-        self::setGameStateInitialValue('trickColor', 0);
+        //self::setGameStateInitialValue('trickColor', 0);
         $this->gamestate->nextState();
     }
 
@@ -264,15 +260,15 @@ class TexasFortyTwo extends Table {
             $cards_on_table = $this->dominoes->getCardsInLocation('cardsontable');
             $best_value = 0;
             $best_value_player_id = null;
-            $currentTrickColor = self::getGameStateValue('trickColor');
+            //$currentTrickColor = self::getGameStateValue('trickColor');
             foreach ( $cards_on_table as $card ) {
                 // Note: type = card color
-                if ($card ['type'] == $currentTrickColor) {
-                    if ($best_value_player_id === null || $card ['type_arg'] > $best_value) {
-                        $best_value_player_id = $card ['location_arg']; // Note: location_arg = player who played this card on table
-                        $best_value = $card ['type_arg']; // Note: type_arg = value of the card
-                    }
-                }
+                // if ($card ['type'] == $currentTrickColor) {
+                //     if ($best_value_player_id === null || $card ['type_arg'] > $best_value) {
+                //         $best_value_player_id = $card ['location_arg']; // Note: location_arg = player who played this card on table
+                //         $best_value = $card ['type_arg']; // Note: type_arg = value of the card
+                //     }
+                // }
             }
 
             // Active this player => he's the one who starts the next trick
