@@ -22,26 +22,18 @@
 -- add info about first player
 ALTER TABLE `player` ADD `player_first` BOOLEAN NOT NULL DEFAULT '0';
 
-
-CREATE TABLE IF NOT EXISTS `card` (
-  `card_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `card_type` varchar(16) NOT NULL,
-  `card_type_arg` int(11) NOT NULL,
-  `card_location` varchar(16) NOT NULL,
-  `card_location_arg` int(11) NOT NULL,
-  PRIMARY KEY (`card_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- Note: The schema is defined by https://en.doc.boardgamearena.com/Deck
+-- Note: The base schema is defined by https://en.doc.boardgamearena.com/Deck.
 CREATE TABLE IF NOT EXISTS `dominoes` (
   `card_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  -- TODO(isherman): Can we just drop these fields?
+  -- The fields `card_type` and `card_type_arg` are unused, but are required to
+  -- exist due to the base schema. 42 instead uses `high` and `low` (below) to
+  -- represent the number of pips.
   `card_type` varchar(16) NOT NULL,
   `card_type_arg` int(11) NOT NULL,
   `card_location` varchar(16) NOT NULL,
   `card_location_arg` int(11) NOT NULL,
-  -- TODO(isherman): We probably don't need 11 whosamawhatsits for the pips
-  `high` int(11) NOT NULL,
-  `low` int(11) NOT NULL,
+  -- The number of pips on the higher and lower ends of the domino.
+  `high` tinyint(1) NOT NULL,
+  `low` tinyint(1) NOT NULL,
   PRIMARY KEY (`card_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;

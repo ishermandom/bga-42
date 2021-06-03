@@ -27,22 +27,18 @@ class TexasFortyTwo extends Table {
 		$this->dominoes = self::getNew("module.common.deck");
 		$this->dominoes->init("dominoes");
 
-		// TODO(isherman): Everything below is from Hearts. Delete it?
-
-        // Your global variables labels:
-        //  Here, you can assign labels to global variables you are using for this game.
-        //  You can use any number of global variables with IDs between 10 and 99.
-        //  If your game has options (variants), you also have to associate here a label to
-        //  the corresponding ID in gameoptions.inc.php.
-        // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
-
-	    self::initGameStateLabels( array(
-	            "currentHandType" => 10,
-	            "trickColor" => 11,
-	            "alreadyPlayedHearts" => 12,
-	            //      ...
-	            //    "my_first_game_variant" => 100,
-	    ) );
+    // Global variables used in the game. Must have IDs between 10 and 99.
+    // Game variants must be specified here as well, with ID set to match the
+		// corresponding ID in gameoptions.inc.php.
+    // Note: These variables can be accessed via
+		// getGameStateValue/setGameStateInitialValue/setGameStateValue
+    self::initGameStateLabels(array(
+			// TODO(isherman): Set some state here, e.g.:
+      // "winningBid" => 10,
+      // "trumpSuit" => 11,
+			// "trickSuit" => 12,
+      // "my_first_game_variant" => 100,
+    ));
 	}
 
   protected function getGameName() {
