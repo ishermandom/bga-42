@@ -150,7 +150,7 @@ class TexasFortyTwo extends Table {
 	private function getDominoesInLocation($location, $location_arg) {
 		$fields = 'card_id id, high, low, card_location_arg';
 		return self::getCollectionFromDb(
-		  	"SELECT $fields FROM dominoes WHERE card_location=$location AND card_location_arg=$location_arg");
+		  	"SELECT $fields FROM dominoes WHERE card_location='$location' AND card_location_arg=$location_arg");
 	}
 
   // Returns all game state visible to the current player.
