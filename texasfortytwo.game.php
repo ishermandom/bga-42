@@ -150,7 +150,7 @@ class TexasFortyTwo extends Table {
 	private function getDominoesInLocation($location, $location_arg) {
 		$cards = $this->dominoes->getCardsInLocation($location, $location_arg);
 		$get_id = function ($card) {
-			return $card['id']
+			return $card['id'];
 		};
 		$ids = join(',', array_map($get_id, $cards));
 		return self::getCollectionFromDb(
