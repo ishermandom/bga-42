@@ -95,7 +95,7 @@ define([
               const domino = this.gamedatas.table[i]
               const high = parseInt(domino.high)
               const low = parseInt(domino.low)
-              const player_id = parseInt(domino.location_id);
+              const player_id = parseInt(domino.card_location_arg);
               this.playCardOnTable(player_id, high, low, domino.id);
             }
 
