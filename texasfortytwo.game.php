@@ -154,7 +154,7 @@ class TexasFortyTwo extends Table {
 		};
 		$ids = join(',', array_map($get_id, $cards));
 		return self::getCollectionFromDb(
-		  	"SELECT card_id id, high, low, location_arg FROM dominoes WHERE card_id IN ($ids)");
+		  	"SELECT card_id id, high, low, card_location_arg FROM dominoes WHERE card_id IN ($ids)");
 	}
 
   // Returns all game state visible to the current player.
