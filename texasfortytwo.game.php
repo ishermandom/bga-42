@@ -44,9 +44,6 @@ class TexasFortyTwo extends Table {
 
   // Called once, when a new game is launched. Initializes game state.
   protected function setupNewGame($players, $options = array()) {
-		// Default colors to use for the players: red, green, blue, orange.
-    $default_colors = array("ff0000", "008000", "0000ff", "ffa500");
-
     self::initializePlayers($players);
 
 		// Initialize game state.
@@ -65,7 +62,7 @@ class TexasFortyTwo extends Table {
 	// `$rows`: an array of arrays, where each inner array defines the values for
 	//     one row, specified in the same order as
 	//     `$field_names`.
-	private function insertIntoDatabase($db_name, $fields, $rows) {
+	private static function insertIntoDatabase($db_name, $fields, $rows) {
 		$to_sql_row = function($row) {
 			return "('".implode($row, "','")."')";
 		};
@@ -77,6 +74,9 @@ class TexasFortyTwo extends Table {
   // Initializes the player database for the game. Called once, when a new game
 	// is launched.
 	private function initializePlayers($players) {
+		// Default colors to use for the players: red, green, blue, orange.
+    $default_colors = array("ff0000", "008000", "0000ff", "ffa500");
+
     $fields = [
 			"player_id",
 			"player_color",
