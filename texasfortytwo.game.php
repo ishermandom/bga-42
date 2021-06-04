@@ -44,56 +44,100 @@ class TexasFortyTwo extends Table {
 
   // Called once, when a new game is launched. Initializes game state.
   protected function setupNewGame($players, $options = array()) {
-		// TODO(isherman): Everything below is from Hearts. Delete it?
-        // Set the colors of the players with HTML color code
-        // The default below is red/green/blue/orange/brown
-        // The number of colors defined here must correspond to the maximum number of players allowed for the gams
-        $default_colors = array( "ff0000", "008000", "0000ff", "ffa500", "773300" );
+		// Default colors to use for the players: red, green, blue, orange.
+    $default_colors = array("ff0000", "008000", "0000ff", "ffa500");
 
-        // Create players
-        // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialize it there.
-        $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar) VALUES ";
-        $values = array();
-        foreach( $players as $player_id => $player )
-        {
-            $color = array_shift( $default_colors );
-            $values[] = "('".$player_id."','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."')";
-        }
-        $sql .= implode( $values, ',' );
-        self::DbQuery( $sql );
-        self::reattributeColorsBasedOnPreferences( $players, array(  "ff0000", "008000", "0000ff", "ffa500", "773300" ) );
-        self::reloadPlayersBasicInfos();
+    self::initializePlayers($players);
 
-        /************ Start the game initialization *****/
+		// Initialize game state.
+		// TODO(isherman): Call self::setGameStateInitialValue for any relevant
+		// game state variables here.
 
-        // Init global values with their initial values
+		// Initialize game statistics. Must match the list of stats defined in
+		// stats.inc.php.
+		// TODO(isherman): Call self::initStat for all defined statistics.
 
-        // Note: hand types: 0 = give 3 cards to player on the left
-        //                   1 = give 3 cards to player on the right
-        //                   2 = give 3 cards to player on tthe front
-        //                   3 = keep cards
-        //self::setGameStateInitialValue( 'currentHandType', 0 );
+    self::initializeDeck();
+	}
 
-        // Set current trick color to zero (= no trick color)
-        //self::setGameStateInitialValue( 'trickColor', 0 );
+  // Inserts a set of fields into the database named `$db_name`;
+	// `$fields`: an array of field names, e.g. "player_id".
+	// `$rows`: an array of arrays, where each inner array defines the values for
+	//     one row, specified in the same order as
+	//     `$field_names`.
+	private function insertIntoDatabase($db_name, $fields, $rows) {
+		$to_sql_row = function($row) {
+			return "('".implode($row, "','")."')";
+		};
+		$fields = implode($fields, ",");
+    $values = implode(array_map($to_sql_row, $rows), ",");
+		self::DbQuery("INSERT INTO $db_name ($fields) VALUES $values");
+	}
 
-        // Mark if we already played some heart during this hand
-        //self::setGameStateInitialValue( 'alreadyPlayedHearts', 0 );
+  // Initializes the player database for the game. Called once, when a new game
+	// is launched.
+	private function initializePlayers($players) {
+    $fields = [
+			"player_id",
+			"player_color",
+			"player_canal",
+			"player_name",
+			"player_avatar",
+		];
+    $rows = array();
+    foreach ($players as $player_id => $player) {
+      $color = array_shift($default_colors);
+      $rows[] = [
+				$player_id,
+				$color,
+				$player['player_canal'],
+			  addslashes($player['player_name']),
+				addslashes($player['player_avatar']),
+			];
+		}
+		self::insertIntoDatabase('player', $fields, $rows);
 
-        // Init game statistics
-        // (note: statistics are defined in your stats.inc.php file)
+		// Allow all possible player color preferences. The list of options is
+		// defined at
+		// https://en.doc.boardgamearena.com/Main_game_logic:_yourgamename.game.php#Player_color_preferences
+    self::reattributeColorsBasedOnPreferences($players, array(
+			"ff0000",  // red
+			"008000",  // green
+			"0000ff",  // blue
+			"ffa500",  // yellow
+			"000000",  // black
+			"ffffff",  // white
+			"e94190",  // pink
+			"982fff",  // purple
+			"72c3b1",  // cyan
+			"f07f16",  // orange
+			"bdd002",  // khaki green
+			"7b7b7b",  // gray
+		));
+    self::reloadPlayersBasicInfos();
+	}
 
-				// Create the deck of dominoes.
-				$NUM_SUITS = 7;
-				//$deck = array();
-				for ($high = 0; $high < $NUM_SUITS; ++$high) {
-					for ($low = 0; $low <= $high; ++$low) {
-						//$domino = array('type' => 'unused', 'type_arg' => 0, 'high' => $high, 'low' => $low, 'nbr' => 1);
-						$sql = "INSERT INTO dominoes (high, low, card_location, card_location_arg, card_type, card_type_arg) values ($high, $low, 'deck', 0, '', 0)";
-						self::DbQuery($sql);
-						//$deck[] = $domino;
-					}
-				}
+	// Initializes the domino deck for the game. Called once, when a new game is
+	// launched.
+	private function initializeDeck() {
+		$fields = [
+			"high",
+			"low",
+			"card_location",
+			"card_location_arg",
+			"card_type",
+			"card_type_arg",
+		];
+
+		$NUM_SUITS = 7;
+		$rows = array();
+		for ($high = 0; $high < $NUM_SUITS; ++$high) {
+			for ($low = 0; $low <= $high; ++$low) {
+				$rows[] = [$high, $low, 'deck', 0, '', 0];
+			}
+		}
+		self::insertIntoDatabase('dominoes', $fields, $rows);
+
 
 				// Shuffle and deal dominoes.
 				$hand_size = 7; // count($deck) / count($players);
@@ -105,8 +149,6 @@ class TexasFortyTwo extends Table {
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
-
-        /************ End of the game initialization *****/
     }
 
     /*
