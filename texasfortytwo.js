@@ -205,10 +205,19 @@ define([
         },
 
         playCardOnTable: function(player_id, high, low, card_id) {
+          console.log(player_id);
+          console.log(high);
+          console.log(low);
+          console.log(card_id);
             // player_id => direction
             const index = this.getCardUniqueId(high, low);
             const x = index % 7;
             const y = index / 7;
+            console.log(index);
+            console.log(x);
+            console.log(y);
+            console.log(x * this.cardwidth);
+            console.log(x * this.cardheight);
             dojo.place(
                 this.format_block("jstpl_cardontable", {
                   x: x * this.cardwidth,
