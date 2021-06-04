@@ -301,7 +301,7 @@ define([
       onNewHand: function(data) {
         // We received a new full hand of dominoes.
         this.hand.removeAll();
-        for (const domino in data.args.hand) {
+        for (const domino of data.args.hand) {
           const id = parseInt(domino.id);
           this.hand.addToStockWithId(id, id);
         }
