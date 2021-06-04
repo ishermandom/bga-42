@@ -72,19 +72,14 @@ define([
 
       // Display dominoes in the player's hand.
       for (const domino of this.gamedatas.hand) {
-        // TODO(isherman): Why are parseInt() unwrappers needed? I would have
-        // expected the SQL queries to be returning ints. Where does that get
-        // converted into strings?
-        const id = parseInt(domino.id);
+        const id = domino.id;
         this.hand.addToStockWithId(id, id);
       }
 
       // Display dominoes in play on the table.
       for (const domino of this.gamedatas.table) {
-        const high = parseInt(domino.high)
-        const low = parseInt(domino.low)
-        const player_id = parseInt(domino.card_location_arg);
-        this.playDomino(player_id, high, low, domino.id);
+        const player_id = domino.card_location_arg;
+        this.playDomino(player_id, domino.id);
       }
 
       this.setUpNotifications()
@@ -179,7 +174,7 @@ define([
     },
 
     // Animates a domino being played on the table.
-    playDomino: function(player_id, high, low, domino_id) {
+    playDomino: function(player_id, domino_id) {
       // Note: Sprites are 0-indexed, whereas dominoes are 1-index.
       const sprite_index = domino_id - 1;
       const sprite_x_index = sprite_index % 7;
@@ -302,17 +297,13 @@ define([
         // We received a new full hand of dominoes.
         this.hand.removeAll();
         for (const domino of data.args.hand) {
-          const id = parseInt(domino.id);
+          const id = domino.id;
           this.hand.addToStockWithId(id, id);
         }
       },
 
       onPlayDomino: function(data) {
-        this.playDomino(
-            data.args.player_id,
-            parseInt(data.args.high),
-            parseInt(data.args.low),
-            parseInt(data.args.card_id));
+        this.playDomino(data.args.player_id, data.args.card_id);
       },
 
         notif_trickWin: function(notif) {

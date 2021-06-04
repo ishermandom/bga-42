@@ -147,6 +147,8 @@ class TexasFortyTwo extends Table {
   }
 
   // Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
+	// TODO(isherman): This might not actually be needed! We generally only care
+	// about the domino id on the JS side.
 	private function getDominoesInLocation($location, $location_arg = null) {
 		$fields = 'card_id id, high, low, card_location_arg';
 		$where = "card_location='$location'";
@@ -156,10 +158,12 @@ class TexasFortyTwo extends Table {
 		$dominoes = self::getObjectListFromDB(
 		  	"SELECT $fields FROM dominoes WHERE $where");
 		$fix_data_types = function ($domino) {
-			foreach ($domino as $field => $val) {
-				$domino[$field] = intval($domino[$field]);
+			$fixed = array()
+			foreach ($domino as $field => $value) {
+				// All the queried fields are ints!
+				$fixed[$field] = intval($value);
 			}
-			return $domino;
+			return $fixed;
 		};
 		return array_map($fix_data_types, $dominoes);
 	}
@@ -181,9 +185,10 @@ class TexasFortyTwo extends Table {
 			  'SELECT player_id id, player_score score FROM player');
 
     // Dominoes in the current player's hand.
-		$result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
+		$result['hand'] =
+		    $this->dominoes->getCardsInLocation('hand', $current_player_id);
 		// Dominoes in play on the table.
-    $result['table'] = $this->getDominoesInLocation('table');
+    $result['table'] = $this->dominoes->getCardsInLocation('table');
     return $result;
   }
 
@@ -279,7 +284,7 @@ class TexasFortyTwo extends Table {
 		$hand_size = 7;
     foreach ($players as $player_id => $player) {
       $this->dominoes->pickCards($hand_size, 'deck', $player_id);
-			$dominoes = $this->getDominoesInLocation('hand', $player_id);
+			$dominoes = $this->dominoes->getCardsInLocation('hand', $player_id);
       self::notifyPlayer($player_id, 'newHand', '', array('hand' => $dominoes));
     }
     $this->gamestate->nextState("");
