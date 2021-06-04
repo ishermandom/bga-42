@@ -55,6 +55,10 @@ class TexasFortyTwo extends Table {
 		// TODO(isherman): Call self::initStat for all defined statistics.
 
     self::initializeDeck();
+
+
+    // Begin the game by activating the first player.
+	  $this->activeNextPlayer();
 	}
 
   // Inserts a set of fields into the database named `$db_name`;
@@ -138,18 +142,15 @@ class TexasFortyTwo extends Table {
 		}
 		self::insertIntoDatabase('dominoes', $fields, $rows);
 
-
-				// Shuffle and deal dominoes.
-				$hand_size = 7; // count($deck) / count($players);
-				$this->dominoes->shuffle('deck');
-				$players = self::loadPlayersBasicInfos();
-				foreach ($players as $player_id => $player) {
-					$this->dominoes->pickCards($hand_size, 'deck', $player_id);
-				}
-
-        // Activate first player (which is in general a good idea :) )
-        $this->activeNextPlayer();
-    }
+    // TODO(isherman): This is... probably not needed, yah?
+				// // Shuffle and deal dominoes.
+				// $hand_size = 7; // count($deck) / count($players);
+				// $this->dominoes->shuffle('deck');
+				// $players = self::loadPlayersBasicInfos();
+				// foreach ($players as $player_id => $player) {
+				// 	$this->dominoes->pickCards($hand_size, 'deck', $player_id);
+				// }
+  }
 
     /*
         getAllDatas:
