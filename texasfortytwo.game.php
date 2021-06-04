@@ -1,18 +1,18 @@
 <?php
- /**
-  *------
-  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> &
-	*                  Emmanuel Colin <ecolin@boardgamearena.com>
-	* Texas 42 implementation: © Stardust Spikes <sdspikes@cs.stanford.edu> &
-	*                            Jason Turner-Maier <jasonptm@gmail.com> &
-	*                            Ilya Sherman <ishermandom@gmail.com>
-  * This code has been produced on the BGA studio platform for use on
-	* http://boardgamearena.com. See http://en.boardgamearena.com/#!doc/Studio
-	* for more information.
-  * -----
-  *
-  * The main file defining the game rules and logic.
-  */
+/**
+ *------
+ * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> &
+ *                  Emmanuel Colin <ecolin@boardgamearena.com>
+ * Texas 42 implementation: © Stardust Spikes <sdspikes@cs.stanford.edu> &
+ *                            Jason Turner-Maier <jasonptm@gmail.com> &
+ *                            Ilya Sherman <ishermandom@gmail.com>
+ * This code has been produced on the BGA studio platform for use on
+ * http://boardgamearena.com. See http://en.boardgamearena.com/#!doc/Studio
+ * for more information.
+ * -----
+ *
+ * The main file defining the game rules and logic.
+ */
 
 require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 
@@ -153,8 +153,14 @@ class TexasFortyTwo extends Table {
 		if (!is_null($location_arg)) {
 			$where .= "AND card_location_arg=$location_arg";
 		}
-		return self::getObjectListFromDB(
+		$dominoes = self::getObjectListFromDB(
 		  	"SELECT $fields FROM dominoes WHERE $where");
+		$fix_data_types = function ($domino) {
+			foreach ($domino as $field => $val) {
+				$domino[$field] = intval($domino[$field]);
+			}
+		};
+		return array_map($fix_data_types, $dominoes);
 	}
 
   // Returns all game state visible to the current player.
