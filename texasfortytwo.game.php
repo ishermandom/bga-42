@@ -21,6 +21,9 @@ class TexasFortyTwo extends Table {
 	// The list of options is defined at
 	// https://en.doc.boardgamearena.com/Main_game_logic:_yourgamename.game.php#Player_color_preferences
 	// Note that the first four are also used as the default player colors.
+	// TODO(isherman): This feels like a real hack. A list of colors is also
+	// defined in gameinfos.inc.php, and we can probably look at the list of
+	// colors that players prefer via the result of `loadPlayersBasicInfos()``.
 	private const POSSIBLE_PLAYER_COLORS = array(
 		'ff0000',  // red
 		'008000',  // green
@@ -37,7 +40,8 @@ class TexasFortyTwo extends Table {
 	);
 
 	// The number of suits: blanks through sixes.
-	private const NUM_SUITS = 3;
+	// HACK: It can be useful to set this to 3 for debugging.
+	private const NUM_SUITS = 7;
 
 	function __construct() {
 		parent::__construct();
