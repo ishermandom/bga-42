@@ -212,7 +212,7 @@ define([
             // player_id => direction
             const index = this.getCardUniqueId(high, low);
             const x = index % 7;
-            const y = index / 7;
+            const y = Math.floor(index / 7);
             console.log(index);
             console.log(x);
             console.log(y);
