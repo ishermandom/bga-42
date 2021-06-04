@@ -37,7 +37,7 @@ class TexasFortyTwo extends Table {
 	);
 
 	// The number of suits: blanks through sixes.
-	private const NUM_SUITS = 7;
+	private const NUM_SUITS = 3;
 
 	function __construct() {
 		parent::__construct();
@@ -107,7 +107,7 @@ class TexasFortyTwo extends Table {
 			'player_avatar',
 		];
 		$default_colors =
-		    array_slice(self::POSSIBLE_PLAYER_COLORS, count($players));
+		    array_slice(self::POSSIBLE_PLAYER_COLORS, 0, count($players));
     $rows = array();
     foreach ($players as $player_id => $player) {
       $color = array_shift($default_colors);
@@ -149,6 +149,10 @@ class TexasFortyTwo extends Table {
 				$rows[] = [$high, $low, 'deck', 0, '', 0];
 			}
 		}
+		// HACK: As a debugging aid, it can be useful to set a low value for
+		// `self::NUM_SUITS`. Support that by ensuring that the number of dominoes
+		// is always divisible evenly by the number of players.
+		$rows = array_slice($rows, 0, count($rows) - (count($rows) % 4));
 		self::insertIntoDatabase('dominoes', $fields, $rows);
   }
 
@@ -286,6 +290,10 @@ class TexasFortyTwo extends Table {
 		// Deal a new hand to each player.
     $players = self::loadPlayersBasicInfos();
 		$hand_size = self::NUM_SUITS * (self::NUM_SUITS + 1) / 2 / count($players);
+		// HACK: As a debugging aid, it can be useful to set a low value for
+		// `self::NUM_SUITS`. Support that by ensuring that the number of dominoes
+		// is always divisible evenly by the number of players.
+		$hand_size = intval($hand_size);
     foreach ($players as $player_id => $player) {
       $this->dominoes->pickCards($hand_size, 'deck', $player_id);
 			$dominoes = $this->getDominoesInLocation('hand', $player_id);
