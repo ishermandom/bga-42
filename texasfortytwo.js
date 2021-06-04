@@ -357,8 +357,8 @@ define([
             // Play a card on the table
             this.playCardOnTable(
                 notif.args.player_id,
-                notif.args.high,
-                notif.args.low,
+                parseInt(notif.args.high),
+                parseInt(notif.args.low),
                 notif.args.card_id
             )
         },
