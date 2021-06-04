@@ -17,6 +17,25 @@
 require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 
 class TexasFortyTwo extends Table {
+	// All possible colors that players might have set as their preferred color.
+	// The list of options is defined at
+	// https://en.doc.boardgamearena.com/Main_game_logic:_yourgamename.game.php#Player_color_preferences
+	// Note that the first four are also used as the default player colors.
+	private const $POSSIBLE_PLAYER_COLORS = array(
+		'ff0000',  // red
+		'008000',  // green
+		'0000ff',  // blue
+		'ffa500',  // yellow
+		'000000',  // black
+		'ffffff',  // white
+		'e94190',  // pink
+		'982fff',  // purple
+		'72c3b1',  // cyan
+		'f07f16',  // orange
+		'bdd002',  // khaki green
+		'7b7b7b',  // gray
+	);
+
 	function __construct() {
 		parent::__construct();
 
@@ -77,9 +96,6 @@ class TexasFortyTwo extends Table {
   // Initializes the player database for the game. Called once, when a new game
 	// is launched.
 	private function initializePlayers($players) {
-		// Default colors to use for the players: red, green, blue, orange.
-    $default_colors = array('ff0000', '008000', '0000ff', 'ffa500');
-
     $fields = [
 			'player_id',
 			'player_color',
@@ -87,6 +103,7 @@ class TexasFortyTwo extends Table {
 			'player_name',
 			'player_avatar',
 		];
+		$default_colors = array_slice($POSSIBLE_PLAYER_COLORS, count($players));
     $rows = array();
     foreach ($players as $player_id => $player) {
       $color = array_shift($default_colors);
@@ -100,23 +117,9 @@ class TexasFortyTwo extends Table {
 		}
 		self::insertIntoDatabase('player', $fields, $rows);
 
-		// Allow all possible player color preferences. The list of options is
-		// defined at
-		// https://en.doc.boardgamearena.com/Main_game_logic:_yourgamename.game.php#Player_color_preferences
-    self::reattributeColorsBasedOnPreferences($players, array(
-			'ff0000',  // red
-			'008000',  // green
-			'0000ff',  // blue
-			'ffa500',  // yellow
-			'000000',  // black
-			'ffffff',  // white
-			'e94190',  // pink
-			'982fff',  // purple
-			'72c3b1',  // cyan
-			'f07f16',  // orange
-			'bdd002',  // khaki green
-			'7b7b7b',  // gray
-		));
+		// Allow all possible player color preferences.
+    self::reattributeColorsBasedOnPreferences(
+			  $players, $POSSIBLE_PLAYER_COLORS);
     self::reloadPlayersBasicInfos();
 	}
 
@@ -155,6 +158,7 @@ class TexasFortyTwo extends Table {
 		}
 		$dominoes = self::getObjectListFromDB(
 		  	"SELECT $fields FROM dominoes WHERE $where");
+
 		$fix_data_types = function ($domino) {
 			$fixed = array();
 			foreach ($domino as $field => $value) {
