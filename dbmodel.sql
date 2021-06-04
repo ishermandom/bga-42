@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `dominoes` (
   `card_location` varchar(16) NOT NULL,
   `card_location_arg` int(11) NOT NULL,
   -- The number of pips on the higher and lower ends of the domino.
-  `high` tinyint(1) NOT NULL,
-  `low` tinyint(1) NOT NULL,
+  `high` tinyint(1) unsigned NOT NULL,
+  `low` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`card_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;

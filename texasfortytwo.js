@@ -53,19 +53,30 @@ define([
       // Define the available domino types.
       for (let high = 0; high < NUM_SUITS; high++) {
         for (let low = 0; low <= high; low++) {
-          const id = this.getDominoId(high, low);
-          this.hand.addItemType(id, id, g_gamethemeurl + SPRITES_FILE, id);
+          const sprite_index = this.getSpriteIndex(high, low);
+          // Note: The `id` here is a type id for use with the `Stock` class.
+          // It is *not* in the same id space as the ids returned from PHP.
+          // However, adding 1 to the sprite index results in ids that are
+          // semantically identical in both id spaces – i.e. the domino with
+          // Stock type id 1 is the double blank, which is also the domino with
+          // `card_id` 1 in the SQL database.
+          const id = sprite_index + 1;
+          // TODO(isherman): This causes the hand to always be sorted from low
+          // to high, which is not always the most useful sorting. Wizard
+          // re-sorts nicely in response to game actions.
+          const sort_id = id;
+          this.hand.addItemType(
+              id, sort_id, g_gamethemeurl + SPRITES_FILE, sprite_index);
         }
       }
 
       // Display dominoes in the player's hand.
       for (const domino of this.gamedatas.hand) {
-        // TODO(isherman): Why are all of the parseInt() calls needed? I would
-        // have expected the SQL queries to be returning ints. Where does that
-        // get converted into strings?
-        const high = parseInt(domino.high);
-        const low = parseInt(domino.low);
-        this.hand.addToStockWithId(this.getDominoId(high, low), domino.id);
+        // TODO(isherman): Why are parseInt() unwrappers needed? I would have
+        // expected the SQL queries to be returning ints. Where does that get
+        // converted into strings?
+        const id = parseInt(domino.id);
+        this.hand.addToStockWithId(id, id);
       }
 
       // Display dominoes in play on the table.
@@ -157,10 +168,9 @@ define([
         ///////////////////////////////////////////////////
         //// Utility methods
 
-    // Returns the unique ID for the domino with big end having `high` pips and
-    // little end having `low` pips. It's important that this id matches the
-    // domino's index in the sprites file.
-    getDominoId: function(high, low) {
+    // Returns the index into the sprites image file for the domino with big end
+    // having `high` pips and little end having `low` pips.
+    getSpriteIndex: function(high, low) {
       // The sprites file is organized as [0:0], [0:1], [1:1], [0:2], etc.
       // Thus compute a triangle number for the number of dominoes to skip in
       // order to land in the `high` suit, and then index into the suit to get
@@ -169,18 +179,15 @@ define([
     },
 
     // Animates a domino being played on the table.
-    // TODO(isherman): It's confusing that sometimes `domino_id` refers to the
-    // SQL id, and sometimes to the sprite id. They're actually identical, so
-    // we could just assert that and avoid a bunch of confusion... or else we
-    // should be very careful with terminology. The code currently assumes
-    // they're identical without any assertion to check...
     playDomino: function(player_id, high, low, domino_id) {
-      const sprite_x_index = domino_id % 7;
-      const sprite_y_index = Math.floor(domino_id / 7);
+      // Note: Sprites are 0-indexed, whereas dominoes are 1-index.
+      const sprite_index = domino_id - 1;
+      const sprite_x_index = sprite_index % 7;
+      const sprite_y_index = Math.floor(sprite_index / 7);
       console.log(high);
       console.log(low);
       console.log(domino_id);
-      console.log(this.getDominoId(high, low));
+      console.log(this.getSpriteIndex(high, low));
       console.log(sprite_x_index);
       console.log(sprite_y_index);
       dojo.place(
