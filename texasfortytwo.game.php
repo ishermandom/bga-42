@@ -252,29 +252,31 @@ class TexasFortyTwo extends Table {
         return array ();
     }
 
-        //////////////////////////////////////////////////////////////////////////////
-        //////////// Game state actions
-        ////////////
-        /*
-     * Here, you can create methods defined as "game state actions" (see "action" property in states.inc.php).
-     * The action method of state X is called everytime the current game state is set to X.
-     */
-    function stNewHand() {
-        // Take back all cards (from any location => null) to deck
-        $this->dominoes->moveAllCardsInLocation(null, "deck");
-        $this->dominoes->shuffle('deck');
-        // Deal 13 cards to each players
-        // Create deck, shuffle it and give 13 initial cards
-        $players = self::loadPlayersBasicInfos();
-				$hand_size = 7; // count($deck) / count($players);
-        foreach ( $players as $player_id => $player ) {
-            $cards = $this->dominoes->pickCards($hand_size, 'deck', $player_id);
-            // Notify player about his cards
-            self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards ));
-        }
-        //self::setGameStateValue('alreadyPlayedHearts', 0);
-        $this->gamestate->nextState("");
+  //////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////// Game state actions /////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+  // Each `action` property in states.inc.php corresponds to a method defined //
+	// here. The action method of state X is called everytime the current game  //
+	// state is set to X.                                                       //
+	//////////////////////////////////////////////////////////////////////////////
+
+	// Washes (shuffles) the dominoes and deals new hands to each player.
+  function stNewHand() {
+		// Wash the dominoes.
+    // Note: Moving cards from location `null` means from any/all locations.
+    $this->dominoes->moveAllCardsInLocation(null, 'deck');
+    $this->dominoes->shuffle('deck');
+
+		// Deal a new hand to each player.
+    $players = self::loadPlayersBasicInfos();
+		$hand_size = 7;
+    foreach ($players as $player_id => $player) {
+      $this->dominoes->pickCards($hand_size, 'deck', $player_id);
+			$dominoes = $this->getDominoesInLocation('hand', $player_id);
+      self::notifyPlayer($player_id, 'newHand', '', array('hand' => $dominoes));
     }
+    $this->gamestate->nextState("");
+  }
 
     function stNewTrick() {
         // New trick: active the player who wins the last trick, or the player who own the club-2 card

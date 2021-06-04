@@ -285,7 +285,7 @@ define([
         setUpNotifications: function() {
             console.log('notifications subscriptions setup')
 
-            dojo.subscribe('newHand', this, 'notif_newHand')
+            dojo.subscribe('newHand', this, 'onNewHand')
             dojo.subscribe('playCard', this, 'onPlayDomino')
 
             dojo.subscribe('trickWin', this, 'notif_trickWin')
@@ -298,18 +298,14 @@ define([
             dojo.subscribe('newScores', this, 'notif_newScores')
         },
 
-        notif_newHand: function(notif) {
-            // We received a new full hand of dominoes.
-            this.hand.removeAll()
-
-            console.log(notif.args.cards)
-            for (var i in notif.args.cards) {
-                var card = notif.args.cards[i]
-                // var color = card.type;
-                // var value = card.type_arg;
-                // this.hand.addToStockWithId(this.getDominoId(color, value), card.id);
-            }
-        },
+      onNewHand: function(data) {
+        // We received a new full hand of dominoes.
+        this.hand.removeAll();
+        for (const domino in data.args.dominoes) {
+          const id = parseInt(domino.id);
+          this.hand.addToStockWithId(id, id);
+        }
+      },
 
       onPlayDomino: function(data) {
         this.playDomino(
