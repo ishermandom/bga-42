@@ -146,15 +146,11 @@ class TexasFortyTwo extends Table {
 		self::insertIntoDatabase('dominoes', $fields, $rows);
   }
 
-  // Wraps `getCardsInLocation` to return the data that's salient for dominoes.
+  // Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
 	private function getDominoesInLocation($location, $location_arg) {
-		$cards = $this->dominoes->getCardsInLocation($location, $location_arg);
-		$get_id = function ($card) {
-			return $card['id'];
-		};
-		$ids = join(',', array_map($get_id, $cards));
+		$fields = 'card_id id, high, low, card_location_arg';
 		return self::getCollectionFromDb(
-		  	"SELECT card_id id, high, low, card_location_arg FROM dominoes WHERE card_id IN ($ids)");
+		  	"SELECT $fields FROM dominoes WHERE card_location=$location AND card_location_arg=$location_arg");
 	}
 
   // Returns all game state visible to the current player.
