@@ -14,9 +14,10 @@
  */
 
 // The domino sprites file contains images representing all of the dominoes.
-const SPRITES_FILE = 'dominoes.png';
+const SPRITES_FILE = 'img/dominoes.png';
 const SPRITES_PER_ROW = 7;
 // Dimensions of a single domino in the sprites file, in pixels.
+// Note: Whenever updating these values, also update them in the CSS.
 const DOMINO_WIDTH = 194;
 const DOMINO_HEIGHT = 104;
 
