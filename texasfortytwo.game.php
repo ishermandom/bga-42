@@ -153,7 +153,7 @@ class TexasFortyTwo extends Table {
 		if (!is_null($location_arg)) {
 			$where .= "AND card_location_arg=$location_arg";
 		}
-		return self::getCollectionFromDb(
+		return self::getObjectListFromDB(
 		  	"SELECT $fields FROM dominoes WHERE $where");
 	}
 

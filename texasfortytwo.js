@@ -1,109 +1,84 @@
 /**
  *------
- * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * template implementation : © <Your name here> <Your email address here>
- *
- * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
- * See http://en.boardgamearena.com/#!doc/Studio for more information.
+ * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> &
+ *                  Emmanuel Colin <ecolin@boardgamearena.com>
+ * Texas 42 implementation: © Stardust Spikes <sdspikes@cs.stanford.edu> &
+ *                            Jason Turner-Maier <jasonptm@gmail.com> &
+ *                            Ilya Sherman <ishermandom@gmail.com>
+ * This code has been produced on the BGA studio platform for use on
+ * http://boardgamearena.com. See http://en.boardgamearena.com/#!doc/Studio
+ * for more information.
  * -----
  *
- * heartsla.js
- *
- * template user interface script
- *
- * In this file, you are describing the logic of your user interface, in Javascript language.
- *
+ * This file defines the logic for the game user interface.
  */
 
+// The domino sprites file contains images representing all of the dominoes.
+const SPRITES_FILE = 'dominoes.png';
+const SPRITES_PER_ROW = 7;
+// Dimensions of a single domino in the sprites file, in pixels.
+const DOMINO_WIDTH = 194;
+const DOMINO_HEIGHT = 104;
+
+// The number of suits: blanks through sixes.
+const NUM_SUITS = 7;
+
 define([
-    "dojo",
-    "dojo/_base/declare",
-    "ebg/core/gamegui",
-    "ebg/counter",
-    "ebg/stock"
+  'dojo',
+  'dojo/_base/declare',
+  'ebg/core/gamegui',
+  'ebg/counter',
+  'ebg/stock'
 ], function(dojo, declare) {
-    return declare("bgagame.texasfortytwo", ebg.core.gamegui, {
-        constructor: function() {
-            console.log("hearts constructor")
+  return declare('bgagame.texasfortytwo', ebg.core.gamegui, {
+    constructor: function() {},
 
-            //(jturner) updated, pending testing
-            this.cardwidth = 194
-            this.cardheight = 104
-        },
+    // Initializes the UI based on the current game state.
+    // Called each time the game interface is displayed to a player, ie:
+    //   * when the game starts
+    //   * when a player refreshes the game page (F5)
+    // `this.gamedatas` contains the state returned by `getAllDatas` in PHP.
+    setup: function() {
+      console.log('Starting game setup(): ', this.gamedatas);
 
-        /*
-            setup:
+      // Player hand
+      this.hand = new ebg.stock();
+      this.hand.create(this, $('hand'), CARD_WIDTH, CARD_HEIGHT);
+      this.hand.image_items_per_row = SPRITES_PER_ROW;
 
-            This method must set up the game user interface according to current game situation specified
-            in parameters.
+      dojo.connect(
+          this.hand, 'onChangeSelection', this, 'onHandSelectionChanged');
 
-            The method is called each time the game interface is displayed to a player, ie:
-            _ when the game starts
-            _ when a player refreshes the game page (F5)
+      // Define the available domino types.
+      for (let high = 0; high < NUM_SUITS; high++) {
+        for (let low = 0; low <= high; low++) {
+          const id = this.getDominoId(high, low);
+          this.hand.addItemType(id, id, g_gamethemeurl + SPRITES_FILE, id);
+        }
+      }
 
-            "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
-        */
+      // Display dominoes in the player's hand.
+      for (const domino of this.gamedatas.hand) {
+        // TODO(isherman): Why are all of the parseInt() calls needed? I would
+        // have expected the SQL queries to be returning ints. Where does that
+        // get converted into strings?
+        const high = parseInt(domino.high);
+        const low = parseInt(domino.low);
+        this.hand.addToStockWithId(this.getDominoId(high, low), domino.id);
+      }
 
-        setup: function(gamedatas) {
-            console.log("Starting game setup")
-            console.log(this.gamedatas)
+      // Display dominoes in play on the table.
+      for (const domino of this.gamedatas.table) {
+        const high = parseInt(domino.high)
+        const low = parseInt(domino.low)
+        const player_id = parseInt(domino.card_location_arg);
+        this.playDomino(player_id, high, low, domino.id);
+      }
 
-            // Player hand
-            this.playerHand = new ebg.stock()
-            this.playerHand.create(
-                this,
-                $("myhand"),
-                this.cardwidth,
-                this.cardheight
-            )
-            this.playerHand.image_items_per_row = 7
+      this.setUpNotifications()
 
-            dojo.connect(
-                this.playerHand,
-                "onChangeSelection",
-                this,
-                "onPlayerHandSelectionChanged"
-            )
-
-            // Create cards types:
-            for (let high = 0; high < 7; high++) {
-                for (let low = 0; low <= high; low++) {
-                    // Build card type id
-                    const card_type_id = this.getCardUniqueId(high, low)
-                    this.playerHand.addItemType(
-                        card_type_id,
-                        card_type_id,
-                        g_gamethemeurl + "img/dominos.png",
-                        card_type_id
-                    )
-                }
-            }
-
-            // Dominoes in the player's hand.
-            for (let i in this.gamedatas.hand) {
-                const domino = this.gamedatas.hand[i]
-                const high = parseInt(domino.high)
-                const low = parseInt(domino.low)
-                this.playerHand.addToStockWithId(
-                    this.getCardUniqueId(high, low),
-                    domino.id
-                )
-            }
-
-            // Dominoes in play on the table.
-            for (let i in this.gamedatas.table) {
-              const domino = this.gamedatas.table[i]
-              const high = parseInt(domino.high)
-              const low = parseInt(domino.low)
-              const player_id = parseInt(domino.card_location_arg);
-              this.playCardOnTable(player_id, high, low, domino.id);
-            }
-
-            // Setup game notifications to handle (see "setupNotifications" method below)
-            this.setupNotifications()
-
-            console.log("Ending game setup")
-        },
+      console.log('Ending game setup')
+    },
 
         ///////////////////////////////////////////////////
         //// Game & client states
@@ -112,7 +87,7 @@ define([
         //                  You can use this method to perform some user interface changes at this moment.
         //
         onEnteringState: function(stateName, args) {
-            console.log("Entering state: " + stateName)
+            console.log('Entering state: ' + stateName)
 
             switch (stateName) {
                 /* Example:
@@ -125,7 +100,7 @@ define([
                 break;
            */
 
-                case "dummmy":
+                case 'dummmy':
                     break
             }
         },
@@ -134,7 +109,7 @@ define([
         //                 You can use this method to perform some user interface changes at this moment.
         //
         onLeavingState: function(stateName) {
-            console.log("Leaving state: " + stateName)
+            console.log('Leaving state: ' + stateName)
 
             switch (stateName) {
                 /* Example:
@@ -147,16 +122,16 @@ define([
                 break;
            */
 
-                case "dummmy":
+                case 'dummmy':
                     break
             }
         },
 
-        // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
+        // onUpdateActionButtons: in this method you can manage 'action buttons' that are displayed in the
         //                        action status bar (ie: the HTML links in the status bar).
         //
         onUpdateActionButtons: function(stateName, args) {
-            console.log("onUpdateActionButtons: " + stateName)
+            console.log('onUpdateActionButtons: ' + stateName)
 
             if (this.isCurrentPlayerActive()) {
                 switch (
@@ -181,78 +156,52 @@ define([
         ///////////////////////////////////////////////////
         //// Utility methods
 
-        /*
+    // Returns the unique ID for the domino with big end having `high` pips and
+    // little end having `low` pips. It's important that this id matches the
+    // domino's index in the sprites file.
+    getDominoId: function(high, low) {
+      // The sprites file is organized as [0:0], [0:1], [1:1], [0:2], etc.
+      // Thus compute a triangle number for the number of dominoes to skip in
+      // order to land in the `high` suit, and then index into the suit to get
+      // the `low`th rank card.
+      return (high * (high + 1)) / 2 + low;
+    },
 
-            Here, you can defines some utility methods that you can use everywhere in your javascript
-            script.
+    // Animates a domino being played on the table.
+    // TODO(isherman): It's confusing that sometimes `domino_id` refers to the
+    // SQL id, and sometimes to the sprite id. They're actually identical, so
+    // we could just assert that and avoid a bunch of confusion... or else we
+    // should be very careful with terminology. The code currently assumes
+    // they're identical without any assertion to check...
+    playDomino: function(player_id, high, low, domino_id) {
+      const sprite_x_index = domino_id % 7;
+      const sprite_y_index = Math.floor(domino_id / 7);
+      dojo.place(
+          this.format_block('jstpl_cardontable', {
+            x: sprite_x_index * CARD_WIDTH,
+            y: sprite_y_index * CARD_HEIGHT,
+            player_id: player_id,
+          }),
+          'playertablecard_' + player_id);
 
-        */
-        // Get card unique identifier based on its color and value
-        getCardUniqueId: function(big, little) {
-            console.log((big * (big + 1)) / 2 + little)
-            let count = 0
-            for (let high = 0; high < 7; high++) {
-                for (let low = 0; low <= high; low++) {
-                    if (high === big && low === little) {
-                        console.log(count)
-                        return count
-                    }
-                    // Build card type id
-                    count++
-                }
-            }
-            return count
-        },
+      const destination = 'cardontable_' + player_id;
+      if (player_id != this.player_id) {
+        // An opponent played a domino. Animate the domino as originating from
+        // the player panel.
+        this.placeOnObject(destination, 'overall_player_board_' + player_id);
+      } else {
+        // TODO(isherman): Could it fail to exist in our hand? Why is that not
+        // an invariant?
+        // You played a domino. If it exists in your hand, animate it moving.
+        if ($('hand_item_' + domino_id)) {
+          this.placeOnObject(destination, 'hand_item_' + domino_id);
+          this.hand.removeFromStockById(domino_id)
+        }
+      }
 
-        playCardOnTable: function(player_id, high, low, card_id) {
-          console.log(player_id);
-          console.log(high);
-          console.log(low);
-          console.log(card_id);
-            // player_id => direction
-            const index = this.getCardUniqueId(high, low);
-            const x = index % 7;
-            const y = Math.floor(index / 7);
-            console.log(index);
-            console.log(x);
-            console.log(y);
-            console.log(x * this.cardwidth);
-            console.log(x * this.cardheight);
-            dojo.place(
-                this.format_block("jstpl_cardontable", {
-                  x: x * this.cardwidth,
-                  y: y * this.cardheight,
-                  player_id: player_id,
-                }),
-                "playertablecard_" + player_id
-            );
-
-            if (player_id != this.player_id) {
-                // Some opponent played a card
-                // Move card from player panel
-                this.placeOnObject(
-                    "cardontable_" + player_id,
-                    "overall_player_board_" + player_id
-                )
-            } else {
-                // You played a card. If it exists in your hand, move card from there and remove
-                // corresponding item
-
-                if ($("myhand_item_" + card_id)) {
-                    this.placeOnObject(
-                        "cardontable_" + player_id,
-                        "myhand_item_" + card_id
-                    )
-                    this.playerHand.removeFromStockById(card_id)
-                }
-            }
-
-            // In any case: move it to its final destination
-            this.slideToObject(
-                "cardontable_" + player_id,
-                "playertablecard_" + player_id
-            ).play()
-        },
+      // In any case: move it to its final destination
+      this.slideToObject(destination, 'playertablecard_' + player_id).play();
+    },
 
         // /////////////////////////////////////////////////
         // // Player's action
@@ -265,22 +214,22 @@ define([
          *
          */
 
-        onPlayerHandSelectionChanged: function() {
-            var items = this.playerHand.getSelectedItems()
+        onHandSelectionChanged: function() {
+            var items = this.hand.getSelectedItems()
 
             if (items.length > 0) {
-                var action = "playCard"
+                var action = 'playCard'
                 if (this.checkAction(action, true)) {
                     // Can play a card
                     var card_id = items[0].id
                     this.ajaxcall(
-                        "/" +
+                        '/' +
                             this.game_name +
-                            "/" +
+                            '/' +
                             this.game_name +
-                            "/" +
+                            '/' +
                             action +
-                            ".html",
+                            '.html',
                         {
                             id: card_id,
                             lock: true
@@ -290,11 +239,11 @@ define([
                         function(is_error) {}
                     )
 
-                    this.playerHand.unselectAll()
-                } else if (this.checkAction("giveCards")) {
+                    this.hand.unselectAll()
+                } else if (this.checkAction('giveCards')) {
                     // Can give cards => let the player select some cards
                 } else {
-                    this.playerHand.unselectAll()
+                    this.hand.unselectAll()
                 }
             }
         },
@@ -303,10 +252,10 @@ define([
          * Example:
          *
          * onMyMethodToCall1: function( evt ) { console.log( 'onMyMethodToCall1' ); // Preventing default browser reaction dojo.stopEvent(
-         * evt ); // Check that this action is possible (see "possibleactions" in states.inc.php) if( ! this.checkAction( 'myAction' ) ) {
+         * evt ); // Check that this action is possible (see 'possibleactions' in states.inc.php) if( ! this.checkAction( 'myAction' ) ) {
          * return; }
          *
-         * this.ajaxcall( "/heartsla/heartsla/myAction.html", { lock: true, myArgument1: arg1, myArgument2: arg2, ... }, this, function(
+         * this.ajaxcall( '/heartsla/heartsla/myAction.html', { lock: true, myArgument1: arg1, myArgument2: arg2, ... }, this, function(
          * result ) { // What to do after the server call if it succeeded // (most of the time: nothing) }, function( is_error) { // What to
          * do after the server call in anyway (success or failure) // (most of the time: nothing) } ); },
          *
@@ -320,48 +269,46 @@ define([
 
             In this method, you associate each of your game notifications with your local method to handle it.
 
-            Note: game notification names correspond to "notifyAllPlayers" and "notifyPlayer" calls in
+            Note: game notification names correspond to 'notifyAllPlayers' and 'notifyPlayer' calls in
                   your template.game.php file.
 
         */
-        setupNotifications: function() {
-            console.log("notifications subscriptions setup")
+        setUpNotifications: function() {
+            console.log('notifications subscriptions setup')
 
-            dojo.subscribe("newHand", this, "notif_newHand")
-            dojo.subscribe("playCard", this, "notif_playCard")
+            dojo.subscribe('newHand', this, 'notif_newHand')
+            dojo.subscribe('playCard', this, 'onPlayDomino')
 
-            dojo.subscribe("trickWin", this, "notif_trickWin")
-            this.notifqueue.setSynchronous("trickWin", 1000)
+            dojo.subscribe('trickWin', this, 'notif_trickWin')
+            this.notifqueue.setSynchronous('trickWin', 1000)
             dojo.subscribe(
-                "giveAllCardsToPlayer",
+                'giveAllCardsToPlayer',
                 this,
-                "notif_giveAllCardsToPlayer"
+                'notif_giveAllCardsToPlayer'
             )
-            dojo.subscribe("newScores", this, "notif_newScores")
+            dojo.subscribe('newScores', this, 'notif_newScores')
         },
 
         notif_newHand: function(notif) {
-            // We received a new full hand of 13 cards.
-            this.playerHand.removeAll()
+            // We received a new full hand of dominoes.
+            this.hand.removeAll()
 
             console.log(notif.args.cards)
             for (var i in notif.args.cards) {
                 var card = notif.args.cards[i]
                 // var color = card.type;
                 // var value = card.type_arg;
-                // this.playerHand.addToStockWithId(this.getCardUniqueId(color, value), card.id);
+                // this.hand.addToStockWithId(this.getDominoId(color, value), card.id);
             }
         },
 
-        notif_playCard: function(notif) {
-            // Play a card on the table
-            this.playCardOnTable(
-                notif.args.player_id,
-                parseInt(notif.args.high),
-                parseInt(notif.args.low),
-                notif.args.card_id
-            )
-        },
+      onPlayDomino: function(data) {
+        this.playDomino(
+            data.args.player_id,
+            parseInt(data.args.high),
+            parseInt(data.args.low),
+            parseInt(data.args.card_id));
+      },
 
         notif_trickWin: function(notif) {
             // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
@@ -371,10 +318,10 @@ define([
             var winner_id = notif.args.player_id
             for (var player_id in this.gamedatas.players) {
                 var anim = this.slideToObject(
-                    "cardontable_" + player_id,
-                    "overall_player_board_" + winner_id
+                    'cardontable_' + player_id,
+                    'overall_player_board_' + winner_id
                 )
-                dojo.connect(anim, "onEnd", function(node) {
+                dojo.connect(anim, 'onEnd', function(node) {
                     dojo.destroy(node)
                 })
                 anim.play()
