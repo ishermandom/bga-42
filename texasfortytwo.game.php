@@ -21,7 +21,7 @@ class TexasFortyTwo extends Table {
 	// The list of options is defined at
 	// https://en.doc.boardgamearena.com/Main_game_logic:_yourgamename.game.php#Player_color_preferences
 	// Note that the first four are also used as the default player colors.
-	private const $POSSIBLE_PLAYER_COLORS = array(
+	private const POSSIBLE_PLAYER_COLORS = array(
 		'ff0000',  // red
 		'008000',  // green
 		'0000ff',  // blue
@@ -103,7 +103,8 @@ class TexasFortyTwo extends Table {
 			'player_name',
 			'player_avatar',
 		];
-		$default_colors = array_slice($POSSIBLE_PLAYER_COLORS, count($players));
+		$default_colors =
+		    array_slice(self::POSSIBLE_PLAYER_COLORS, count($players));
     $rows = array();
     foreach ($players as $player_id => $player) {
       $color = array_shift($default_colors);
@@ -119,7 +120,7 @@ class TexasFortyTwo extends Table {
 
 		// Allow all possible player color preferences.
     self::reattributeColorsBasedOnPreferences(
-			  $players, $POSSIBLE_PLAYER_COLORS);
+			  $players, self::POSSIBLE_PLAYER_COLORS);
     self::reloadPlayersBasicInfos();
 	}
 
