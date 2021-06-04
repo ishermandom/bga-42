@@ -37,7 +37,7 @@ class TexasFortyTwo extends Table {
 	);
 
 	// The number of suits: blanks through sixes.
-	private const NUM_SUITS = 2;
+	private const NUM_SUITS = 7;
 
 	function __construct() {
 		parent::__construct();
