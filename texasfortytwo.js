@@ -43,7 +43,7 @@ define([
 
       // Player hand
       this.hand = new ebg.stock();
-      this.hand.create(this, $('hand'), CARD_WIDTH, CARD_HEIGHT);
+      this.hand.create(this, $('hand'), DOMINO_WIDTH, DOMINO_HEIGHT);
       this.hand.image_items_per_row = SPRITES_PER_ROW;
 
       dojo.connect(
@@ -178,8 +178,8 @@ define([
       const sprite_y_index = Math.floor(domino_id / 7);
       dojo.place(
           this.format_block('jstpl_cardontable', {
-            x: sprite_x_index * CARD_WIDTH,
-            y: sprite_y_index * CARD_HEIGHT,
+            x: sprite_x_index * DOMINO_WIDTH,
+            y: sprite_y_index * DOMINO_HEIGHT,
             player_id: player_id,
           }),
           'playertablecard_' + player_id);
