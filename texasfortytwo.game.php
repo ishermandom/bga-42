@@ -147,10 +147,14 @@ class TexasFortyTwo extends Table {
   }
 
   // Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
-	private function getDominoesInLocation($location, $location_arg) {
+	private function getDominoesInLocation($location, $location_arg = null) {
 		$fields = 'card_id id, high, low, card_location_arg';
+		$where = "card_location='$location'";
+		if (!is_null($location_arg)) {
+			$where .= "AND card_location_arg=$location_arg";
+		}
 		return self::getCollectionFromDb(
-		  	"SELECT $fields FROM dominoes WHERE card_location='$location' AND card_location_arg=$location_arg");
+		  	"SELECT $fields FROM dominoes WHERE $where");
 	}
 
   // Returns all game state visible to the current player.
@@ -172,8 +176,7 @@ class TexasFortyTwo extends Table {
     // Dominoes in the current player's hand.
 		$result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
 		// Dominoes in play on the table.
-    $result['table'] = $this->getDominoesInLocation(
-			  'table', $current_player_id);
+    $result['table'] = $this->getDominoesInLocation('table');
     return $result;
   }
 
