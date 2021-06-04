@@ -158,7 +158,7 @@ class TexasFortyTwo extends Table {
 		$dominoes = self::getObjectListFromDB(
 		  	"SELECT $fields FROM dominoes WHERE $where");
 		$fix_data_types = function ($domino) {
-			$fixed = array()
+			$fixed = array();
 			foreach ($domino as $field => $value) {
 				// All the queried fields are ints!
 				$fixed[$field] = intval($value);
