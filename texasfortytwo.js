@@ -184,12 +184,6 @@ define([
       const sprite_index = domino_id - 1;
       const sprite_x_index = sprite_index % 7;
       const sprite_y_index = Math.floor(sprite_index / 7);
-      console.log(high);
-      console.log(low);
-      console.log(domino_id);
-      console.log(this.getSpriteIndex(high, low));
-      console.log(sprite_x_index);
-      console.log(sprite_y_index);
       dojo.place(
           this.format_block('jstpl_cardontable', {
             x: sprite_x_index * DOMINO_WIDTH,
@@ -205,7 +199,8 @@ define([
         this.placeOnObject(destination, 'overall_player_board_' + player_id);
       } else {
         // TODO(isherman): Could it fail to exist in our hand? Why is that not
-        // an invariant?
+        // an invariant? The if-stmt below is adapted from the Hearts example
+        // game.
         // You played a domino. If it exists in your hand, animate it moving.
         if ($('hand_item_' + domino_id)) {
           this.placeOnObject(destination, 'hand_item_' + domino_id);
