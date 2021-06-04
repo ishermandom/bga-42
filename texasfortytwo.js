@@ -177,6 +177,12 @@ define([
     playDomino: function(player_id, high, low, domino_id) {
       const sprite_x_index = domino_id % 7;
       const sprite_y_index = Math.floor(domino_id / 7);
+      console.log(high);
+      console.log(low);
+      console.log(domino_id);
+      console.log(this.getDominoId(high, low));
+      console.log(sprite_x_index);
+      console.log(sprite_y_index);
       dojo.place(
           this.format_block('jstpl_cardontable', {
             x: sprite_x_index * DOMINO_WIDTH,
