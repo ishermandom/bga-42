@@ -13,7 +13,7 @@
  * This file defines the logic for the game user interface.
  */
 
-// The domino sprites file contains images representing all of the dominoes.
+// The sprites file contains images representing all of the dominoes.
 const SPRITES_FILE = 'img/dominoes.png';
 const SPRITES_PER_ROW = 7;
 // Dimensions of a single domino in the sprites file, in pixels.
