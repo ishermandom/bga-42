@@ -304,7 +304,7 @@ class TexasFortyTwo extends Table {
             // Active this player => he's the one who starts the next trick
             //$this->gamestate->changeActivePlayer( $best_value_player_id );
 						// TODO(isherman): Temporary hack while we don't have rules implemented :)
-						self::activeNextPlayer();
+						$best_value_player_id = self::activeNextPlayer();
 
             // Move all cards to "cardswon" of the given player
             $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $best_value_player_id);
