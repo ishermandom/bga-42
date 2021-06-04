@@ -36,6 +36,9 @@ class TexasFortyTwo extends Table {
 		'7b7b7b',  // gray
 	);
 
+	// The number of suits: blanks through sixes.
+	private const NUM_SUITS = 2;
+
 	function __construct() {
 		parent::__construct();
 
@@ -137,9 +140,8 @@ class TexasFortyTwo extends Table {
 			'card_type_arg',
 		];
 
-		$NUM_SUITS = 7;
 		$rows = array();
-		for ($high = 0; $high < $NUM_SUITS; ++$high) {
+		for ($high = 0; $high < self::NUM_SUITS; ++$high) {
 			for ($low = 0; $low <= $high; ++$low) {
 				// Note that the final three field values are not meaningful, and
 				// therefore just set to some default values to appease the database
@@ -283,7 +285,7 @@ class TexasFortyTwo extends Table {
 
 		// Deal a new hand to each player.
     $players = self::loadPlayersBasicInfos();
-		$hand_size = 7;
+		$hand_size = self::NUM_SUITS * (self::NUM_SUITS + 1) / 2 / count($players);
     foreach ($players as $player_id => $player) {
       $this->dominoes->pickCards($hand_size, 'deck', $player_id);
 			$dominoes = $this->getDominoesInLocation('hand', $player_id);
