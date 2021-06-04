@@ -20,8 +20,8 @@ class TexasFortyTwo extends Table {
 	function __construct() {
 		parent::__construct();
 
-		$this->dominoes = self::getNew("module.common.deck");
-		$this->dominoes->init("dominoes");
+		$this->dominoes = self::getNew('module.common.deck');
+		$this->dominoes->init('dominoes');
 
     // Global variables used in the game. Must have IDs between 10 and 99.
     // Game variants must be specified here as well, with ID set to match the
@@ -30,16 +30,16 @@ class TexasFortyTwo extends Table {
 		// getGameStateValue/setGameStateInitialValue/setGameStateValue
     self::initGameStateLabels(array(
 			// TODO(isherman): Set some state here, e.g.:
-      // "winningBid" => 10,
-      // "trumpSuit" => 11,
-			// "trickSuit" => 12,
-      // "my_first_game_variant" => 100,
+      // 'winningBid' => 10,
+      // 'trumpSuit' => 11,
+			// 'trickSuit' => 12,
+      // 'my_first_game_variant' => 100,
     ));
 	}
 
   protected function getGameName() {
 		// Used for translations and stuff. Please do not modify.
-    return "texasfortytwo";
+    return 'texasfortytwo';
   }
 
   // Called once, when a new game is launched. Initializes game state.
@@ -56,22 +56,21 @@ class TexasFortyTwo extends Table {
 
     self::initializeDeck();
 
-
     // Begin the game by activating the first player.
 	  $this->activeNextPlayer();
 	}
 
   // Inserts a set of fields into the database named `$db_name`;
-	// `$fields`: an array of field names, e.g. "player_id".
+	// `$fields`: an array of field names, e.g. 'player_id'.
 	// `$rows`: an array of arrays, where each inner array defines the values for
 	//     one row, specified in the same order as
 	//     `$field_names`.
 	private static function insertIntoDatabase($db_name, $fields, $rows) {
 		$to_sql_row = function($row) {
-			return "('".implode($row, "','")."')";
+			return "('".join("','", $row)."')";
 		};
-		$fields = implode($fields, ",");
-    $values = implode(array_map($to_sql_row, $rows), ",");
+		$fields = join(',', $fields);
+    $values = join(',', array_map($to_sql_row, $rows));
 		self::DbQuery("INSERT INTO $db_name ($fields) VALUES $values");
 	}
 
@@ -79,14 +78,14 @@ class TexasFortyTwo extends Table {
 	// is launched.
 	private function initializePlayers($players) {
 		// Default colors to use for the players: red, green, blue, orange.
-    $default_colors = array("ff0000", "008000", "0000ff", "ffa500");
+    $default_colors = array('ff0000', '008000', '0000ff', 'ffa500');
 
     $fields = [
-			"player_id",
-			"player_color",
-			"player_canal",
-			"player_name",
-			"player_avatar",
+			'player_id',
+			'player_color',
+			'player_canal',
+			'player_name',
+			'player_avatar',
 		];
     $rows = array();
     foreach ($players as $player_id => $player) {
@@ -105,93 +104,82 @@ class TexasFortyTwo extends Table {
 		// defined at
 		// https://en.doc.boardgamearena.com/Main_game_logic:_yourgamename.game.php#Player_color_preferences
     self::reattributeColorsBasedOnPreferences($players, array(
-			"ff0000",  // red
-			"008000",  // green
-			"0000ff",  // blue
-			"ffa500",  // yellow
-			"000000",  // black
-			"ffffff",  // white
-			"e94190",  // pink
-			"982fff",  // purple
-			"72c3b1",  // cyan
-			"f07f16",  // orange
-			"bdd002",  // khaki green
-			"7b7b7b",  // gray
+			'ff0000',  // red
+			'008000',  // green
+			'0000ff',  // blue
+			'ffa500',  // yellow
+			'000000',  // black
+			'ffffff',  // white
+			'e94190',  // pink
+			'982fff',  // purple
+			'72c3b1',  // cyan
+			'f07f16',  // orange
+			'bdd002',  // khaki green
+			'7b7b7b',  // gray
 		));
     self::reloadPlayersBasicInfos();
 	}
 
 	// Initializes the domino deck for the game. Called once, when a new game is
-	// launched.
+	// launched. Analogous to `Deck::createCards`, but with additional logic to
+	// initialize custom database fields correctly.
 	private function initializeDeck() {
 		$fields = [
-			"high",
-			"low",
-			"card_location",
-			"card_location_arg",
-			"card_type",
-			"card_type_arg",
+			'high',
+			'low',
+			'card_location',
+			'card_location_arg',
+			'card_type',
+			'card_type_arg',
 		];
 
 		$NUM_SUITS = 7;
 		$rows = array();
 		for ($high = 0; $high < $NUM_SUITS; ++$high) {
 			for ($low = 0; $low <= $high; ++$low) {
+				// Note that the final three field values are not meaningful, and
+				// therefore just set to some default values to appease the database
+				// schema.
 				$rows[] = [$high, $low, 'deck', 0, '', 0];
 			}
 		}
 		self::insertIntoDatabase('dominoes', $fields, $rows);
-
-    // TODO(isherman): This is... probably not needed, yah?
-				// // Shuffle and deal dominoes.
-				// $hand_size = 7; // count($deck) / count($players);
-				// $this->dominoes->shuffle('deck');
-				// $players = self::loadPlayersBasicInfos();
-				// foreach ($players as $player_id => $player) {
-				// 	$this->dominoes->pickCards($hand_size, 'deck', $player_id);
-				// }
   }
 
-    /*
-        getAllDatas:
+  // Wraps `getCardsInLocation` to return the data that's salient for dominoes.
+	private function getDominoesInLocation($location, $location_arg) {
+		$cards = $this->dominoes->getCardsInLocation($location, $location_arg);
+		$get_id = function ($card) {
+			return $card['id']
+		};
+		$ids = join(',', array_map($get_id, $cards));
+		return self::getCollectionFromDb(
+		  	"SELECT card_id id, high, low, location_arg FROM dominoes WHERE card_id IN ($ids)");
+	}
 
-        Gather all informations about current game situation (visible by the current player).
+  // Returns all game state visible to the current player.
+	// Called each time the game interface is displayed to a player, ie:
+  //   * when the game starts
+  //   * when a player refreshes the game page (F5)
+  protected function getAllDatas() {
+		// Important: Must only return game state visible to this player!
+		$current_player_id = self::getCurrentPlayerId();
+    $result = array();
 
-        The method is called each time the game interface is displayed to a player, ie:
-        _ when the game starts
-        _ when a player refreshes the game page (F5)
-    */
-    protected function getAllDatas()
-    {
-        $result = array( 'players' => array() );
+    // TODO(isherman): Do we need to return player scores at all? I doubt our
+		// custom game logic cares about it, and I bet this is returned separately
+		// for the pre-canned BGA UI surfaces.
+		// Publicly visible state about the players.
+    $result['players'] = self::getCollectionFromDb(
+			  'SELECT player_id id, player_score score FROM player');
 
-        $current_player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
-
-        // Get information about players
-        // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
-        $sql = "SELECT player_id id, player_score score FROM player ";
-        $result['players'] = self::getCollectionFromDb( $sql );
-
-        // Cards in player hand
-        $result['hand'] = $this->dominoes->getCardsInLocation( 'hand', $current_player_id );
-				$result['dominohand'] = $this->dominoes->getCardsInLocation( 'hand', $current_player_id );
-				$result['alldominoes'] = self::getCollectionFromDb(
-					"SELECT card_id id, high, low FROM dominoes"
-				);
-				$get_id = function($domino) {
-						return $domino['id'];
-				};
-				$ids = array_map($get_id, $result['dominohand']);
-				$ids_list = join(',', $ids);
-				$result['dominoesinhandtho'] = self::getCollectionFromDb(
-					"SELECT card_id id, high, low FROM dominoes WHERE card_id IN ($ids_list)");
-
-
-        // Cards played on the table
-        $result['cardsontable'] = $this->dominoes->getCardsInLocation( 'cardsontable' );
-
-        return $result;
-    }
+    // Dominoes in the current player's hand.
+		$result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
+		// Dominoes in play on the table.
+    $result['table'] = $this->getDominoesInLocation(
+			  'table', $current_player_id);
+    return $result;
+  }
 
     /*
         getGameProgression:
@@ -226,7 +214,7 @@ class TexasFortyTwo extends Table {
     function playCard($card_id) {
         self::checkAction("playCard");
         $player_id = self::getActivePlayerId();
-        $this->dominoes->moveCard($card_id, 'cardsontable', $player_id);
+        $this->dominoes->moveCard($card_id, 'table', $player_id);
 				$currentCard = self::getCollectionFromDb(
 					"SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id")[$card_id];
 				self::debug("currentCard [%d, %d, %d]\n", $currentCard['id'], $currentCard['low'], $currentCard['high']);
@@ -298,9 +286,9 @@ class TexasFortyTwo extends Table {
 
     function stNextPlayer() {
         // Active next player OR end the trick and go to the next trick OR end the hand
-        if ($this->dominoes->countCardInLocation('cardsontable') == 4) {
+        if ($this->dominoes->countCardInLocation('table') == 4) {
             // This is the end of the trick
-            $cards_on_table = $this->dominoes->getCardsInLocation('cardsontable');
+            $cards_on_table = $this->dominoes->getCardsInLocation('table');
             $best_value = 0;
             $best_value_player_id = null;
             //$currentTrickColor = self::getGameStateValue('trickColor');
@@ -318,7 +306,7 @@ class TexasFortyTwo extends Table {
             $this->gamestate->changeActivePlayer( $best_value_player_id );
 
             // Move all cards to "cardswon" of the given player
-            $this->dominoes->moveAllCardsInLocation('cardsontable', 'cardswon', null, $best_value_player_id);
+            $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $best_value_player_id);
 
             // Notify
             // Note: we use 2 notifications here in order we can pause the display during the first notification
