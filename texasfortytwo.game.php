@@ -159,6 +159,7 @@ class TexasFortyTwo extends Table {
 			foreach ($domino as $field => $val) {
 				$domino[$field] = intval($domino[$field]);
 			}
+			return $domino;
 		};
 		return array_map($fix_data_types, $dominoes);
 	}
