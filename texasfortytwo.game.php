@@ -17,13 +17,13 @@
 require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 
 class TexasFortyTwo extends Table {
-	// All possible colors that players might have set as their preferred color.
-	// The list of options is defined at
-	// https://en.doc.boardgamearena.com/Main_game_logic:_yourgamename.game.php#Player_color_preferences
-	// Note that the first four are also used as the default player colors.
+  // All possible colors that players might have set as their preferred color.
+  // The list of options is defined at
+  // https://en.doc.boardgamearena.com/Main_game_logic:_yourgamename.game.php#Player_color_preferences
+  // Note that the first four are also used as the default player colors.
 	// TODO(isherman): This feels like a real hack. A list of colors is also
 	// defined in gameinfos.inc.php, and we can probably look at the list of
-	// colors that players prefer via the result of `loadPlayersBasicInfos()``.
+	// colors that players prefer via the result of `loadPlayersBasicInfos()`.
 	private const POSSIBLE_PLAYER_COLORS = array(
 		'ff0000',  // red
 		'008000',  // green

@@ -26,7 +26,7 @@ class view_texasfortytwo_texasfortytwo extends game_view {
   //   * when the game starts
   //   * when a player refreshes the game page (F5)
   function build_page($viewArgs) {
-  	$players = $this->game->loadPlayersBasicInfos();
+    $players = $this->game->loadPlayersBasicInfos();
     $template = self::getGameName()."_".self::getGameName();
 
     // Assign each player a seat at the table. Use compass directions to label
@@ -44,5 +44,5 @@ class view_texasfortytwo_texasfortytwo extends game_view {
 
     // Translate UI strings.
     $this->tpl['MY_HAND'] = self::_("My hand");
-	}
+  }
 }
