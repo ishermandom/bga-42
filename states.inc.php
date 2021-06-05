@@ -19,18 +19,18 @@
 //    !! It is not a good idea to modify this file when a game is running !!
 // (jturner) LOL
 
-$machinestates = array(
+$machinestates = [
   // Game setup. Must match BoardGameArea expectations.
-  1 => array(
+  1 => [
     "name" => "gameSetup",
     "description" => "",
     "type" => "manager",
     "action" => "stGameSetup",
-    "transitions" => array( "" => 20 )
-  ),
+    "transitions" => [ "" => 20 ]
+  ],
 
   /// New hand
-  20 => array(
+  20 => [
     "name" => "newHand",
     // TODO(isherman): Can we remove empty descriptions if they're not used for anything?
     // (jturner) description is MANDATORY
@@ -39,39 +39,39 @@ $machinestates = array(
     "action" => "stNewHand",
     "updateGameProgression" => true,
     // TODO(isherman): Change to 21 once actually working on 42.
-    "transitions" => array( "" => 30 )
-  ),
+    "transitions" => [ "" => 30 ]
+  ],
 
   /// Bidding
   // TODO(isherman): Finish updating these.
-  21 => array(
+  21 => [
     "name" => "playerBid",
     "description" => clienttranslate('${actplayer} must bid or pass'),
     "myturndescription" => clienttranslate('${you} must bid or pass'),
     "type" => "activeplayer",
     // TODO(isherman): Dunno whether these make sense...
-    "possibleactions" => array( "bid", "pass" ),
-    "transitions" => array( "" => 22 )
-  ),
-  22 => array(
+    "possibleactions" => [ "bid", "pass" ],
+    "transitions" => [ "" => 22 ]
+  ],
+  22 => [
     "name" => "nextPlayerBid",
     "description" => "",
     "type" => "game",
     "action" => "stNextPlayerBid",
-    "transitions" => array( "nextPlayer" => 21, "startTrick" => 30 )
-  ),
+    "transitions" => [ "nextPlayer" => 21, "startTrick" => 30 ]
+  ],
 
 // (jturner) This appears to be an orphan state; is it vestigial, or is it nascent?
-  23 => array(
+  23 => [
     "name" => "lastPlayerBid",
     "description" => "",
     "type" => "game",
     "action" => "stNextPlayerBid",
-    "transitions" => array( "nextPlayer" => 21, "startTrick" => 30 )
-  ),
+    "transitions" => [ "nextPlayer" => 21, "startTrick" => 30 ]
+  ],
 
   /// Trick
-  30 => array(
+  30 => [
     "name" => "newTrick",
     "description" => "",
     "type" => "game",
@@ -80,42 +80,42 @@ $machinestates = array(
     // (jturner) If I understand this correctly, this is mainly related to the %done messages. If so
     //  we should probably just not worry too much about it for now.
     "updateGameProgression" => true,
-    "transitions" => array( "" => 31 )
-  ),
-  31 => array(
+    "transitions" => [ "" => 31 ]
+  ],
+  31 => [
     "name" => "playerTurn",
     "description" => clienttranslate('${actplayer} must play a domino'),
     "descriptionmyturn" => clienttranslate('${you} must play a domino'),
     "type" => "activeplayer",
-    "possibleactions" => array( "playCard" ),
-    "transitions" => array( "playCard" => 32 )
-  ),
-  32 => array(
+    "possibleactions" => [ "playCard" ],
+    "transitions" => [ "playCard" => 32 ]
+  ],
+  32 => [
     "name" => "nextPlayer",
     "description" => "",
     "type" => "game",
     "action" => "stNextPlayer",
-    "transitions" => array( "nextPlayer" => 31, "nextTrick" => 30, "endHand" => 40 )
-  ),
+    "transitions" => [ "nextPlayer" => 31, "nextTrick" => 30, "endHand" => 40 ]
+  ],
 
 
   // End of the hand (scoring, etc...)
-  40 => array(
+  40 => [
     "name" => "endHand",
     "description" => "",
     "type" => "game",
     "action" => "stEndHand",
-    "transitions" => array( "nextHand" => 20, "endGame" => 99 )
-  ),
+    "transitions" => [ "nextHand" => 20, "endGame" => 99 ]
+  ],
 
   // Final state.
   // Please do not modify.
-  99 => array(
+  99 => [
     "name" => "gameEnd",
     "description" => clienttranslate("End of game"),
     "type" => "manager",
     "action" => "stGameEnd",
     "args" => "argGameEnd"
-  )
+  ]
 
-);
+];
