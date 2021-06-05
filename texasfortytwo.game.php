@@ -17,54 +17,54 @@
 require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 
 class TexasFortyTwo extends Table {
-	// All possible colors that players might have set as their preferred color.
-	// The list of options is defined at
-	// https://en.doc.boardgamearena.com/Main_game_logic:_yourgamename.game.php#Player_color_preferences
-	// Note that the first four are also used as the default player colors.
-	// TODO(isherman): This feels like a real hack. A list of colors is also
-	// defined in gameinfos.inc.php, and we can probably look at the list of
-	// colors that players prefer via the result of `loadPlayersBasicInfos()``.
-	private const POSSIBLE_PLAYER_COLORS = array(
-		'ff0000',  // red
-		'008000',  // green
-		'0000ff',  // blue
-		'ffa500',  // yellow
-		'000000',  // black
-		'ffffff',  // white
-		'e94190',  // pink
-		'982fff',  // purple
-		'72c3b1',  // cyan
-		'f07f16',  // orange
-		'bdd002',  // khaki green
-		'7b7b7b',  // gray
-	);
+  // All possible colors that players might have set as their preferred color.
+  // The list of options is defined at
+  // https://en.doc.boardgamearena.com/Main_game_logic:_yourgamename.game.php#Player_color_preferences
+  // Note that the first four are also used as the default player colors.
+  // TODO(isherman): This feels like a real hack. A list of colors is also
+  // defined in gameinfos.inc.php, and we can probably look at the list of
+  // colors that players prefer via the result of `loadPlayersBasicInfos()``.
+  private const POSSIBLE_PLAYER_COLORS = array(
+  'ff0000',  // red
+  '008000',  // green
+  '0000ff',  // blue
+  'ffa500',  // yellow
+  '000000',  // black
+  'ffffff',  // white
+  'e94190',  // pink
+  '982fff',  // purple
+  '72c3b1',  // cyan
+  'f07f16',  // orange
+  'bdd002',  // khaki green
+  '7b7b7b',  // gray
+  );
 
-	// The number of suits: blanks through sixes.
-	// HACK: It can be useful to set this to 3 for debugging.
-	private const NUM_SUITS = 7;
+  // The number of suits: blanks through sixes.
+  // HACK: It can be useful to set this to 3 for debugging.
+  private const NUM_SUITS = 7;
 
-	function __construct() {
-		parent::__construct();
+  function __construct() {
+  parent::__construct();
 
-		$this->dominoes = self::getNew('module.common.deck');
-		$this->dominoes->init('dominoes');
+  $this->dominoes = self::getNew('module.common.deck');
+  $this->dominoes->init('dominoes');
 
     // Global variables used in the game. Must have IDs between 10 and 99.
     // Game variants must be specified here as well, with ID set to match the
-		// corresponding ID in gameoptions.inc.php.
+  // corresponding ID in gameoptions.inc.php.
     // Note: These variables can be accessed via
-		// getGameStateValue/setGameStateInitialValue/setGameStateValue
+  // getGameStateValue/setGameStateInitialValue/setGameStateValue
     self::initGameStateLabels(array(
-			// TODO(isherman): Set some state here, e.g.:
+  // TODO(isherman): Set some state here, e.g.:
       // 'winningBid' => 10,
       // 'trumpSuit' => 11,
-			// 'trickSuit' => 12,
+  // 'trickSuit' => 12,
       // 'my_first_game_variant' => 100,
     ));
-	}
+  }
 
   protected function getGameName() {
-		// Used for translations and stuff. Please do not modify.
+  // Used for translations and stuff. Please do not modify.
     return 'texasfortytwo';
   }
 
@@ -72,134 +72,134 @@ class TexasFortyTwo extends Table {
   protected function setupNewGame($players, $options = array()) {
     self::initializePlayers($players);
 
-		// Initialize game state.
-		// TODO(isherman): Call self::setGameStateInitialValue for any relevant
-		// game state variables here.
+  // Initialize game state.
+  // TODO(isherman): Call self::setGameStateInitialValue for any relevant
+  // game state variables here.
 
-		// Initialize game statistics. Must match the list of stats defined in
-		// stats.inc.php.
-		// TODO(isherman): Call self::initStat for all defined statistics.
+  // Initialize game statistics. Must match the list of stats defined in
+  // stats.inc.php.
+  // TODO(isherman): Call self::initStat for all defined statistics.
 
     self::initializeDeck();
 
     // Begin the game by activating the first player.
-	  $this->activeNextPlayer();
-	}
+    $this->activeNextPlayer();
+  }
 
   // Inserts a set of fields into the database named `$db_name`;
-	// `$fields`: an array of field names, e.g. 'player_id'.
-	// `$rows`: an array of arrays, where each inner array defines the values for
-	//     one row, specified in the same order as
-	//     `$field_names`.
-	private static function insertIntoDatabase($db_name, $fields, $rows) {
-		$to_sql_row = function($row) {
-			return "('".join("','", $row)."')";
-		};
-		$fields = join(',', $fields);
+  // `$fields`: an array of field names, e.g. 'player_id'.
+  // `$rows`: an array of arrays, where each inner array defines the values for
+  //     one row, specified in the same order as
+  //     `$field_names`.
+  private static function insertIntoDatabase($db_name, $fields, $rows) {
+  $to_sql_row = function($row) {
+  return "('".join("','", $row)."')";
+  };
+  $fields = join(',', $fields);
     $values = join(',', array_map($to_sql_row, $rows));
-		self::DbQuery("INSERT INTO $db_name ($fields) VALUES $values");
-	}
+  self::DbQuery("INSERT INTO $db_name ($fields) VALUES $values");
+  }
 
   // Initializes the player database for the game. Called once, when a new game
-	// is launched.
-	private function initializePlayers($players) {
+  // is launched.
+  private function initializePlayers($players) {
     $fields = [
-			'player_id',
-			'player_color',
-			'player_canal',
-			'player_name',
-			'player_avatar',
-		];
-		$default_colors =
-		    array_slice(self::POSSIBLE_PLAYER_COLORS, 0, count($players));
+  'player_id',
+  'player_color',
+  'player_canal',
+  'player_name',
+  'player_avatar',
+  ];
+  $default_colors =
+      array_slice(self::POSSIBLE_PLAYER_COLORS, 0, count($players));
     $rows = array();
     foreach ($players as $player_id => $player) {
       $color = array_shift($default_colors);
       $rows[] = [
-				$player_id,
-				$color,
-				$player['player_canal'],
-			  addslashes($player['player_name']),
-				addslashes($player['player_avatar']),
-			];
-		}
-		self::insertIntoDatabase('player', $fields, $rows);
+  $player_id,
+  $color,
+  $player['player_canal'],
+    addslashes($player['player_name']),
+  addslashes($player['player_avatar']),
+  ];
+  }
+  self::insertIntoDatabase('player', $fields, $rows);
 
-		// Allow all possible player color preferences.
+  // Allow all possible player color preferences.
     self::reattributeColorsBasedOnPreferences(
-			  $players, self::POSSIBLE_PLAYER_COLORS);
+    $players, self::POSSIBLE_PLAYER_COLORS);
     self::reloadPlayersBasicInfos();
-	}
+  }
 
-	// Initializes the domino deck for the game. Called once, when a new game is
-	// launched. Analogous to `Deck::createCards`, but with additional logic to
-	// initialize custom database fields correctly.
-	private function initializeDeck() {
-		$fields = [
-			'high',
-			'low',
-			'card_location',
-			'card_location_arg',
-			'card_type',
-			'card_type_arg',
-		];
+  // Initializes the domino deck for the game. Called once, when a new game is
+  // launched. Analogous to `Deck::createCards`, but with additional logic to
+  // initialize custom database fields correctly.
+  private function initializeDeck() {
+  $fields = [
+  'high',
+  'low',
+  'card_location',
+  'card_location_arg',
+  'card_type',
+  'card_type_arg',
+  ];
 
-		$rows = array();
-		for ($high = 0; $high < self::NUM_SUITS; ++$high) {
-			for ($low = 0; $low <= $high; ++$low) {
-				// Note that the final three field values are not meaningful, and
-				// therefore just set to some default values to appease the database
-				// schema.
-				$rows[] = [$high, $low, 'deck', 0, '', 0];
-			}
-		}
-		// HACK: As a debugging aid, it can be useful to set a low value for
-		// `self::NUM_SUITS`. Support that by ensuring that the number of dominoes
-		// is always divisible evenly by the number of players.
-		$rows = array_slice($rows, 0, count($rows) - (count($rows) % 4));
-		self::insertIntoDatabase('dominoes', $fields, $rows);
+  $rows = array();
+  for ($high = 0; $high < self::NUM_SUITS; ++$high) {
+  for ($low = 0; $low <= $high; ++$low) {
+  // Note that the final three field values are not meaningful, and
+  // therefore just set to some default values to appease the database
+  // schema.
+  $rows[] = [$high, $low, 'deck', 0, '', 0];
+  }
+  }
+  // HACK: As a debugging aid, it can be useful to set a low value for
+  // `self::NUM_SUITS`. Support that by ensuring that the number of dominoes
+  // is always divisible evenly by the number of players.
+  $rows = array_slice($rows, 0, count($rows) - (count($rows) % 4));
+  self::insertIntoDatabase('dominoes', $fields, $rows);
   }
 
   // Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
-	private function getDominoesInLocation($location, $location_arg = null) {
-		$fields = 'card_id id, high, low, card_location_arg';
-		$where = "card_location='$location'";
-		if (!is_null($location_arg)) {
-			$where .= "AND card_location_arg=$location_arg";
-		}
-		$dominoes = self::getObjectListFromDB(
-		  	"SELECT $fields FROM dominoes WHERE $where");
+  private function getDominoesInLocation($location, $location_arg = null) {
+  $fields = 'card_id id, high, low, card_location_arg';
+  $where = "card_location='$location'";
+  if (!is_null($location_arg)) {
+  $where .= "AND card_location_arg=$location_arg";
+  }
+  $dominoes = self::getObjectListFromDB(
+      "SELECT $fields FROM dominoes WHERE $where");
 
-		$fix_data_types = function ($domino) {
-			$fixed = array();
-			foreach ($domino as $field => $value) {
-				// All the queried fields are ints!
-				$fixed[$field] = intval($value);
-			}
-			return $fixed;
-		};
-		return array_map($fix_data_types, $dominoes);
-	}
+  $fix_data_types = function ($domino) {
+  $fixed = array();
+  foreach ($domino as $field => $value) {
+  // All the queried fields are ints!
+  $fixed[$field] = intval($value);
+  }
+  return $fixed;
+  };
+  return array_map($fix_data_types, $dominoes);
+  }
 
   // Returns all game state visible to the current player.
-	// Called each time the game interface is displayed to a player, ie:
+  // Called each time the game interface is displayed to a player, ie:
   //   * when the game starts
   //   * when a player refreshes the game page (F5)
   protected function getAllDatas() {
-		// Important: Must only return game state visible to this player!
-		$current_player_id = self::getCurrentPlayerId();
+  // Important: Must only return game state visible to this player!
+  $current_player_id = self::getCurrentPlayerId();
     $result = array();
 
     // TODO(isherman): Do we need to return player scores at all? I doubt our
-		// custom game logic cares about it, and I bet this is returned separately
-		// for the pre-canned BGA UI surfaces.
-		// Publicly visible state about the players.
+  // custom game logic cares about it, and I bet this is returned separately
+  // for the pre-canned BGA UI surfaces.
+  // Publicly visible state about the players.
     $result['players'] = self::getCollectionFromDb(
-			  'SELECT player_id id, player_score score FROM player');
+    'SELECT player_id id, player_score score FROM player');
 
     // Dominoes in the current player's hand.
-		$result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
-		// Dominoes in play on the table.
+  $result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
+  // Dominoes in play on the table.
     $result['table'] = $this->getDominoesInLocation('table');
     return $result;
   }
@@ -238,26 +238,26 @@ class TexasFortyTwo extends Table {
         self::checkAction("playCard");
         $player_id = self::getActivePlayerId();
         $this->dominoes->moveCard($card_id, 'table', $player_id);
-				$currentCard = self::getCollectionFromDb(
-					"SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id")[$card_id];
-				self::debug("currentCard [%d, %d, %d]\n", $currentCard['id'], $currentCard['low'], $currentCard['high']);
-				//print_r($currentCard);
+  $currentCard = self::getCollectionFromDb(
+  "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id")[$card_id];
+  self::debug("currentCard [%d, %d, %d]\n", $currentCard['id'], $currentCard['low'], $currentCard['high']);
+  //print_r($currentCard);
 
         // XXX check rules here
         // Set the trick color if it hasn't been set yet
         //$currentTrickColor = self::getGameStateValue( 'trickColor' ) ;
         //if( $currentTrickColor == 0 )
-						// TODO(sdspikes): if it's trump, use trump
+  // TODO(sdspikes): if it's trump, use trump
             //self::setGameStateValue( 'trickColor', $currentCard['high'] );
         // And notify
         self::notifyAllPlayers('playCard',
-								clienttranslate('${player_name} plays the ${high} : ${low}'), array (
+  clienttranslate('${player_name} plays the ${high} : ${low}'), array (
                 // 'i18n' => array ('color_displayed','value_displayed' ),
-								'card_id' => $card_id,
-								'player_id' => $player_id,
+  'card_id' => $card_id,
+  'player_id' => $player_id,
                 'player_name' => self::getActivePlayerName(),
-								'high' => $currentCard['high'],
-								'low' => $currentCard['low']));
+  'high' => $currentCard['high'],
+  'low' => $currentCard['low']));
                 // 'value_displayed' => $this->values_label [$currentCard ['type_arg']],'color' => $currentCard ['type'],
                 // 'color_displayed' => $this->colors [$currentCard ['type']] ['name'] ));
         // Next player
@@ -280,27 +280,27 @@ class TexasFortyTwo extends Table {
   ///////////////////////////// Game state actions /////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
   // Each `action` property in states.inc.php corresponds to a method defined //
-	// here. The action method of state X is called everytime the current game  //
-	// state is set to X.                                                       //
-	//////////////////////////////////////////////////////////////////////////////
+  // here. The action method of state X is called everytime the current game  //
+  // state is set to X.                                                       //
+  //////////////////////////////////////////////////////////////////////////////
 
-	// Washes (shuffles) the dominoes and deals new hands to each player.
+  // Washes (shuffles) the dominoes and deals new hands to each player.
   function stNewHand() {
-		// Wash the dominoes.
+  // Wash the dominoes.
     // Note: Moving cards from location `null` means from any/all locations.
     $this->dominoes->moveAllCardsInLocation(null, 'deck');
     $this->dominoes->shuffle('deck');
 
-		// Deal a new hand to each player.
+  // Deal a new hand to each player.
     $players = self::loadPlayersBasicInfos();
-		$hand_size = self::NUM_SUITS * (self::NUM_SUITS + 1) / 2 / count($players);
-		// HACK: As a debugging aid, it can be useful to set a low value for
-		// `self::NUM_SUITS`. Support that by ensuring that the number of dominoes
-		// is always divisible evenly by the number of players.
-		$hand_size = intval($hand_size);
+  $hand_size = self::NUM_SUITS * (self::NUM_SUITS + 1) / 2 / count($players);
+  // HACK: As a debugging aid, it can be useful to set a low value for
+  // `self::NUM_SUITS`. Support that by ensuring that the number of dominoes
+  // is always divisible evenly by the number of players.
+  $hand_size = intval($hand_size);
     foreach ($players as $player_id => $player) {
       $this->dominoes->pickCards($hand_size, 'deck', $player_id);
-			$dominoes = $this->getDominoesInLocation('hand', $player_id);
+  $dominoes = $this->getDominoesInLocation('hand', $player_id);
       self::notifyPlayer($player_id, 'newHand', '', array('hand' => $dominoes));
     }
     $this->gamestate->nextState("");
@@ -333,8 +333,8 @@ class TexasFortyTwo extends Table {
 
             // Active this player => he's the one who starts the next trick
             //$this->gamestate->changeActivePlayer( $best_value_player_id );
-						// TODO(isherman): Temporary hack while we don't have rules implemented :)
-						$best_value_player_id = self::activeNextPlayer();
+  // TODO(isherman): Temporary hack while we don't have rules implemented :)
+  $best_value_player_id = self::activeNextPlayer();
 
             // Move all cards to "cardswon" of the given player
             $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $best_value_player_id);
@@ -430,13 +430,13 @@ class TexasFortyTwo extends Table {
 
     function zombieTurn( $state, $active_player )
     {
-    	$statename = $state['name'];
+      $statename = $state['name'];
 
         if ($state['type'] == "activeplayer") {
             switch ($statename) {
                 default:
                     $this->gamestate->nextState( "zombiePass" );
-                	break;
+                  break;
             }
 
             return;
