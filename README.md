@@ -7,7 +7,10 @@ Game information: https://en.wikipedia.org/wiki/42_(dominoes)
 
 When writing code, please autoformat using the
 [`atom-beautify`](https://github.com/Glavin001/atom-beautify#installation)
-package.  You will need to locally download/install
+package.  
+
+
+For PHP, you will need to locally download/install
 [php](https://www.php.net/manual/en/install.php) and
 [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation).
 
@@ -20,3 +23,6 @@ relative one, nor did using the naming it suggested work for me.  I used this
 name because when I run php-cs-fixer on the command line it wants it to be
 `.php-cs-fixer.php`, so I figured that was a better default).  You may or may
 not want to turn on "Beautify on Save".
+
+For Javascript this works without any special configuration, though you may want
+to turn on Beautify on Save.
