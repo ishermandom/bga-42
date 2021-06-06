@@ -17,7 +17,7 @@
 require_once(APP_BASE_PATH.'view/common/game.view.php');
 
 class view_texasfortytwo_texasfortytwo extends game_view {
-  function getGameName() {
+  public function getGameName() {
     return "texasfortytwo";
   }
 
@@ -25,24 +25,24 @@ class view_texasfortytwo_texasfortytwo extends game_view {
   // Called each time the game interface is displayed to a player, ie:
   //   * when the game starts
   //   * when a player refreshes the game page (F5)
-  function build_page($viewArgs) {
-  	$players = $this->game->loadPlayersBasicInfos();
+  public function build_page($viewArgs) {
+    $players = $this->game->loadPlayersBasicInfos();
     $template = self::getGameName()."_".self::getGameName();
 
     // Assign each player a seat at the table. Use compass directions to label
     // the seats, bridge-style.
-    $seats = array('S', 'W', 'N', 'E');
+    $seats = ['S', 'W', 'N', 'E'];
     $this->page->begin_block($template, "player");
     foreach ($players as $player_id => $info) {
       $seat = array_shift($seats);
-      $this->page->insert_block("player", array(
+      $this->page->insert_block("player", [
           "PLAYER_ID" => $player_id,
           "PLAYER_NAME" => $info['player_name'],
           "PLAYER_COLOR" => $info['player_color'],
-          "SEAT" => $seat));
+          "SEAT" => $seat]);
     }
 
     // Translate UI strings.
     $this->tpl['MY_HAND'] = self::_("My hand");
-	}
+  }
 }

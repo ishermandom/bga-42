@@ -6,7 +6,7 @@
 // Control Panel in order for changes to take effect.
 
 // Docs: http://en.doc.boardgamearena.com/Game_meta-information:_gameinfos.inc.php
-$gameinfos = array(
+$gameinfos = [
 
 // Name of the game in English (will serve as the basis for translation)
 'game_name' => "Texas 42",
@@ -34,7 +34,7 @@ $gameinfos = array(
 'bgg_id' => 12131,
 
 // Number of players.
-'players' => array( 4 ),
+'players' => [ 4 ],
 
 // Suggested number of players. `null` because there is only one possible
 // player configuration.
@@ -105,7 +105,7 @@ $gameinfos = array(
 'diplomacy' => 3,
 
 // Colors attributed to players.
-'player_colors' => array( "ff0000", "008000", "0000ff", "ffa500", "773300" ),
+'player_colors' => [ "ff0000", "008000", "0000ff", "ffa500", "773300" ],
 
 // Favorite colors support: if set to "true", support attribution of favorite
 // colors based on player's preferences (see
@@ -122,7 +122,7 @@ $gameinfos = array(
 // Game interface width range, in pixels.
 // The "game interface" refers to space on the left side, without the column on
 // the right.
-'game_interface_width' => array(
+'game_interface_width' => [
     // Minimum width
     //  default: 740
     //  maximum possible value: 740 (ie: your game interface should fit with a 740px width (correspond to a 1024px screen)
@@ -134,18 +134,18 @@ $gameinfos = array(
     //  maximum possible value: unlimited
     //  minimum possible value: 740
     'max' => null
-),
+],
 
 // TODO(isherman): Fill this out.
 // Game presentation
 // Short game presentation text that will appear on the game description page, structured as an array of paragraphs.
 // Each paragraph must be wrapped with totranslate() for translation and should not contain html (plain text without formatting).
 // A good length for this text is between 100 and 150 words (about 6 to 9 lines on a standard display)
-'presentation' => array(
+'presentation' => [
 //    totranslate("This wonderful game is about geometric shapes!"),
 //    totranslate("It was awarded best triangle game of the year in 2005 and nominated for the Spiel des Jahres."),
 //    ...
-),
+],
 
 // Games categories, ordered by relevance.
 // Docs: https://en.doc.boardgamearena.com/Game_meta-information:_gameinfos.inc.php#Tags
@@ -155,7 +155,7 @@ $gameinfos = array(
 // 11: Medium-length, 11 to 30 minutes
 // 23: Classic game from public domain
 // 200: Card game (a bit of a stretch...)
-'tags' => array( 1, 23, 11, 200 ),
+'tags' => [ 1, 23, 11, 200 ],
 
 
 //////// BGA SANDBOX ONLY PARAMETERS (DO NOT MODIFY)
@@ -167,4 +167,4 @@ $gameinfos = array(
 'turnControl' => 'simple'
 
 ////////
-);
+];
