@@ -55,10 +55,10 @@ class TexasFortyTwo extends Table {
     // Note: These variables can be accessed via
     // getGameStateValue/setGameStateInitialValue/setGameStateValue
     self::initGameStateLabels([
-            // TODO(isherman): Set some state here, e.g.:
+      // TODO(isherman): Set some state here, e.g.:
       // 'winningBid' => 10,
       // 'trumpSuit' => 11,
-            // 'trickSuit' => 12,
+      // 'trickSuit' => 12,
       // 'my_first_game_variant' => 100,
     ]);
   }
@@ -104,12 +104,12 @@ class TexasFortyTwo extends Table {
   // is launched.
   private function initializePlayers($players) {
     $fields = [
-            'player_id',
-            'player_color',
-            'player_canal',
-            'player_name',
-            'player_avatar',
-        ];
+        'player_id',
+        'player_color',
+        'player_canal',
+        'player_name',
+        'player_avatar',
+    ];
     $default_colors =
             array_slice(self::POSSIBLE_PLAYER_COLORS, 0, count($players));
     $rows = [];
