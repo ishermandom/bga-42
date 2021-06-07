@@ -48,7 +48,7 @@ define([
       this.hand.image_items_per_row = SPRITES_PER_ROW;
 
       dojo.connect(
-          this.hand, 'onChangeSelection', this, 'onHandSelectionChanged');
+        this.hand, 'onChangeSelection', this, 'onHandSelectionChanged');
 
       // Define the available domino types.
       for (let high = 0; high < NUM_SUITS; high++) {
@@ -66,7 +66,7 @@ define([
           // re-sorts nicely in response to game actions.
           const sort_id = id;
           this.hand.addItemType(
-              id, sort_id, g_gamethemeurl + SPRITES_FILE, sprite_index);
+            id, sort_id, g_gamethemeurl + SPRITES_FILE, sprite_index);
         }
       }
 
@@ -87,17 +87,17 @@ define([
       console.log('Ending game setup')
     },
 
-        ///////////////////////////////////////////////////
-        //// Game & client states
+    ///////////////////////////////////////////////////
+    //// Game & client states
 
-        // onEnteringState: this method is called each time we are entering into a new game state.
-        //                  You can use this method to perform some user interface changes at this moment.
-        //
-        onEnteringState: function(stateName, args) {
-            console.log('Entering state: ' + stateName)
+    // onEnteringState: this method is called each time we are entering into a new game state.
+    //                  You can use this method to perform some user interface changes at this moment.
+    //
+    onEnteringState: function(stateName, args) {
+      console.log('Entering state: ' + stateName)
 
-            switch (stateName) {
-                /* Example:
+      switch (stateName) {
+        /* Example:
 
             case 'myGameState':
 
@@ -107,19 +107,19 @@ define([
                 break;
            */
 
-                case 'dummmy':
-                    break
-            }
-        },
+        case 'dummmy':
+          break
+      }
+    },
 
-        // onLeavingState: this method is called each time we are leaving a game state.
-        //                 You can use this method to perform some user interface changes at this moment.
-        //
-        onLeavingState: function(stateName) {
-            console.log('Leaving state: ' + stateName)
+    // onLeavingState: this method is called each time we are leaving a game state.
+    //                 You can use this method to perform some user interface changes at this moment.
+    //
+    onLeavingState: function(stateName) {
+      console.log('Leaving state: ' + stateName)
 
-            switch (stateName) {
-                /* Example:
+      switch (stateName) {
+        /* Example:
 
             case 'myGameState':
 
@@ -129,21 +129,21 @@ define([
                 break;
            */
 
-                case 'dummmy':
-                    break
-            }
-        },
+        case 'dummmy':
+          break
+      }
+    },
 
-        // onUpdateActionButtons: in this method you can manage 'action buttons' that are displayed in the
-        //                        action status bar (ie: the HTML links in the status bar).
-        //
-        onUpdateActionButtons: function(stateName, args) {
-            console.log('onUpdateActionButtons: ' + stateName)
+    // onUpdateActionButtons: in this method you can manage 'action buttons' that are displayed in the
+    //                        action status bar (ie: the HTML links in the status bar).
+    //
+    onUpdateActionButtons: function(stateName, args) {
+      console.log('onUpdateActionButtons: ' + stateName)
 
-            if (this.isCurrentPlayerActive()) {
-                switch (
-                    stateName
-                    /*
+      if (this.isCurrentPlayerActive()) {
+        switch (
+          stateName
+          /*
                  Example:
 
                  case 'myGameState':
@@ -155,13 +155,12 @@ define([
                     this.addActionButton( 'button_3_id', _('Button 3 label'), 'onMyMethodToCall3' );
                     break;
 */
-                ) {
-                }
-            }
-        },
+        ) {}
+      }
+    },
 
-        ///////////////////////////////////////////////////
-        //// Utility methods
+    ///////////////////////////////////////////////////
+    //// Utility methods
 
     // Returns the index into the sprites image file for the domino with big end
     // having `high` pips and little end having `low` pips.
@@ -180,12 +179,12 @@ define([
       const sprite_x_index = sprite_index % 7;
       const sprite_y_index = Math.floor(sprite_index / 7);
       dojo.place(
-          this.format_block('jstpl_cardontable', {
-            x: sprite_x_index * DOMINO_WIDTH,
-            y: sprite_y_index * DOMINO_HEIGHT,
-            player_id: player_id,
-          }),
-          'playertablecard_' + player_id);
+        this.format_block('jstpl_cardontable', {
+          x: sprite_x_index * DOMINO_WIDTH,
+          y: sprite_y_index * DOMINO_HEIGHT,
+          player_id: player_id,
+        }),
+        'playertablecard_' + player_id);
 
       const destination = 'cardontable_' + player_id;
       if (player_id != this.player_id) {
@@ -207,129 +206,128 @@ define([
       this.slideToObject(destination, 'playertablecard_' + player_id).play();
     },
 
-        // /////////////////////////////////////////////////
-        // // Player's action
+    // /////////////////////////////////////////////////
+    // // Player's action
 
-        /*
-         *
-         * Here, you are defining methods to handle player's action (ex: results of mouse click on game objects).
-         *
-         * Most of the time, these methods: _ check the action is possible at this game state. _ make a call to the game server
-         *
-         */
+    /*
+     *
+     * Here, you are defining methods to handle player's action (ex: results of mouse click on game objects).
+     *
+     * Most of the time, these methods: _ check the action is possible at this game state. _ make a call to the game server
+     *
+     */
 
-        onHandSelectionChanged: function() {
-            var items = this.hand.getSelectedItems()
+    onHandSelectionChanged: function() {
+      var items = this.hand.getSelectedItems()
 
-            if (items.length > 0) {
-                var action = 'playCard'
-                if (this.checkAction(action, true)) {
-                    // Can play a card
-                    var card_id = items[0].id
-                    this.ajaxcall(
-                        '/' +
-                            this.game_name +
-                            '/' +
-                            this.game_name +
-                            '/' +
-                            action +
-                            '.html',
-                        {
-                            id: card_id,
-                            lock: true
-                        },
-                        this,
-                        function(result) {},
-                        function(is_error) {}
-                    )
+      if (items.length > 0) {
+        var action = 'playCard'
+        if (this.checkAction(action, true)) {
+          // Can play a card
+          var card_id = items[0].id
+          this.ajaxcall(
+            '/' +
+            this.game_name +
+            '/' +
+            this.game_name +
+            '/' +
+            action +
+            '.html', {
+              id: card_id,
+              lock: true
+            },
+            this,
+            function(result) {},
+            function(is_error) {}
+          )
 
-                    this.hand.unselectAll()
-                } else if (this.checkAction('giveCards')) {
-                    // Can give cards => let the player select some cards
-                } else {
-                    this.hand.unselectAll()
-                }
-            }
-        },
-
-        /*
-         * Example:
-         *
-         * onMyMethodToCall1: function( evt ) { console.log( 'onMyMethodToCall1' ); // Preventing default browser reaction dojo.stopEvent(
-         * evt ); // Check that this action is possible (see 'possibleactions' in states.inc.php) if( ! this.checkAction( 'myAction' ) ) {
-         * return; }
-         *
-         * this.ajaxcall( '/heartsla/heartsla/myAction.html', { lock: true, myArgument1: arg1, myArgument2: arg2, ... }, this, function(
-         * result ) { // What to do after the server call if it succeeded // (most of the time: nothing) }, function( is_error) { // What to
-         * do after the server call in anyway (success or failure) // (most of the time: nothing) } ); },
-         *
-         */
-
-        ///////////////////////////////////////////////////
-        //// Reaction to cometD notifications
-
-        /*
-            setupNotifications:
-
-            In this method, you associate each of your game notifications with your local method to handle it.
-
-            Note: game notification names correspond to 'notifyAllPlayers' and 'notifyPlayer' calls in
-                  your template.game.php file.
-
-        */
-        setUpNotifications: function() {
-            console.log('notifications subscriptions setup')
-
-            dojo.subscribe('newHand', this, 'onNewHand')
-            dojo.subscribe('playCard', this, 'onPlayDomino')
-
-            dojo.subscribe('trickWin', this, 'notif_trickWin')
-            this.notifqueue.setSynchronous('trickWin', 1000)
-            dojo.subscribe(
-                'giveAllCardsToPlayer',
-                this,
-                'notif_giveAllCardsToPlayer'
-            )
-            dojo.subscribe('newScores', this, 'notif_newScores')
-        },
-
-      onNewHand: function(data) {
-        // We received a new full hand of dominoes.
-        this.hand.removeAll();
-        for (const domino of data.args.hand) {
-          const id = domino.id;
-          this.hand.addToStockWithId(id, id);
+          this.hand.unselectAll()
+        } else if (this.checkAction('giveCards')) {
+          // Can give cards => let the player select some cards
+        } else {
+          this.hand.unselectAll()
         }
-      },
+      }
+    },
 
-      onPlayDomino: function(data) {
-        this.playDomino(data.args.player_id, data.args.card_id);
-      },
+    /*
+     * Example:
+     *
+     * onMyMethodToCall1: function( evt ) { console.log( 'onMyMethodToCall1' ); // Preventing default browser reaction dojo.stopEvent(
+     * evt ); // Check that this action is possible (see 'possibleactions' in states.inc.php) if( ! this.checkAction( 'myAction' ) ) {
+     * return; }
+     *
+     * this.ajaxcall( '/heartsla/heartsla/myAction.html', { lock: true, myArgument1: arg1, myArgument2: arg2, ... }, this, function(
+     * result ) { // What to do after the server call if it succeeded // (most of the time: nothing) }, function( is_error) { // What to
+     * do after the server call in anyway (success or failure) // (most of the time: nothing) } ); },
+     *
+     */
 
-        notif_trickWin: function(notif) {
-            // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
-        },
-        notif_giveAllCardsToPlayer: function(notif) {
-            // Move all cards on table to given table, then destroy them
-            var winner_id = notif.args.player_id
-            for (var player_id in this.gamedatas.players) {
-                var anim = this.slideToObject(
-                    'cardontable_' + player_id,
-                    'overall_player_board_' + winner_id
-                )
-                dojo.connect(anim, 'onEnd', function(node) {
-                    dojo.destroy(node)
-                })
-                anim.play()
-            }
-        },
-        notif_newScores: function(notif) {
-            // Update players' scores
-            for (var player_id in notif.args.newScores) {
-                this.scoreCtrl[player_id].toValue(
-                    notif.args.newScores[player_id]
-                )
-            }
-        }
-    })
+    ///////////////////////////////////////////////////
+    //// Reaction to cometD notifications
+
+    /*
+        setupNotifications:
+
+        In this method, you associate each of your game notifications with your local method to handle it.
+
+        Note: game notification names correspond to 'notifyAllPlayers' and 'notifyPlayer' calls in
+              your template.game.php file.
+
+    */
+    setUpNotifications: function() {
+      console.log('notifications subscriptions setup')
+
+      dojo.subscribe('newHand', this, 'onNewHand')
+      dojo.subscribe('playCard', this, 'onPlayDomino')
+
+      dojo.subscribe('trickWin', this, 'notif_trickWin')
+      this.notifqueue.setSynchronous('trickWin', 1000)
+      dojo.subscribe(
+        'giveAllCardsToPlayer',
+        this,
+        'notif_giveAllCardsToPlayer'
+      )
+      dojo.subscribe('newScores', this, 'notif_newScores')
+    },
+
+    onNewHand: function(data) {
+      // We received a new full hand of dominoes.
+      this.hand.removeAll();
+      for (const domino of data.args.hand) {
+        const id = domino.id;
+        this.hand.addToStockWithId(id, id);
+      }
+    },
+
+    onPlayDomino: function(data) {
+      this.playDomino(data.args.player_id, data.args.card_id);
+    },
+
+    notif_trickWin: function(notif) {
+      // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
+    },
+    notif_giveAllCardsToPlayer: function(notif) {
+      // Move all cards on table to given table, then destroy them
+      var winner_id = notif.args.player_id
+      for (var player_id in this.gamedatas.players) {
+        var anim = this.slideToObject(
+          'cardontable_' + player_id,
+          'overall_player_board_' + winner_id
+        )
+        dojo.connect(anim, 'onEnd', function(node) {
+          dojo.destroy(node)
+        })
+        anim.play()
+      }
+    },
+    notif_newScores: function(notif) {
+      // Update players' scores
+      for (var player_id in notif.args.newScores) {
+        this.scoreCtrl[player_id].toValue(
+          notif.args.newScores[player_id]
+        )
+      }
+    }
+  })
 })
