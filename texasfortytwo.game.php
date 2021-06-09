@@ -127,12 +127,12 @@ class TexasFortyTwo extends Table {
   // Returns whether the given player id is the dealer for this hand.
   private function isDealer($player_id) {
     $first_player_seat = self::getUniqueValueFromDB(
-      'SELECT player_no seat FROM players WHERE is_first_player = true'
+      'SELECT player_no seat FROM player WHERE is_first_player = true'
     );
     $dealer_seat =
         ($first_player_seat + self::NUM_PLAYERS - 1) % self::NUM_PLAYERS;
     $dealer_id = self::getUniqueValueFromDB(
-      "SELECT player_id id FROM players WHERE player_no = $dealer_seat"
+      "SELECT player_id id FROM player WHERE player_no = $dealer_seat"
     );
     return $player_id == $dealer_id;
   }
