@@ -45,7 +45,7 @@ class action_texasfortytwo extends APP_GameAction {
     self::setAjaxMode();
     // TODO(sdspikes): figure out what getArg does
     $bid_value = self::getArg("bid", AT_posint, true);
-    $this->game->playCard($bid_value);
+    $this->game->bid($bid_value);
     self::ajaxResponse();
   }
 

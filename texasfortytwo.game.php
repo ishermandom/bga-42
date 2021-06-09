@@ -293,6 +293,10 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState('nextPlayerBid');
   }
 
+  public function gamestatehack() {
+    self::debug($this->gamestate->state());
+  }
+
   public function bid($bid_value) {
     self::checkAction("bid");
     $player_id = self::getActivePlayerId();
