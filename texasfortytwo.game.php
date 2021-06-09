@@ -295,6 +295,7 @@ class TexasFortyTwo extends Table {
      */
   public function pass() {
     self::checkAction("pass");
+    // TODO(isherman): Dealer shouldn't be allowed to pass.
     $this->gamestate->nextState('nextPlayerBid');
   }
 
@@ -413,7 +414,7 @@ class TexasFortyTwo extends Table {
       $this->gamestate->changeActivePlayer($highest_bidder);
       $this->gamestate->nextState('chooseBidSuit');
     } else {
-      $this->gamestate->activeNextPlayer();
+      self::activeNextPlayer();
       $this->gamestate->nextState('playerBid');
     }
   }
