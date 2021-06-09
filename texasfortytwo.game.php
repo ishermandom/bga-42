@@ -109,19 +109,24 @@ class TexasFortyTwo extends Table {
         'player_canal',
         'player_name',
         'player_avatar',
+        // HACK: During development, it's useful to have a fixed order.
+        'player_no',
     ];
     $default_colors =
             array_slice(self::POSSIBLE_PLAYER_COLORS, 0, count($players));
     $rows = [];
+    $player_order_index_hack = 0;
     foreach ($players as $player_id => $player) {
       $color = array_shift($default_colors);
       $rows[] = [
-                $player_id,
-                $color,
-                $player['player_canal'],
-              addslashes($player['player_name']),
-                addslashes($player['player_avatar']),
-            ];
+          $player_id,
+          $color,
+          $player['player_canal'],
+          addslashes($player['player_name']),
+          addslashes($player['player_avatar']),
+          $player_order_index_hack;
+      ];
+      $player_order_index_hack++;
     }
     self::insertIntoDatabase('player', $fields, $rows);
 
