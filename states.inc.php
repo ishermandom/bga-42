@@ -39,7 +39,7 @@ $machinestates = [
     "action" => "stNewHand",
     "updateGameProgression" => true,
     // TODO(isherman): Change to 21 once actually working on 42.
-    "transitions" => [ "" => 30 ]
+    "transitions" => [ "" => 21 ]
   ],
 
   /// Bidding
@@ -51,23 +51,22 @@ $machinestates = [
     "type" => "activeplayer",
     // TODO(isherman): Dunno whether these make sense...
     "possibleactions" => [ "bid", "pass" ],
-    "transitions" => [ "" => 22 ]
+    "transitions" => [ "nextPlayerBid" => 22 ]
   ],
   22 => [
     "name" => "nextPlayerBid",
     "description" => "",
     "type" => "game",
     "action" => "stNextPlayerBid",
-    "transitions" => [ "nextPlayer" => 21, "startTrick" => 30 ]
+    "transitions" => [ "playerBid" => 21, "chooseBidSuit" => 23 ]
   ],
-
-// (jturner) This appears to be an orphan state; is it vestigial, or is it nascent?
   23 => [
-    "name" => "lastPlayerBid",
-    "description" => "",
-    "type" => "game",
-    "action" => "stNextPlayerBid",
-    "transitions" => [ "nextPlayer" => 21, "startTrick" => 30 ]
+    "name" => "chooseBidSuit",
+    "description" => clienttranslate('${actplayer} must choose trump suit'),
+    "myturndescription" => clienttranslate('${you} must choose trump suit'),
+    "type" => "activeplayer",
+    "possibleactions" => [ "chooseBidSuit" ],
+    "transitions" => ["startTrick" => 30 ]
   ],
 
   /// Trick
