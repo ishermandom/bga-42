@@ -406,7 +406,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function stNextPlayerBid() {
-    $player_id = self::getActivePlayer();
+    $player_id = self::getActivePlayerId();
     if ($this->isDealer($player_id)) {
       $highest_bidder = self::getGameStateValue('highestBidder');
       $this->gamestate->changeActivePlayer($highest_bidder);
