@@ -20,7 +20,7 @@
 
 -- TODO(isherman): Do we need this? Probably...
 -- add info about first player
-ALTER TABLE `player` ADD `player_first` BOOLEAN NOT NULL DEFAULT '0';
+ALTER TABLE `player` ADD `is_first_player` BOOLEAN NOT NULL DEFAULT false;
 
 -- Note: The base schema is defined by https://en.doc.boardgamearena.com/Deck.
 CREATE TABLE IF NOT EXISTS `dominoes` (

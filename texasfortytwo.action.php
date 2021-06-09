@@ -40,4 +40,25 @@ class action_texasfortytwo extends APP_GameAction {
     $this->game->playCard($card_id);
     self::ajaxResponse();
   }
+
+  public function bid() {
+    self::setAjaxMode();
+    // TODO(sdspikes): figure out what getArg does
+    $bid_value = self::getArg("bid", AT_posint, true);
+    $this->game->bid($bid_value);
+    self::ajaxResponse();
+  }
+
+  public function pass() {
+    self::setAjaxMode();
+    $this->game->pass();
+    self::ajaxResponse();
+  }
+
+  public function chooseBidSuit() {
+    self::setAjaxMode();
+    $bid_suit = self::getArg("bid_suit", AT_posint, true);
+    $this->game->chooseBidSuit();
+    self::ajaxResponse();
+  }
 }

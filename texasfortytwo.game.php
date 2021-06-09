@@ -16,6 +16,30 @@
 
 require_once(APP_GAMEMODULE_PATH.'module/table/table.game.php');
 
+abstract class BidType {
+  const TRUMP = 0;
+  const NELLO = 1;
+  const SEVENS = 2;
+  const SPLASH = 3;
+  const PLUNGE = 4;
+}
+
+abstract class BidSuit {
+  const BLANKS = 0;
+  const ONES = 1;
+  const TWOS = 2;
+  const THREES = 3;
+  const FOURS = 4;
+  const FIVES = 5;
+  const SIXES = 6;
+  const DOUBLES = 7;
+  const NO_TRUMP = 8;
+  // TODO(isherman): Should these be moved to a separate enum?
+  const NELLO_DOUBLES_LOW = 9;
+  const NELLO_DOUBLES_HIGH = 10;
+  const NELLO_DOUBLES_SUIT_OF_THEIR_OWN = 11;
+}
+
 class TexasFortyTwo extends Table {
   // All possible colors that players might have set as their preferred color.
   // The list of options is defined at
@@ -43,6 +67,8 @@ class TexasFortyTwo extends Table {
   // HACK: It can be useful to set this to 3 for debugging.
   private const NUM_SUITS = 7;
 
+  private const NUM_PLAYERS = 4;
+
   public function __construct() {
     parent::__construct();
 
@@ -55,10 +81,17 @@ class TexasFortyTwo extends Table {
     // Note: These variables can be accessed via
     // getGameStateValue/setGameStateInitialValue/setGameStateValue
     self::initGameStateLabels([
-      // TODO(isherman): Set some state here, e.g.:
-      // 'winningBid' => 10,
-      // 'trumpSuit' => 11,
-      // 'trickSuit' => 12,
+      // The player who has bid highest so far.
+      'highestBidder' => 10,
+      // The winning player bid (or current highest player bid) – e.g. 30, or
+      // 84 for two marks.
+      'bidValue' => 11,
+      // Of type `BidType`, e.g. nello.
+      'bidType' => 12,
+      // The trump suit for the bid, e.g. sixes are trump.
+      'bidSuit' => 13,
+      // The suit of the current trick, e.g. Jane led a four.
+      'trickSuit' => 14,
       // 'my_first_game_variant' => 100,
     ]);
   }
@@ -81,9 +114,27 @@ class TexasFortyTwo extends Table {
     // TODO(isherman): Call self::initStat for all defined statistics.
 
     self::initializeDeck();
+    self::setGameStateInitialValue('highestBidder', null);
+    self::setGameStateInitialValue('bidValue', null);
+    self::setGameStateInitialValue('bidType', null);
+    self::setGameStateInitialValue('bidSuit', null);
+    self::setGameStateInitialValue('trickSuit', null);
 
     // Begin the game by activating the first player.
     $this->activeNextPlayer();
+  }
+
+  // Returns whether the given player id is the dealer for this hand.
+  private function isDealer($player_id) {
+    $first_player_seat = self::getUniqueValueFromDB(
+      'SELECT player_no seat FROM player WHERE is_first_player = true'
+    );
+    $dealer_seat =
+        ($first_player_seat + self::NUM_PLAYERS - 1) % self::NUM_PLAYERS;
+    $dealer_id = self::getUniqueValueFromDB(
+      "SELECT player_id id FROM player WHERE player_no = $dealer_seat"
+    );
+    return $player_id == $dealer_id;
   }
 
   // Inserts a set of fields into the database named `$db_name`;
@@ -109,19 +160,24 @@ class TexasFortyTwo extends Table {
         'player_canal',
         'player_name',
         'player_avatar',
+        // HACK: During development, it's useful to have a fixed order.
+        'player_no',
     ];
     $default_colors =
             array_slice(self::POSSIBLE_PLAYER_COLORS, 0, count($players));
     $rows = [];
+    $player_order_index_hack = 0;
     foreach ($players as $player_id => $player) {
       $color = array_shift($default_colors);
       $rows[] = [
-                $player_id,
-                $color,
-                $player['player_canal'],
-              addslashes($player['player_name']),
-                addslashes($player['player_avatar']),
-            ];
+          $player_id,
+          $color,
+          $player['player_canal'],
+          addslashes($player['player_name']),
+          addslashes($player['player_avatar']),
+          $player_order_index_hack,
+      ];
+      $player_order_index_hack++;
     }
     self::insertIntoDatabase('player', $fields, $rows);
 
@@ -237,36 +293,74 @@ class TexasFortyTwo extends Table {
      * Each time a player is doing some game action, one of the methods below is called.
      * (note: each method below must match an input method in template.action.php)
      */
+  public function pass() {
+    self::checkAction("pass");
+    // TODO(isherman): Dealer shouldn't be allowed to pass.
+    $this->gamestate->nextState('nextPlayerBid');
+  }
+
+  public function gamestatehack() {
+    self::debug($this->gamestate->state());
+  }
+
+  public function bid($bid_value) {
+    self::checkAction("bid");
+    $player_id = self::getActivePlayerId();
+    // only allow bids higher than current bid if it exists
+    $current_bid_value = self::getGameStateValue('bidValue') ;
+    if (is_null($bid_value) || $bid_value > $current_bid_value) {
+      self::setGameStateValue('bidValue', $bid_value);
+      self::setGameStateValue('highestBidder', $player_id);
+
+      $this->gamestate->nextState('nextPlayerBid');
+    } else {
+      self::debug("Bad bid!");
+      // TODO(sdspikes): throw error?
+    }
+  }
+
+
+  public function chooseBidSuit($bid_suit) {
+    self::checkAction("chooseBidSuit");
+    self::setGameStateValue('bidSuit', $bid_suit);
+    $this->gamestate->nextState();
+  }
+
+  /*
+     * Each time a player is doing some game action, one of the methods below is called.
+     * (note: each method below must match an input method in template.action.php)
+     */
   public function playCard($card_id) {
     self::checkAction("playCard");
     $player_id = self::getActivePlayerId();
     $this->dominoes->moveCard($card_id, 'table', $player_id);
-    $currentCard = self::getCollectionFromDb(
+    $current_card = self::getCollectionFromDb(
       "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id"
     )[$card_id];
-    self::debug("currentCard [%d, %d, %d]\n", $currentCard['id'], $currentCard['low'], $currentCard['high']);
-    //print_r($currentCard);
+    self::debug("current_card [%d, %d, %d]\n", $current_card['id'], $current_card['low'], $current_card['high']);
+    //print_r($current_card);
 
     // XXX check rules here
     // Set the trick color if it hasn't been set yet
     //$currentTrickColor = self::getGameStateValue( 'trickColor' ) ;
     //if( $currentTrickColor == 0 )
     // TODO(sdspikes): if it's trump, use trump
-    //self::setGameStateValue( 'trickColor', $currentCard['high'] );
+    //self::setGameStateValue( 'trickColor', $current_card['high'] );
     // And notify
     self::notifyAllPlayers(
       'playCard',
       clienttranslate('${player_name} plays the ${high} : ${low}'),
       [
-                // 'i18n' => array ('color_displayed','value_displayed' ),
-                                'card_id' => $card_id,
-                                'player_id' => $player_id,
-                'player_name' => self::getActivePlayerName(),
-                                'high' => $currentCard['high'],
-                                'low' => $currentCard['low']]
+        // 'i18n' => array ('color_displayed','value_displayed' ),
+        'card_id' => $card_id,
+        'player_id' => $player_id,
+        'player_name' => self::getActivePlayerName(),
+        'high' => $current_card['high'],
+        'low' => $current_card['low']
+      ]
     );
-    // 'value_displayed' => $this->values_label [$currentCard ['type_arg']],'color' => $currentCard ['type'],
-    // 'color_displayed' => $this->colors [$currentCard ['type']] ['name'] ));
+    // 'value_displayed' => $this->values_label [$current_card ['type_arg']],'color' => $current_card ['type'],
+    // 'color_displayed' => $this->colors [$current_card ['type']] ['name'] ));
     // Next player
     $this->gamestate->nextState('playCard');
   }
@@ -311,6 +405,18 @@ class TexasFortyTwo extends Table {
       self::notifyPlayer($player_id, 'newHand', '', ['hand' => $dominoes]);
     }
     $this->gamestate->nextState("");
+  }
+
+  public function stNextPlayerBid() {
+    $player_id = self::getActivePlayerId();
+    if ($this->isDealer($player_id)) {
+      $highest_bidder = self::getGameStateValue('highestBidder');
+      $this->gamestate->changeActivePlayer($highest_bidder);
+      $this->gamestate->nextState('chooseBidSuit');
+    } else {
+      self::activeNextPlayer();
+      $this->gamestate->nextState('playerBid');
+    }
   }
 
   public function stNewTrick() {
