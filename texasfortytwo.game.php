@@ -114,6 +114,11 @@ class TexasFortyTwo extends Table {
     // TODO(isherman): Call self::initStat for all defined statistics.
 
     self::initializeDeck();
+    self::setGameStateInitialValue('highestBidder', null);
+    self::setGameStateInitialValue('bidValue', null);
+    self::setGameStateInitialValue('bidType', null);
+    self::setGameStateInitialValue('bidSuit', null);
+    self::setGameStateInitialValue('trickSuit', null);
 
     // Begin the game by activating the first player.
     $this->activeNextPlayer();
