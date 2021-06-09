@@ -124,7 +124,7 @@ class TexasFortyTwo extends Table {
           $player['player_canal'],
           addslashes($player['player_name']),
           addslashes($player['player_avatar']),
-          $player_order_index_hack;
+          $player_order_index_hack,
       ];
       $player_order_index_hack++;
     }
