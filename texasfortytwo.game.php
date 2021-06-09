@@ -301,10 +301,11 @@ class TexasFortyTwo extends Table {
     if (is_null($bid_value) || $bid_value > $current_bid_value) {
       self::setGameStateValue('bidValue', $bid_value);
       self::setGameStateValue('highestBidder', $player_id);
+      $this->gamestate->nextState('nextPlayerBid');
     } else {
+      self::debug("Bad bid!");
       // TODO(sdspikes): throw error?
     }
-    $this->gamestate->nextState('nextPlayerBid');
   }
 
 
@@ -398,8 +399,8 @@ class TexasFortyTwo extends Table {
   public function stNextPlayerBid() {
     $player_id = self::getActivePlayer();
     if ($this->isDealer($player_id)) {
-      $highest_bidder = self::getGameStateValue('highestBidder')
-      $this->gamestate->changeActivePlayer($highest_bidder)
+      $highest_bidder = self::getGameStateValue('highestBidder');
+      $this->gamestate->changeActivePlayer($highest_bidder);
       $this->gamestate->nextState('chooseBidSuit');
     } else {
       $this->gamestate->nextState('playerBid');
