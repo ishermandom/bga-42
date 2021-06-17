@@ -308,7 +308,7 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     // only allow bids higher than current bid if it exists
     $current_bid_value = self::getGameStateValue('bidValue') ;
-    if (is_null($bid_value) || $bid_value > $current_bid_value) {
+    if ((is_null($bid_value) && $bid_value > 30) || $bid_value > $current_bid_value) {
       self::setGameStateValue('bidValue', $bid_value);
       self::setGameStateValue('highestBidder', $player_id);
 

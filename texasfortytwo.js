@@ -112,6 +112,16 @@ define([
       }
     },
 
+    bid: function(bidValue) {
+      console.log('bidded: ' + bidValue)
+
+    },
+
+    pass: function() {
+      console.log('pass')
+
+    },
+
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.
     //
@@ -155,7 +165,11 @@ define([
                     this.addActionButton( 'button_3_id', _('Button 3 label'), 'onMyMethodToCall3' );
                     break;
 */
-        ) {}
+        ) {
+          'playerBid':
+              this.addActionButton( 1, '30', bid(30))
+              this.addActionButton( 2, 'pass', pass())
+        }
       }
     },
 
@@ -279,6 +293,7 @@ define([
       console.log('notifications subscriptions setup')
 
       dojo.subscribe('newHand', this, 'onNewHand')
+      dojo.subscribe('bid', this, 'onBid')
       dojo.subscribe('playCard', this, 'onPlayDomino')
 
       dojo.subscribe('trickWin', this, 'notif_trickWin')
@@ -303,6 +318,12 @@ define([
     onPlayDomino: function(data) {
       this.playDomino(data.args.player_id, data.args.card_id);
     },
+
+    onBid: function(data) {
+      console.log('in onBid with: ')
+      console.log(data)
+      // do whatever we need to do when someone bids?
+    }
 
     notif_trickWin: function(notif) {
       // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
