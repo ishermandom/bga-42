@@ -203,8 +203,12 @@ define([
 
             }
             console.log(lowestBid);
+
+            function bidFunction(bidVal) {
+              return e => this.bid(e, bidVal)
+            }
             for (var i = lowestBid; i <= 42; i++) {
-              this.addActionButton('bid' + i, '' + i, e => this.bid(e, i))
+              this.addActionButton('bid' + i, '' + i, bidFunction(i))
             }
             this.addActionButton('pass', 'pass', e => this.pass(e))
         }
