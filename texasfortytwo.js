@@ -180,9 +180,9 @@ define([
                     break;
 */
         ) {
-          'playerBid':
-          this.addActionButton('bid30', '30', e => this.bid(e, 30))
-          this.addActionButton('pass', 'pass', e => this.pass(e))
+          case 'playerBid':
+            this.addActionButton('bid30', '30', e => this.bid(e, 30))
+            this.addActionButton('pass', 'pass', e => this.pass(e))
         }
       }
     },
@@ -307,7 +307,7 @@ define([
       console.log('notifications subscriptions setup')
 
       dojo.subscribe('newHand', this, 'onNewHand')
-      // dojo.subscribe('bid', this, 'onBid')
+      dojo.subscribe('bid', this, 'onBid')
       dojo.subscribe('playCard', this, 'onPlayDomino')
 
       dojo.subscribe('trickWin', this, 'notif_trickWin')
