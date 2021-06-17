@@ -378,7 +378,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function argCurrentBid() {
-    return ['bidValue': self::getGameStateValue('bidValue')] ;
+    return ['bidValue' => self::getGameStateValue('bidValue')];
   }
 
   //////////////////////////////////////////////////////////////////////////////
