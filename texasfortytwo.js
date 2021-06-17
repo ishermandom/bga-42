@@ -132,7 +132,7 @@ define([
 
 
     pass: function(e) {
-      console.log('passed: ' + bidValue)
+      console.log('passed: ')
       console.log(e)
       this.ajaxcall(
         "/texasfortytwo/texasfortytwo/pass.html", {
