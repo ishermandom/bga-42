@@ -112,13 +112,27 @@ define([
       }
     },
 
-    bid: function(bidValue) {
+    bid: function(e, bidValue) {
       console.log('bidded: ' + bidValue)
+      console.log(e)
+      this.ajaxcall(
+        "/texasfortytwo/texasfortytwo/bid.html", {
+          lock: true,
+          bid: bidValue
+        },
+        this,
+        function(result) {
+          console.log(result)
+        },
+        function(is_error) {
+          console.log(is_error)
+        });
 
     },
 
-    pass: function() {
+    pass: function(e) {
       console.log('pass')
+      console.log(e)
 
     },
 
@@ -167,8 +181,8 @@ define([
 */
         ) {
           'playerBid':
-              this.addActionButton( 1, '30', bid(30))
-              this.addActionButton( 2, 'pass', pass())
+          this.addActionButton('bid30', '30', e => this.bid(e, 30))
+          this.addActionButton('pass', 'pass', e => this.pass(e))
         }
       }
     },
@@ -293,7 +307,7 @@ define([
       console.log('notifications subscriptions setup')
 
       dojo.subscribe('newHand', this, 'onNewHand')
-      dojo.subscribe('bid', this, 'onBid')
+      // dojo.subscribe('bid', this, 'onBid')
       dojo.subscribe('playCard', this, 'onPlayDomino')
 
       dojo.subscribe('trickWin', this, 'notif_trickWin')
