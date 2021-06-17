@@ -197,7 +197,7 @@ define([
             if (args) {
               const bidValue = parseInt(args['bidValue'])
               console.log(bidValue);
-              if (bidValue > lowestBid) {
+              if (bidValue >= lowestBid) {
                 lowestBid = bidValue + 1
               }
 
