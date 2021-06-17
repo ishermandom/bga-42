@@ -39,8 +39,7 @@ $machinestates = [
     "action" => "stNewHand",
     "updateGameProgression" => true,
     // TODO(isherman): Change to 21 once actually working on 42.
-    "transitions" => [ "" => 21 ],
-    "args" => "argCurrentBid"
+    "transitions" => [ "" => 21 ]
   ],
 
   /// Bidding
@@ -52,7 +51,8 @@ $machinestates = [
     "type" => "activeplayer",
     // TODO(isherman): Dunno whether these make sense...
     "possibleactions" => [ "bid", "pass" ],
-    "transitions" => [ "nextPlayerBid" => 22 ]
+    "transitions" => [ "nextPlayerBid" => 22 ],
+    "args" => "argCurrentBid"
   ],
   22 => [
     "name" => "nextPlayerBid",

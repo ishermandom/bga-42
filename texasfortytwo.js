@@ -130,12 +130,6 @@ define([
 
     },
 
-    pass: function(e) {
-      console.log('pass')
-      console.log(e)
-
-    },
-
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.
     //
@@ -181,8 +175,14 @@ define([
 */
         ) {
           case 'playerBid':
-            this.addActionButton('bid30', '30', e => this.bid(e, 30))
-            this.addActionButton('pass', 'pass', e => this.pass(e))
+            var lowestBid = 30;
+            if (args && args['bidValue']) {
+              lowestBid = args['bidValue'] + 1
+            }
+            for (var i = lowestBid; i <= 42; i++) {
+              this.addActionButton('bid' + i, '' + i, e => this.bid(e, i))
+            }
+            this.addActionButton('pass', 'pass', e => this.bid(e, 0))
         }
       }
     },
