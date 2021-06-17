@@ -308,6 +308,7 @@ class TexasFortyTwo extends Table {
         // 'i18n' => array ('color_displayed','value_displayed' ),
         'player_id' => $player_id,
         'player_name' => self::getActivePlayerName()
+      ]
     );
   }
 
@@ -335,7 +336,8 @@ class TexasFortyTwo extends Table {
           // 'i18n' => array ('color_displayed','value_displayed' ),
           'player_id' => $player_id,
           'player_name' => self::getActivePlayerName(),
-          'bidValue' => $bid_value        ]
+          'bidValue' => $bid_value
+        ]
       );
       $this->gamestate->nextState('nextPlayerBid');
     } else {
