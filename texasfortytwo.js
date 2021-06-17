@@ -130,6 +130,23 @@ define([
 
     },
 
+
+    pass: function(e) {
+      console.log('passed: ' + bidValue)
+      console.log(e)
+      this.ajaxcall(
+        "/texasfortytwo/texasfortytwo/pass.html", {
+          lock: true
+        },
+        this,
+        function(result) {
+          console.log(result)
+        },
+        function(is_error) {
+          console.log(is_error)
+        });
+
+    },
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.
     //
@@ -176,13 +193,13 @@ define([
         ) {
           case 'playerBid':
             var lowestBid = 30;
-            if (args && args['bidValue']) {
+            if (args && args['bidValue'] > lowestBid) {
               lowestBid = args['bidValue'] + 1
             }
             for (var i = lowestBid; i <= 42; i++) {
               this.addActionButton('bid' + i, '' + i, e => this.bid(e, i))
             }
-            this.addActionButton('pass', 'pass', e => this.bid(e, 0))
+            this.addActionButton('pass', 'pass', e => this.pass(e))
         }
       }
     },

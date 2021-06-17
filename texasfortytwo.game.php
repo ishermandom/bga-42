@@ -296,7 +296,11 @@ class TexasFortyTwo extends Table {
   public function pass() {
     self::checkAction("pass");
     // TODO(isherman): Dealer shouldn't be allowed to pass.
-    $this->gamestate->nextState('nextPlayerBid');
+    $player_id = self::getActivePlayerId();
+    $current_bid_value = self::getGameStateValue('bidValue') ;
+    if ($this->isDealer($player_id) && is_null($current_bid_value)) {
+      $this->gamestate->nextState('nextPlayerBid');
+    }
   }
 
   public function gamestatehack() {
