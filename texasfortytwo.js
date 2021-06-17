@@ -193,9 +193,16 @@ define([
         ) {
           case 'playerBid':
             var lowestBid = 30;
-            if (args && args['bidValue'] > lowestBid) {
-              lowestBid = args['bidValue'] + 1
+            console.log(args);
+            if (args) {
+              const bidValue = parseInt(args['bidValue'])
+              console.log(bidValue);
+              if (bidValue > lowestBid) {
+                lowestBid = bidValue + 1
+              }
+
             }
+            console.log(lowestBid);
             for (var i = lowestBid; i <= 42; i++) {
               this.addActionButton('bid' + i, '' + i, e => this.bid(e, i))
             }
