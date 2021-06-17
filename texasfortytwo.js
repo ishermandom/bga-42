@@ -200,7 +200,6 @@ define([
               if (bidValue >= lowestBid) {
                 lowestBid = bidValue + 1
               }
-
             }
             console.log(lowestBid);
 
@@ -212,6 +211,7 @@ define([
             for (var i = lowestBid; i <= 42; i++) {
               this.addActionButton('bid' + i, '' + i, bidFunction(i))
             }
+            // TODO(sdspikes): add 2 mark, splash, plunge
             this.addActionButton('pass', 'pass', e => this.pass(e))
         }
       }

@@ -301,6 +301,14 @@ class TexasFortyTwo extends Table {
     if (!($this->isDealer($player_id) && is_null($current_bid_value))) {
       $this->gamestate->nextState('nextPlayerBid');
     }
+    self::notifyAllPlayers(
+      'pass',
+      clienttranslate('${player_name} passes'),
+      [
+        // 'i18n' => array ('color_displayed','value_displayed' ),
+        'player_id' => $player_id,
+        'player_name' => self::getActivePlayerName()
+    );
   }
 
   public function gamestatehack() {
@@ -320,6 +328,15 @@ class TexasFortyTwo extends Table {
       self::setGameStateValue('bidValue', $bid_value);
       self::setGameStateValue('highestBidder', $player_id);
 
+      self::notifyAllPlayers(
+        'bid',
+        clienttranslate('${player_name} bids ${bidValue}'),
+        [
+          // 'i18n' => array ('color_displayed','value_displayed' ),
+          'player_id' => $player_id,
+          'player_name' => self::getActivePlayerName(),
+          'bidValue' => $bid_value        ]
+      );
       $this->gamestate->nextState('nextPlayerBid');
     } else {
       self::debug("Bad bid!");
