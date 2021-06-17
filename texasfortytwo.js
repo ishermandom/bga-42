@@ -337,7 +337,7 @@ define([
       console.log('in onBid with: ')
       console.log(data)
       // do whatever we need to do when someone bids?
-    }
+    },
 
     notif_trickWin: function(notif) {
       // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
