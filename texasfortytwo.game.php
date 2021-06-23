@@ -502,7 +502,6 @@ class TexasFortyTwo extends Table {
         $num_doubles++;
       }
     }
-    self::debug($num_doubles);
     if ($num_doubles >= 3) {
       $possible_bids[42 * max(3, $marks) + 1] = 'splash';
     }
@@ -552,6 +551,7 @@ class TexasFortyTwo extends Table {
     if ($this->isDealer($player_id)) {
       $highest_bidder = self::getGameStateValue('highestBidder');
       $bid_value = self::getGameStateValue('bidValue');
+      $players = self::loadPlayersBasicInfos();
       self::notifyAllPlayers(
         'bid',
         clienttranslate('${player_name} wins the bid'),
