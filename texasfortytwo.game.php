@@ -497,11 +497,12 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     $hand = $this->getDominoesInLocation('hand', $player_id);
     $num_doubles = 0;
-    foreach ($hand as $domino => $ignored_val) {
+    foreach ($hand as $domino) {
       if ($domino['high'] === $domino['low']) {
         $num_doubles++;
       }
     }
+    self::debug($num_doubles)
     if ($num_doubles >= 3) {
       $possible_bids[42 * max(3, $marks) + 1] = 'splash';
     }
