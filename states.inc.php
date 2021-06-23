@@ -67,7 +67,7 @@ $machinestates = [
     "descriptionmyturn" => clienttranslate('${you} must choose trump suit'),
     "type" => "activeplayer",
     "possibleactions" => [ "chooseBidType" ],
-    "transitions" => ["chooseBidSuit" => 30 ]
+    "transitions" => ["chooseBidSuit" => 24, "startTrick" => 30 ]
   ],
   24 => [
     "name" => "chooseBidSuit",
@@ -75,7 +75,8 @@ $machinestates = [
     "descriptionmyturn" => clienttranslate('${you} must choose trump suit'),
     "type" => "activeplayer",
     "possibleactions" => [ "chooseBidSuit" ],
-    "transitions" => ["startTrick" => 30 ]
+    "transitions" => ["startTrick" => 30 ],
+    "args" => "argChooseBidSuit"
   ],
   /// Trick
   30 => [
