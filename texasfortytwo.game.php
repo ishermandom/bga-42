@@ -397,7 +397,7 @@ class TexasFortyTwo extends Table {
     // TODO(sdspikes): special case for no trump
     self::notifyAllPlayers(
       'setBidSuit',
-      clienttranslate('${bid_suit} is trump'),
+      clienttranslate('${self::SUIT_TO_DISPLAY_NAME[bid_suit]} are trump'),
       [
         'bid_suit' => $bid_suit,
       ]
