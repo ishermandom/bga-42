@@ -395,9 +395,10 @@ class TexasFortyTwo extends Table {
     self::checkAction("chooseBidSuit");
     self::setGameStateValue('bidSuit', $bid_suit);
     // TODO(sdspikes): special case for no trump
+    $display_name = self::SUIT_TO_DISPLAY_NAME[bid_suit];
     self::notifyAllPlayers(
       'setBidSuit',
-      clienttranslate('${self::SUIT_TO_DISPLAY_NAME[bid_suit]} are trump'),
+      clienttranslate('${display_name} are trump'),
       [
         'bid_suit' => $bid_suit,
       ]
