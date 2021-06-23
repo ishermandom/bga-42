@@ -178,29 +178,29 @@ define([
             if (this.isCurrentPlayerActive()) {
               switch (stateName) {
                 case 'playerBid':
-                  if (!args) {
-                    // error message?
-                    return;
-                  }
-
-                  bidFunction = (bidVal) => (e => this.bid(e, bidVal));
-                  for (const [key, value] of Object.entries(args)) {
-                    console.log(key);
-                    console.log(value);
-                    this.addActionButton('bid' + key, _(value), bidFunction(key));
-                  }
-                  this.addActionButton('pass', _('pass'), e => this.pass(e), null, false, 'red');
+                  // if (!args) {
+                  //   // error message?
+                  //   return;
+                  // }
+                  //
+                  // bidFunction = (bidVal) => (e => this.bid(e, bidVal));
+                  // for (const [key, value] of Object.entries(args)) {
+                  //   console.log(key);
+                  //   console.log(value);
+                  //   this.addActionButton('bid' + key, _(value), bidFunction(key));
+                  // }
+                  // this.addActionButton('pass', _('pass'), e => this.pass(e), null, false, 'red');
                   break;
 
                 case 'chooseBidSuit':
-                  if (!args) {
-                    return;
-                  }
-
-                  chooseBidSuitFunction = (bidSuit) => (e => this.bid(e, bidSuit));
-                  for (bidSuit in args) {
-                    this.addActionButton(bidSuit, bidSuit, chooseBidSuitFunction(key));
-                  }
+                  // if (!args) {
+                  //   return;
+                  // }
+                  //
+                  // chooseBidSuitFunction = (bidSuit) => (e => this.bid(e, bidSuit));
+                  // for (bidSuit in args) {
+                  //   this.addActionButton(bidSuit, bidSuit, chooseBidSuitFunction(key));
+                  // }
                   break;
               }
             },
