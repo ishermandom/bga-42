@@ -112,6 +112,25 @@ define([
       }
     },
 
+    chooseBidSuit: function(e, bidSuit) {
+      console.log('bidSuit: ' + bidSuit);
+      console.log(e);
+      this.ajaxcall(
+        "/texasfortytwo/texasfortytwo/bid.html", {
+          lock: true,
+          bid_suit: bidSuit
+        },
+        this,
+        function(result) {
+          console.log(result)
+        },
+        function(is_error) {
+          console.log(is_error)
+        });
+
+    },
+
+
     bid: function(e, bidValue) {
       console.log('bidded: ' + bidValue);
       console.log(e);
@@ -197,7 +216,7 @@ define([
               return;
             }
 
-            chooseBidSuitFunction = (bidSuit) => (e => this.bid(e, bidSuit));
+            chooseBidSuitFunction = (bidSuit) => (e => this.chooseBidSuit(e, bidSuit));
             args.forEach((bidSuit, index) => {
               this.addActionButton(bidSuit, bidSuit, chooseBidSuitFunction(index));
             });
