@@ -145,6 +145,23 @@ class TexasFortyTwo extends Table {
     $this->activeNextPlayer();
   }
 
+  private function getDisplayStringForBid($bid_value) {
+    if ($bid_value < 42) {
+      return strval($bid_value);
+    }
+    $marks = intdiv($bid_value, 42);
+    if ($bid_value % 42 === 0) {
+      return "$marks marks";
+    }
+    if ($bid_value % 42 === 1) {
+      return "splash ($marks marks)";
+    }
+    if ($bid_value % 42 === 2) {
+      return "plunge ($marks marks)";
+    }
+    return '';
+  }
+
   // Returns whether the given player id is the dealer for this hand.
   private function isDealer($player_id) {
     $first_player_seat = self::getUniqueValueFromDB(
@@ -353,12 +370,12 @@ class TexasFortyTwo extends Table {
 
       self::notifyAllPlayers(
         'bid',
-        clienttranslate('${player_name} bids ${bidValue}'),
+        clienttranslate('${player_name} bids ${bidString}'),
         [
           // 'i18n' => array ('color_displayed','value_displayed' ),
           'player_id' => $player_id,
           'player_name' => self::getActivePlayerName(),
-          'bidValue' => $bid_value
+          'bidString' => getDisplayStringForBid($bid_value)
         ]
       );
       $this->gamestate->nextState('nextPlayerBid');
@@ -486,10 +503,10 @@ class TexasFortyTwo extends Table {
       }
     }
     if ($num_doubles >= 3) {
-      $possible_bids[42 * max(3, marks) + 1] = 'splash';
+      $possible_bids[42 * max(3, $marks) + 1] = 'splash';
     }
     if ($num_doubles >= 4) {
-      $possible_bids[42 * max(4, marks) + 2] = 'plunge';
+      $possible_bids[42 * max(4, $marks) + 2] = 'plunge';
     }
 
     return $possible_bids;
