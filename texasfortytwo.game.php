@@ -405,7 +405,49 @@ class TexasFortyTwo extends Table {
   }
 
   public function argCurrentBid() {
-    return ['bidValue' => self::getGameStateValue('bidValue')];
+    // ignore me
+    /*
+    $possible_dibs = [];
+    for ($i = 30; $i < 42; $i++) {
+      $possible_dibs[$i] = strval($i);
+    }
+    $possible_dibs[1 * 42] = 'one mark';
+    $possible_dibs[2 * 42] = 'two marks';
+    $possible_dibs[3 * 42] = 'splash';
+    $possible_dibs[4 * 42] = 'plunge';
+
+    $current_bid = self::getGameStateValue('bidValue') || 0;
+    for ($bid in $possible_dibs) {
+      if ($bid <= $current_bid) {
+        unset($possible_dibs[$bid]);
+      }
+    }
+    */
+
+    $lowest_bid = 30;
+    $bid_value = self::getGameStateValue('bidValue');
+    if (!is_null($bid_value) && $bid_value >= $lowest_bid) {
+      $lowest_bid = $bid_value + 1;
+    }
+    $possible_bids = [];
+    for ($i = $lowest_bid; $i < 42; $i++) {
+      // convert i to string
+      $possible_bids[$i] = strval($i);
+    }
+    if ($bid_value < 42) {
+      $possible_bids[42] = 'one mark';
+    }
+    if ($bid_value < 84) {
+      $possible_bids[84] = 'two marks';
+    }
+    if ($bid_value < 42*3) {
+      $possible_bids[42*3] = 'splash';
+    }
+    if ($bid_value < 42*4) {
+      $possible_bids[42*4] = 'plunge';
+    }
+
+    return $possible_bids;
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -442,8 +484,28 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     if ($this->isDealer($player_id)) {
       $highest_bidder = self::getGameStateValue('highestBidder');
+      $bid_value = self::getGameStateValue('bidValue');
+      self::notifyAllPlayers(
+        'bid',
+        clienttranslate('${player_name} wins the bid'),
+        [
+          // 'i18n' => array ('color_displayed','value_displayed' ),
+          'player_id' => $player_id,
+          'player_name' => $highest_bidder,
+        ]
+      );
+
+      // TODO(sdspikes): only allow on dump? Need to track that in state if so
+      if ($highest_bidder == $player_id) {
+        $this->gamestate->nextState('chooseBidType');
+
+      }
+      if ($bid_value % 42 == 0) {
+        $this->gamestate->nextState('chooseBidType');
+      } else {
+        $this->gamestate->nextState('chooseBidSuit');
+      }
       $this->gamestate->changeActivePlayer($highest_bidder);
-      $this->gamestate->nextState('chooseBidSuit');
     } else {
       self::activeNextPlayer();
       $this->gamestate->nextState('playerBid');

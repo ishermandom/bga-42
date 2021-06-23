@@ -192,26 +192,21 @@ define([
 */
         ) {
           case 'playerBid':
-            var lowestBid = 30;
-            console.log(args);
-            if (args) {
-              const bidValue = parseInt(args['bidValue'])
-              console.log(bidValue);
-              if (bidValue >= lowestBid) {
-                lowestBid = bidValue + 1
-              }
+            if (!args) {
+              // error message?
+              return;
             }
-            console.log(lowestBid);
 
             var that = this;
 
             function bidFunction(bidVal) {
               return e => that.bid(e, bidVal)
             }
-            for (var i = lowestBid; i <= 42; i++) {
-              this.addActionButton('bid' + i, '' + i, bidFunction(i))
+            for (const [key, value] of Object.entries(args)) {
+              console.log(key);
+              console.log(args[key]);
+              this.addActionButton('bid' + key, args[key], bidFunction(key))
             }
-            // TODO(sdspikes): add 2 mark, splash, plunge
             this.addActionButton('pass', 'pass', e => this.pass(e))
         }
       }
