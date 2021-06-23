@@ -486,7 +486,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function argChooseBidSuit() {
-    return SUIT_TO_DISPLAY_NAME;
+    return self::SUIT_TO_DISPLAY_NAME;
   }
 
   //////////////////////////////////////////////////////////////////////////////
