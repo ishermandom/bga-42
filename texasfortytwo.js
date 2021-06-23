@@ -206,7 +206,11 @@ define([
             for (const [key, value] of Object.entries(args)) {
               console.log(key);
               console.log(value);
-              this.addActionButton('bid' + key, _(value), bidFunction(key));
+              if (value === 'splash' || value === 'plunge') {
+                this.addActionButton('bid' + key, _(value), bidFunction(key), null, false, 'green');
+              } else {
+                this.addActionButton('bid' + key, _(value), bidFunction(key));
+              }
             }
             this.addActionButton('pass', _('pass'), e => this.pass(e), null, false, 'red');
             break;
@@ -218,7 +222,7 @@ define([
 
             chooseBidSuitFunction = (bidSuit) => (e => this.chooseBidSuit(e, bidSuit));
             args.forEach((bidSuit, index) => {
-              this.addActionButton(bidSuit, bidSuit, chooseBidSuitFunction(index));
+              this.addActionButton(bidSuit, _(bidSuit), chooseBidSuitFunction(index));
             });
             break;
         }

@@ -480,8 +480,8 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     $hand = $this->getDominoesInLocation('hand', $player_id);
     $num_doubles = 0;
-    foreach ($domino => $hand) {
-      if ($dominio->high === $domino->low) {
+    foreach ($hand as $domino => $ignored_val) {
+      if ($domino['high'] === $domino['low']) {
         $num_doubles++;
       }
     }
