@@ -553,7 +553,7 @@ class TexasFortyTwo extends Table {
       $bid_value = self::getGameStateValue('bidValue');
       $players = self::loadPlayersBasicInfos();
       self::notifyAllPlayers(
-        'bid',
+        'bidWin',
         clienttranslate('${player_name} wins the bid'),
         [
           // 'i18n' => array ('color_displayed','value_displayed' ),
