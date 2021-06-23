@@ -76,13 +76,13 @@ class TexasFortyTwo extends Table {
       'Sixes',
       'Doubles',
       'No Trump'
-    ]
+    ];
 
-    private const NELLO_SUIT_TO_DISPLAY_NAME {
+    private const NELLO_SUIT_TO_DISPLAY_NAME = [
       'Nello Doubles Low',
       'Nello Doubles High',
       'Nello Doubles are a suit of their own'
-    }
+    ];
 
   // The number of suits: blanks through sixes.
   // HACK: It can be useful to set this to 3 for debugging.
