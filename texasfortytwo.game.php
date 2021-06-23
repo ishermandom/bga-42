@@ -478,8 +478,8 @@ class TexasFortyTwo extends Table {
       $possible_bids[42*4 + 1] = 'plunge';
     }
     if ($bid_value >= 84) {
-      $marks = intdiv($bid_value, 42);
-      $possible_bids[($marks + 1)*42] = "$marks marks";
+      $marks = intdiv($bid_value, 42) + 1;
+      $possible_bids[$marks * 42] = "$marks marks";
     }
 
     return $possible_bids;
