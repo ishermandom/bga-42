@@ -16,7 +16,7 @@
 // TODO(isherman): The docs recommend an SVG for us rather than a PNG:
 // https://en.doc.boardgamearena.com/Game_art:_img_directory#Images_format
 // The sprites file contains images representing all of the dominoes.
-const SPRITES_FILE = 'img/dominoes.png';
+const SPRITES_FILE = 'img/dominoes.svg';
 const SPRITES_PER_ROW = 7;
 // Dimensions of a single domino in the sprites file, in pixels.
 // Note: Whenever updating these values, also update them in the CSS.

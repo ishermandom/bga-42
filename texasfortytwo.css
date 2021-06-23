@@ -100,5 +100,5 @@
     /** Note: Whenever updating these values, also update them in the JS. */
     width: 194px;
     height: 104px;
-    background-image: url("img/dominoes.png");
+    background-image: url("img/dominoes.svg");
 }
