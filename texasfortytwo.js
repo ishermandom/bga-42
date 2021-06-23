@@ -352,6 +352,7 @@ define([
 
       dojo.subscribe('newHand', this, 'onNewHand');
       dojo.subscribe('bid', this, 'onBid');
+      dojo.subscribe('bidWin', this, 'onBidWin');
       dojo.subscribe('playCard', this, 'onPlayDomino');
 
       dojo.subscribe('trickWin', this, 'notif_trickWin');
@@ -381,6 +382,10 @@ define([
       console.log('in onBid with: ');
       console.log(data);
       // do whatever we need to do when someone bids?
+    },
+
+    onBidWin: function(data) {
+      // TODO(sdspikes): update display with winning bid
     },
 
     notif_trickWin: function(notif) {
