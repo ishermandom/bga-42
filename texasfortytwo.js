@@ -198,7 +198,7 @@ define([
             }
 
             chooseBidSuitFunction = (bidSuit) => (e => this.bid(e, bidSuit));
-            args.forEach(bidSuit, index => {
+            args.forEach((bidSuit, index) => {
               this.addActionButton(bidSuit, bidSuit, chooseBidSuitFunction(index));
             });
             break;

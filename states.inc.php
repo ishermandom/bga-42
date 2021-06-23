@@ -63,8 +63,8 @@ $machinestates = [
   ],
   23 => [
     "name" => "chooseBidType",
-    "description" => clienttranslate('${actplayer} must choose trump suit'),
-    "descriptionmyturn" => clienttranslate('${you} must choose trump suit'),
+    "description" => clienttranslate('${actplayer} must choose bid type'),
+    "descriptionmyturn" => clienttranslate('${you} must choose bid type'),
     "type" => "activeplayer",
     "possibleactions" => [ "chooseBidType" ],
     "transitions" => ["chooseBidSuit" => 24, "startTrick" => 30 ]
