@@ -502,7 +502,7 @@ class TexasFortyTwo extends Table {
         $num_doubles++;
       }
     }
-    self::debug($num_doubles)
+    self::debug($num_doubles);
     if ($num_doubles >= 3) {
       $possible_bids[42 * max(3, $marks) + 1] = 'splash';
     }
