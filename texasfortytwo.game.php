@@ -471,15 +471,25 @@ class TexasFortyTwo extends Table {
     if ($bid_value < 84) {
       $possible_bids[84] = '2 marks';
     }
-    if ($bid_value < 42*3) {
-      $possible_bids[42*3 + 1] = 'splash';
-    }
-    if ($bid_value < 42*4) {
-      $possible_bids[42*4 + 1] = 'plunge';
-    }
+    $marks = intdiv($bid_value, 42) + 1;
     if ($bid_value >= 84) {
-      $marks = intdiv($bid_value, 42) + 1;
       $possible_bids[$marks * 42] = "$marks marks";
+    }
+
+    // Only show splash/plunge if you have the doubles to support the bid.
+    $player_id = self::getActivePlayerId();
+    $hand = $this->getDominoesInLocation('hand', $player_id);
+    $num_doubles = 0;
+    foreach ($domino => $hand) {
+      if ($dominio->high === $domino->low) {
+        $num_doubles++;
+      }
+    }
+    if ($num_doubles >= 3) {
+      $possible_bids[42 * max(3, marks) + 1] = 'splash';
+    }
+    if ($num_doubles >= 4) {
+      $possible_bids[42 * max(4, marks) + 2] = 'plunge';
     }
 
     return $possible_bids;
