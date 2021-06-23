@@ -557,7 +557,7 @@ class TexasFortyTwo extends Table {
         [
           // 'i18n' => array ('color_displayed','value_displayed' ),
           'player_id' => $player_id,
-          'player_name' => $highest_bidder,
+          'player_name' => $players[$highest_bidder]['player_name'],
         ]
       );
 
