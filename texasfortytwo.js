@@ -116,7 +116,7 @@ define([
       console.log('bidSuit: ' + bidSuit);
       console.log(e);
       this.ajaxcall(
-        "/texasfortytwo/texasfortytwo/bid.html", {
+        "/texasfortytwo/texasfortytwo/bidSuit.html", {
           lock: true,
           bid_suit: bidSuit
         },
