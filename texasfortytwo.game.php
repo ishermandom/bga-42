@@ -300,6 +300,11 @@ class TexasFortyTwo extends Table {
     $result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
     // Dominoes in play on the table.
     $result['table'] = $this->getDominoesInLocation('table');
+    $result['trickSuit'] = $this->getGameStateValue('trickSuit');
+    $result['bidValue'] = $this->getGameStateValue('bidValue');
+    $result['highestBidder'] = $this->getGameStateValue('highestBidder');
+    $result['bidType'] = $this->getGameStateValue('bidType');
+    $result['bidSuit'] = $this->getGameStateValue('bidSuit');
     return $result;
   }
 
@@ -389,6 +394,14 @@ class TexasFortyTwo extends Table {
   public function chooseBidSuit($bid_suit) {
     self::checkAction("chooseBidSuit");
     self::setGameStateValue('bidSuit', $bid_suit);
+    // TODO(sdspikes): special case for no trump
+    self::notifyAllPlayers(
+      'setBidSuit',
+      clienttranslate('${bid_suit} is trump'),
+      [
+        'bid_suit' => $bid_suit,
+      ]
+    );
     $this->gamestate->nextState();
   }
 
