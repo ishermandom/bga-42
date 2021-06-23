@@ -51,24 +51,33 @@ $machinestates = [
     "type" => "activeplayer",
     // TODO(isherman): Dunno whether these make sense...
     "possibleactions" => [ "bid", "pass" ],
-    "transitions" => [ "nextPlayerBid" => 22 ]
+    "transitions" => [ "nextPlayerBid" => 22 ],
+    "args" => "argCurrentBid"
   ],
   22 => [
     "name" => "nextPlayerBid",
     "description" => "",
     "type" => "game",
     "action" => "stNextPlayerBid",
-    "transitions" => [ "playerBid" => 21, "chooseBidSuit" => 23 ]
+    "transitions" => [ "playerBid" => 21, "chooseBidType" => 23, "chooseBidSuit" => 24 ]
   ],
   23 => [
+    "name" => "chooseBidType",
+    "description" => clienttranslate('${actplayer} must choose bid type'),
+    "descriptionmyturn" => clienttranslate('${you} must choose bid type'),
+    "type" => "activeplayer",
+    "possibleactions" => [ "chooseBidType" ],
+    "transitions" => ["chooseBidSuit" => 24, "startTrick" => 30 ]
+  ],
+  24 => [
     "name" => "chooseBidSuit",
     "description" => clienttranslate('${actplayer} must choose trump suit'),
     "descriptionmyturn" => clienttranslate('${you} must choose trump suit'),
     "type" => "activeplayer",
     "possibleactions" => [ "chooseBidSuit" ],
-    "transitions" => ["startTrick" => 30 ]
+    "transitions" => ["startTrick" => 30 ],
+    "args" => "argChooseBidSuit"
   ],
-
   /// Trick
   30 => [
     "name" => "newTrick",

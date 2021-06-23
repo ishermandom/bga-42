@@ -54,11 +54,17 @@ class action_texasfortytwo extends APP_GameAction {
     $this->game->pass();
     self::ajaxResponse();
   }
+  public function chooseBidType() {
+    self::setAjaxMode();
+    $bid_type = self::getArg("bid_type", AT_posint, true);
+    $this->game->chooseBidType($bid_type);
+    self::ajaxResponse();
+  }
 
   public function chooseBidSuit() {
     self::setAjaxMode();
     $bid_suit = self::getArg("bid_suit", AT_posint, true);
-    $this->game->chooseBidSuit();
+    $this->game->chooseBidSuit($bid_suit);
     self::ajaxResponse();
   }
 }

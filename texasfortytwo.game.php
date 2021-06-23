@@ -24,7 +24,7 @@ abstract class BidType {
   const PLUNGE = 4;
 }
 
-abstract class BidSuit {
+abstract class StandardBidSuit {
   const BLANKS = 0;
   const ONES = 1;
   const TWOS = 2;
@@ -34,10 +34,13 @@ abstract class BidSuit {
   const SIXES = 6;
   const DOUBLES = 7;
   const NO_TRUMP = 8;
+}
+
+abstract class NelloBidSuit {
   // TODO(isherman): Should these be moved to a separate enum?
-  const NELLO_DOUBLES_LOW = 9;
-  const NELLO_DOUBLES_HIGH = 10;
-  const NELLO_DOUBLES_SUIT_OF_THEIR_OWN = 11;
+  const NELLO_DOUBLES_LOW = 0;
+  const NELLO_DOUBLES_HIGH = 1;
+  const NELLO_DOUBLES_SUIT_OF_THEIR_OWN = 2;
 }
 
 class TexasFortyTwo extends Table {
@@ -61,6 +64,24 @@ class TexasFortyTwo extends Table {
         'f07f16',  // orange
         'bdd002',  // khaki green
         '7b7b7b',  // gray
+    ];
+
+    private const SUIT_TO_DISPLAY_NAME = [
+      'Blanks',
+      'Ones',
+      'Twos',
+      'Threes',
+      'Fours',
+      'Fives',
+      'Sixes',
+      'Doubles',
+      'No Trump',
+    ];
+
+    private const NELLO_SUIT_TO_DISPLAY_NAME = [
+      'Nello Doubles Low',
+      'Nello Doubles High',
+      'Nello Doubles are a suit of their own',
     ];
 
   // The number of suits: blanks through sixes.
@@ -124,6 +145,23 @@ class TexasFortyTwo extends Table {
     $this->activeNextPlayer();
   }
 
+  private function getDisplayStringForBid($bid_value) {
+    if ($bid_value < 42) {
+      return strval($bid_value);
+    }
+    $marks = intdiv($bid_value, 42);
+    if ($bid_value % 42 === 0) {
+      return "$marks marks";
+    }
+    if ($bid_value % 42 === 1) {
+      return "splash ($marks marks)";
+    }
+    if ($bid_value % 42 === 2) {
+      return "plunge ($marks marks)";
+    }
+    return '';
+  }
+
   // Returns whether the given player id is the dealer for this hand.
   private function isDealer($player_id) {
     $first_player_seat = self::getUniqueValueFromDB(
@@ -166,7 +204,6 @@ class TexasFortyTwo extends Table {
     $default_colors =
             array_slice(self::POSSIBLE_PLAYER_COLORS, 0, count($players));
     $rows = [];
-    $player_order_index_hack = 0;
     foreach ($players as $player_id => $player) {
       $color = array_shift($default_colors);
       $rows[] = [
@@ -175,9 +212,11 @@ class TexasFortyTwo extends Table {
           $player['player_canal'],
           addslashes($player['player_name']),
           addslashes($player['player_avatar']),
-          $player_order_index_hack,
+          // HACK: During development, it's useful to have a fixed order.
+          // Order based on the player number, which is a suffix on the player
+          // name, 0-9.
+          intval($player['player_name'][-1]),
       ];
-      $player_order_index_hack++;
     }
     self::insertIntoDatabase('player', $fields, $rows);
 
@@ -261,6 +300,11 @@ class TexasFortyTwo extends Table {
     $result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
     // Dominoes in play on the table.
     $result['table'] = $this->getDominoesInLocation('table');
+    $result['trickSuit'] = $this->getGameStateValue('trickSuit');
+    $result['bidValue'] = $this->getGameStateValue('bidValue');
+    $result['highestBidder'] = $this->getGameStateValue('highestBidder');
+    $result['bidType'] = $this->getGameStateValue('bidType');
+    $result['bidSuit'] = $this->getGameStateValue('bidSuit');
     return $result;
   }
 
@@ -296,7 +340,20 @@ class TexasFortyTwo extends Table {
   public function pass() {
     self::checkAction("pass");
     // TODO(isherman): Dealer shouldn't be allowed to pass.
-    $this->gamestate->nextState('nextPlayerBid');
+    $player_id = self::getActivePlayerId();
+    $current_bid_value = self::getGameStateValue('bidValue') ;
+    if (!($this->isDealer($player_id) && is_null($current_bid_value))) {
+      $this->gamestate->nextState('nextPlayerBid');
+    }
+    self::notifyAllPlayers(
+      'pass',
+      clienttranslate('${player_name} passes'),
+      [
+        // 'i18n' => array ('color_displayed','value_displayed' ),
+        'player_id' => $player_id,
+        'player_name' => self::getActivePlayerName()
+      ]
+    );
   }
 
   public function gamestatehack() {
@@ -308,10 +365,24 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     // only allow bids higher than current bid if it exists
     $current_bid_value = self::getGameStateValue('bidValue') ;
-    if (is_null($bid_value) || $bid_value > $current_bid_value) {
+    self::debug("got bid value: ");
+    self::debug($bid_value);
+    self::debug("current bid value: ");
+    self::debug($current_bid_value);
+    if ((is_null($current_bid_value) && $bid_value >= 30) || $bid_value > $current_bid_value) {
       self::setGameStateValue('bidValue', $bid_value);
       self::setGameStateValue('highestBidder', $player_id);
 
+      self::notifyAllPlayers(
+        'bid',
+        clienttranslate('${player_name} bids ${bidString}'),
+        [
+          // 'i18n' => array ('color_displayed','value_displayed' ),
+          'player_id' => $player_id,
+          'player_name' => self::getActivePlayerName(),
+          'bidString' => self::getDisplayStringForBid($bid_value)
+        ]
+      );
       $this->gamestate->nextState('nextPlayerBid');
     } else {
       self::debug("Bad bid!");
@@ -323,6 +394,15 @@ class TexasFortyTwo extends Table {
   public function chooseBidSuit($bid_suit) {
     self::checkAction("chooseBidSuit");
     self::setGameStateValue('bidSuit', $bid_suit);
+    // TODO(sdspikes): special case for no trump
+    $display_name = self::SUIT_TO_DISPLAY_NAME[$bid_suit];
+    self::notifyAllPlayers(
+      'setBidSuit',
+      clienttranslate('${bid_suit} are trump'),
+      [
+        'bid_suit' => $display_name,
+      ]
+    );
     $this->gamestate->nextState();
   }
 
@@ -365,6 +445,13 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState('playCard');
   }
 
+  public function stChooseBidType(){
+    // TODO
+    self::checkAction("chooseBidType");
+    self::setGameStateValue('bidSuit', $bid_suit);
+    $this->gamestate->nextState();
+  }
+
   //////////////////////////////////////////////////////////////////////////////
   //////////// Game state arguments
   ////////////
@@ -375,6 +462,72 @@ class TexasFortyTwo extends Table {
      */
   public function argGiveCards() {
     return [];
+  }
+
+  public function argCurrentBid() {
+    // A shorter version:
+    /*
+    $possible_dibs = [];
+    for ($i = 30; $i < 42; $i++) {
+      $possible_dibs[$i] = strval($i);
+    }
+    $possible_dibs[1 * 42] = 'one mark';
+    $possible_dibs[2 * 42] = 'two marks';
+    $possible_dibs[3 * 42] = 'splash';
+    $possible_dibs[4 * 42] = 'plunge';
+
+    $current_bid = self::getGameStateValue('bidValue') || 0;
+    foreach ($possible_dibs as $bid => $name) {
+      if ($bid <= $current_bid) {
+        unset($possible_dibs[$bid]);
+      }
+    }
+
+    return $possible_dibs;
+    */
+
+    $lowest_bid = 30;
+    $bid_value = self::getGameStateValue('bidValue');
+    if (!is_null($bid_value) && $bid_value >= $lowest_bid) {
+      $lowest_bid = $bid_value + 1;
+    }
+    $possible_bids = [];
+    for ($i = $lowest_bid; $i < 42; $i++) {
+      // convert i to string
+      $possible_bids[$i] = strval($i);
+    }
+    if ($bid_value < 42) {
+      $possible_bids[42] = '1 mark';
+    }
+    if ($bid_value < 84) {
+      $possible_bids[84] = '2 marks';
+    }
+    $marks = intdiv($bid_value, 42) + 1;
+    if ($bid_value >= 84) {
+      $possible_bids[$marks * 42] = "$marks marks";
+    }
+
+    // Only show splash/plunge if you have the doubles to support the bid.
+    $player_id = self::getActivePlayerId();
+    $hand = $this->getDominoesInLocation('hand', $player_id);
+    $num_doubles = 0;
+    foreach ($hand as $domino) {
+      if ($domino['high'] === $domino['low']) {
+        $num_doubles++;
+      }
+    }
+    if ($num_doubles >= 3) {
+      $possible_bids[42 * max(3, $marks) + 1] = 'splash';
+    }
+    if ($num_doubles >= 4) {
+      $possible_bids[42 * max(4, $marks) + 2] = 'plunge';
+    }
+
+    return $possible_bids;
+  }
+
+  public function argChooseBidSuit() {
+    return self::SUIT_TO_DISPLAY_NAME;
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -411,6 +564,27 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     if ($this->isDealer($player_id)) {
       $highest_bidder = self::getGameStateValue('highestBidder');
+      $bid_value = self::getGameStateValue('bidValue');
+      $players = self::loadPlayersBasicInfos();
+      self::notifyAllPlayers(
+        'bidWin',
+        clienttranslate('${player_name} wins the bid'),
+        [
+          // 'i18n' => array ('color_displayed','value_displayed' ),
+          'player_id' => $player_id,
+          'player_name' => $players[$highest_bidder]['player_name'],
+        ]
+      );
+
+      // TODO(sdspikes): only allow on dump? Need to track that in state if so
+      // if ($highest_bidder == $player_id) {
+      //   $this->gamestate->nextState('chooseBidType');
+      //
+      // }
+      // if ($bid_value % 42 == 0) {
+      //   $this->gamestate->nextState('chooseBidType');
+      // } else {
+      // }
       $this->gamestate->changeActivePlayer($highest_bidder);
       $this->gamestate->nextState('chooseBidSuit');
     } else {

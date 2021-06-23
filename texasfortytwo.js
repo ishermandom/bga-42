@@ -13,6 +13,8 @@
  * This file defines the logic for the game user interface.
  */
 
+// TODO(isherman): The docs recommend an SVG for us rather than a PNG:
+// https://en.doc.boardgamearena.com/Game_art:_img_directory#Images_format
 // The sprites file contains images representing all of the dominoes.
 const SPRITES_FILE = 'img/dominoes.svg';
 const SPRITES_PER_ROW = 7;
@@ -82,9 +84,9 @@ define([
         this.playDomino(player_id, domino.id);
       }
 
-      this.setUpNotifications()
+      this.setUpNotifications();
 
-      console.log('Ending game setup')
+      console.log('Ending game setup');
     },
 
     ///////////////////////////////////////////////////
@@ -94,7 +96,7 @@ define([
     //                  You can use this method to perform some user interface changes at this moment.
     //
     onEnteringState: function(stateName, args) {
-      console.log('Entering state: ' + stateName)
+      console.log('Entering state: ' + stateName);
 
       switch (stateName) {
         /* Example:
@@ -108,15 +110,69 @@ define([
            */
 
         case 'dummmy':
-          break
+          break;
       }
     },
 
+    chooseBidSuit: function(e, bidSuit) {
+      console.log('bidSuit: ' + bidSuit);
+      console.log(e);
+      this.ajaxcall(
+        "/texasfortytwo/texasfortytwo/chooseBidSuit.html", {
+          lock: true,
+          bid_suit: bidSuit
+        },
+        this,
+        function(result) {
+          console.log(result)
+        },
+        function(is_error) {
+          console.log(is_error)
+        });
+
+    },
+
+
+    bid: function(e, bidValue) {
+      console.log('bidded: ' + bidValue);
+      console.log(e);
+      this.ajaxcall(
+        "/texasfortytwo/texasfortytwo/bid.html", {
+          lock: true,
+          bid: bidValue
+        },
+        this,
+        function(result) {
+          console.log(result)
+        },
+        function(is_error) {
+          console.log(is_error)
+        });
+
+    },
+
+
+    pass: function(e) {
+      console.log('passed: ');
+      console.log(e);
+      this.ajaxcall(
+        "/texasfortytwo/texasfortytwo/pass.html", {
+          lock: true
+        },
+        this,
+        function(result) {
+          console.log(result)
+        },
+        function(is_error) {
+          console.log(is_error)
+        });
+
+    },
     // onLeavingState: this method is called each time we are leaving a game state.
     //                 You can use this method to perform some user interface changes at this moment.
     //
     onLeavingState: function(stateName) {
-      console.log('Leaving state: ' + stateName)
+      console.log('Leaving state: ' + stateName);
 
       switch (stateName) {
         /* Example:
@@ -130,7 +186,7 @@ define([
            */
 
         case 'dummmy':
-          break
+          break;
       }
     },
 
@@ -138,24 +194,40 @@ define([
     //                        action status bar (ie: the HTML links in the status bar).
     //
     onUpdateActionButtons: function(stateName, args) {
-      console.log('onUpdateActionButtons: ' + stateName)
+      console.log('onUpdateActionButtons: ' + stateName);
 
       if (this.isCurrentPlayerActive()) {
-        switch (
-          stateName
-          /*
-                 Example:
+        switch (stateName) {
+          case 'playerBid':
+            if (!args) {
+              // error message?
+              return;
+            }
 
-                 case 'myGameState':
+            bidFunction = (bidVal) => (e => this.bid(e, bidVal));
+            for (const [key, value] of Object.entries(args)) {
+              console.log(key);
+              console.log(value);
+              if (value === 'splash' || value === 'plunge') {
+                this.addActionButton('bid' + key, _(value), bidFunction(key), null, false, 'green');
+              } else {
+                this.addActionButton('bid' + key, _(value), bidFunction(key));
+              }
+            }
+            this.addActionButton('pass', _('pass'), e => this.pass(e), null, false, 'red');
+            break;
 
-                    // Add 3 action buttons in the action status bar:
+          case 'chooseBidSuit':
+            if (!args) {
+              return;
+            }
 
-                    this.addActionButton( 'button_1_id', _('Button 1 label'), 'onMyMethodToCall1' );
-                    this.addActionButton( 'button_2_id', _('Button 2 label'), 'onMyMethodToCall2' );
-                    this.addActionButton( 'button_3_id', _('Button 3 label'), 'onMyMethodToCall3' );
-                    break;
-*/
-        ) {}
+            chooseBidSuitFunction = (bidSuit) => (e => this.chooseBidSuit(e, bidSuit));
+            args.forEach((bidSuit, index) => {
+              this.addActionButton(bidSuit, _(bidSuit), chooseBidSuitFunction(index));
+            });
+            break;
+        }
       }
     },
 
@@ -198,7 +270,7 @@ define([
         // You played a domino. If it exists in your hand, animate it moving.
         if ($('hand_item_' + domino_id)) {
           this.placeOnObject(destination, 'hand_item_' + domino_id);
-          this.hand.removeFromStockById(domino_id)
+          this.hand.removeFromStockById(domino_id);
         }
       }
 
@@ -218,13 +290,13 @@ define([
      */
 
     onHandSelectionChanged: function() {
-      var items = this.hand.getSelectedItems()
+      var items = this.hand.getSelectedItems();
 
       if (items.length > 0) {
-        var action = 'playCard'
+        var action = 'playCard';
         if (this.checkAction(action, true)) {
           // Can play a card
-          var card_id = items[0].id
+          var card_id = items[0].id;
           this.ajaxcall(
             '/' +
             this.game_name +
@@ -245,7 +317,7 @@ define([
         } else if (this.checkAction('giveCards')) {
           // Can give cards => let the player select some cards
         } else {
-          this.hand.unselectAll()
+          this.hand.unselectAll();
         }
       }
     },
@@ -276,19 +348,21 @@ define([
 
     */
     setUpNotifications: function() {
-      console.log('notifications subscriptions setup')
+      console.log('notifications subscriptions setup');
 
-      dojo.subscribe('newHand', this, 'onNewHand')
-      dojo.subscribe('playCard', this, 'onPlayDomino')
+      dojo.subscribe('newHand', this, 'onNewHand');
+      dojo.subscribe('bid', this, 'onBid');
+      dojo.subscribe('bidWin', this, 'onBidWin');
+      dojo.subscribe('playCard', this, 'onPlayDomino');
 
-      dojo.subscribe('trickWin', this, 'notif_trickWin')
-      this.notifqueue.setSynchronous('trickWin', 1000)
+      dojo.subscribe('trickWin', this, 'notif_trickWin');
+      this.notifqueue.setSynchronous('trickWin', 1000);
       dojo.subscribe(
         'giveAllCardsToPlayer',
         this,
         'notif_giveAllCardsToPlayer'
-      )
-      dojo.subscribe('newScores', this, 'notif_newScores')
+      );
+      dojo.subscribe('newScores', this, 'notif_newScores');
     },
 
     onNewHand: function(data) {
@@ -304,21 +378,31 @@ define([
       this.playDomino(data.args.player_id, data.args.card_id);
     },
 
+    onBid: function(data) {
+      console.log('in onBid with: ');
+      console.log(data);
+      // do whatever we need to do when someone bids?
+    },
+
+    onBidWin: function(data) {
+      // TODO(sdspikes): update display with winning bid
+    },
+
     notif_trickWin: function(notif) {
       // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
     },
     notif_giveAllCardsToPlayer: function(notif) {
       // Move all cards on table to given table, then destroy them
-      var winner_id = notif.args.player_id
+      var winner_id = notif.args.player_id;
       for (var player_id in this.gamedatas.players) {
         var anim = this.slideToObject(
           'cardontable_' + player_id,
           'overall_player_board_' + winner_id
-        )
+        );
         dojo.connect(anim, 'onEnd', function(node) {
           dojo.destroy(node)
-        })
-        anim.play()
+        });
+        anim.play();
       }
     },
     notif_newScores: function(notif) {
@@ -326,7 +410,7 @@ define([
       for (var player_id in notif.args.newScores) {
         this.scoreCtrl[player_id].toValue(
           notif.args.newScores[player_id]
-        )
+        );
       }
     }
   })
