@@ -398,9 +398,9 @@ class TexasFortyTwo extends Table {
     $display_name = self::SUIT_TO_DISPLAY_NAME[bid_suit];
     self::notifyAllPlayers(
       'setBidSuit',
-      clienttranslate('${display_name} are trump'),
+      clienttranslate('${bid_suit} are trump'),
       [
-        'bid_suit' => $bid_suit,
+        'bid_suit' => $display_name,
       ]
     );
     $this->gamestate->nextState();
