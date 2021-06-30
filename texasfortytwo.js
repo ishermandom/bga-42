@@ -107,14 +107,17 @@ define([
 
     updatePossibleMoves: function(trickSuit) {
       // TODO(isherman): Fixme
-      /*const handItems = this.hand.getAllItems();
+      /*
+      const handItems = this.hand.getAllItems();
       for (const handItem of handItems) {
         const id = handItem.id;
-        const div = this.hand.getItemDivId(domino.id);
-      }*/
-      // getItemDivId
-      // var items = this.hand.getSelectedItems();
-
+        const domino = getDominoFromId(id);
+        if (domino.high === trickSuit || domino.low === trickSuit) {
+          const div = this.hand.getItemDivId(id);
+          div.style.border = "solid 4px yellow";
+        }
+      }
+      */
     },
 
     chooseBidSuit: function(e, bidSuit) {

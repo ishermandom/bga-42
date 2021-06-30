@@ -302,7 +302,7 @@ class TexasFortyTwo extends Table {
     $dominoes = self::getObjectListFromDB(
       "SELECT $fields FROM dominoes WHERE $where"
     );
-    return array_map(fixDataTypes, $dominoes);
+    return array_map(self::fixDataTypes, $dominoes);
   }
 
   // Returns all game state visible to the current player.
@@ -441,7 +441,7 @@ class TexasFortyTwo extends Table {
     $domino = self::getNonEmptyObjectFromDB(
       "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id"
     );
-    $domino = fixDataTypes($domino);
+    $domino = self::fixDataTypes($domino);
 
     self::trace("current_card [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
     //print_r($current_card);
