@@ -184,14 +184,14 @@ class TexasFortyTwo extends Table {
   }
 
   private function getSuitAndRank($domino) {
-    $trumpSuit = self::getGameStateValue( 'trumpSuit' ) ;
+    $trumpSuit = self::getGameStateValue( 'trumpSuit' );
     $cardSuit = $domino['high'];
     $cardRank = $domino['low'];
     if ($domino['low'] == $trumpSuit) {
       $cardSuit = $domino['low'];
       $cardRank = $domino['high'];
     }
-    return ['suit' => $cardSuit, 'rank' => $cardRank]
+    return ['suit' => $cardSuit, 'rank' => $cardRank];
   }
 
   // Inserts a set of fields into the database named `$db_name`;
