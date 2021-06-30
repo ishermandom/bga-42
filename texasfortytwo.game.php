@@ -282,8 +282,9 @@ class TexasFortyTwo extends Table {
     if (!is_null($location_arg)) {
       $where .= "AND card_location_arg=$location_arg";
     }
-    $dominoes = self::getObjectListFromDB(``"SELECT $fields FROM dominoes WHERE $where"
-  );
+    $dominoes = self::getObjectListFromDB(
+      "SELECT $fields FROM dominoes WHERE $where"
+    );
 
     $fix_data_types = function ($domino) {
       $fixed = [];
@@ -627,14 +628,16 @@ class TexasFortyTwo extends Table {
       $dominoes_on_table = $this->dominoes->getCardsInLocation('table');
       $best_value = 0;
       $best_value_player_id = null;
-      //$currentTrickColor = self::getGameStateValue('trickColor');
+      $currentTrickSuit = self::getGameStateValue('trickSuit');
       foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
         $suitAndRank = self::getSuitAndRank($domino);
-        if ($suitAndRank ['suit'] == $currentTrickSuit) {
-          if ($best_value_player_id === null || $suitAndRank ['rank'] > $best_value) {
+        if ($suitAndRank['suit'] === $currentTrickSuit) {
+          if ($best_value_player_id === null ||
+              $suitAndRank['rank'] === $suitAndRank['suit'] ||
+              $suitAndRank['rank'] > $best_value) {
             $best_value_player_id = $domino ['location_arg']; // Note: location_arg = player who played this card on table
-          $best_value = $suitAndRank['rank']; // Note: type_arg = value of the card
+            $best_value = $suitAndRank['rank']; // Note: type_arg = value of the card
           }
         }
       }
