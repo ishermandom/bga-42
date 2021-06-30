@@ -240,9 +240,9 @@ class TexasFortyTwo extends Table {
 
     // Allow all possible player color preferences.
     self::reattributeColorsBasedOnPreferences(
-    $players,
-    self::POSSIBLE_PLAYER_COLORS
-  );
+      $players,
+      self::POSSIBLE_PLAYER_COLORS
+    );
     self::reloadPlayersBasicInfos();
   }
 
