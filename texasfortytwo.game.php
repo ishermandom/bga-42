@@ -186,7 +186,7 @@ class TexasFortyTwo extends Table {
   }
 
   private function getSuitAndRank($domino) {
-    self::trace($domino)
+    self::trace($domino);
     $trumpSuit = self::getGameStateValue('trumpSuit');
     $trickSuit = self::getGameStateValue('trickSuit');
     if ($domino['high'] !== $trumpSuit &&
@@ -210,13 +210,16 @@ class TexasFortyTwo extends Table {
     self::DbQuery("INSERT INTO $db_name ($fields) VALUES $values");
   }
 
-  // TODO(isherman): Docs.
+  // Returns a copy of the `$domino` with semantically correct data types.
+  // SQL queries return strings even for int fields; this function converts
+  // those strings back into ints.
   private static function fixDataTypes($domino) {
-    $int_fields = ['id, high, low, card_location_arg'];
+    $int_fields = ['id, high, low, location_arg'];
     $fixed = [];
     foreach ($domino as $field => $value) {
-      // All the queried fields are ints!
-      $fixed[$field] = intval($value);
+      if (in_array($field, $int_fields, true)) {
+        $fixed[$field] = intval($value);
+      }
     }
     return $fixed;
   }
@@ -268,7 +271,7 @@ class TexasFortyTwo extends Table {
       'high',
       'low',
       'card_location',
-      'card_location_arg',
+      'location_arg',
       'card_type',
       'card_type_arg',
     ];
@@ -291,24 +294,15 @@ class TexasFortyTwo extends Table {
 
   // Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
   private function getDominoesInLocation($location, $location_arg = null) {
-    $fields = 'card_id id, high, low, card_location_arg';
+    $fields = 'card_id id, high, low, location_arg';
     $where = "card_location='$location'";
     if (!is_null($location_arg)) {
-      $where .= "AND card_location_arg=$location_arg";
+      $where .= "AND location_arg=$location_arg";
     }
     $dominoes = self::getObjectListFromDB(
       "SELECT $fields FROM dominoes WHERE $where"
     );
-
-    $fix_data_types = function ($domino) {
-      $fixed = [];
-      foreach ($domino as $field => $value) {
-        // All the queried fields are ints!
-        $fixed[$field] = intval($value);
-      }
-      return $fixed;
-    };
-    return array_map($fix_data_types, $dominoes);
+    return array_map(fixDataTypes, $dominoes);
   }
 
   // Returns all game state visible to the current player.
@@ -444,20 +438,10 @@ class TexasFortyTwo extends Table {
    */
   public function playCard($card_id) {
     self::checkAction("playCard");
-    $domino = self::getCollectionFromDb(
+    $domino = self::getNonEmptyObjectFromDB(
       "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id"
-    )[$card_id];
-
-    // TODO(isherman): This is copy/pasted, boo!
-    $fix_data_types = function ($d) {
-      $fixed = [];
-      foreach ($d as $field => $value) {
-        // All the queried fields are ints!
-        $fixed[$field] = intval($value);
-      }
-      return $fixed;
-    };
-    $domino = $fix_data_types($domino);
+    );
+    $domino = fixDataTypes($domino);
 
     self::trace("current_card [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
     //print_r($current_card);
@@ -694,7 +678,7 @@ class TexasFortyTwo extends Table {
         $play = self::getSuitAndRank($domino);
         if ($best_play === null ||
             self::beatsDomino($best_play, $play, $trump_suit)) {
-          $best_play_player_id = $domino['card_location_arg']; // Note: location_arg = player id
+          $best_play_player_id = $domino['location_arg']; // Note: location_arg = player id
           $best_play = $play;
         }
       }

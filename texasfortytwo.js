@@ -80,7 +80,7 @@ define([
 
       // Display dominoes in play on the table.
       for (const domino of this.gamedatas.table) {
-        const player_id = domino.card_location_arg;
+        const player_id = domino.location_arg;
         this.playDomino(player_id, domino.id);
       }
 
@@ -109,8 +109,8 @@ define([
       // TODO(isherman): Fixme
       /*const hand = this.hand.getAllItems();
       for (const domino of hand) {
-        const div = this.hand.getItemDivId(domino.id);
         const
+        const div = this.hand.getItemDivId(domino.id);
       }*/
       // getItemDivId
       // var items = this.hand.getSelectedItems();
@@ -245,6 +245,11 @@ define([
       // order to land in the `high` suit, and then index into the suit to get
       // the `low`th rank card.
       return (high * (high + 1)) / 2 + low;
+    },
+
+    // TODO(isherman): Docs
+    getDominoFromId: function(id) {
+      return null;
     },
 
     // Animates a domino being played on the table.
