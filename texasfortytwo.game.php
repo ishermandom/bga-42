@@ -393,10 +393,8 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     // only allow bids higher than current bid if it exists
     $current_bid_value = self::getGameStateValue('bidValue') ;
-    self::trace("got bid value: ");
-    self::trace($bid_value);
-    self::trace("current bid value: ");
-    self::trace($current_bid_value);
+    self::trace("got bid value: %d", $bid_value);
+    self::trace("current bid value: %d", $current_bid_value);
     if ((is_null($current_bid_value) && $bid_value >= 30) || $bid_value > $current_bid_value) {
       self::setGameStateValue('bidValue', $bid_value);
       self::setGameStateValue('highestBidder', $player_id);
@@ -445,7 +443,7 @@ class TexasFortyTwo extends Table {
     );
     $domino = self::fixDataTypes($domino);
 
-    self::trace("current_card [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
+    self::trace("played domino: [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
     //print_r($current_card);
 
     $trumpSuit = self::getGameStateValue('trumpSuit');
@@ -623,10 +621,10 @@ class TexasFortyTwo extends Table {
         'bidWin',
         clienttranslate('${player_name} wins the bid'),
         [
-        // 'i18n' => array ('color_displayed','value_displayed' ),
-        'player_id' => $player_id,
-        'player_name' => $players[$highest_bidder]['player_name'],
-      ]
+          // 'i18n' => array ('color_displayed','value_displayed' ),
+          'player_id' => $player_id,
+          'player_name' => $players[$highest_bidder]['player_name'],
+        ]
       );
 
       // TODO(sdspikes): only allow on dump? Need to track that in state if so
@@ -678,8 +676,10 @@ class TexasFortyTwo extends Table {
       foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
         $play = self::getSuitAndRank($domino);
+        self::trace(print_r($play, true));
         if ($best_play === null ||
             self::beatsDomino($best_play, $play, $trump_suit)) {
+          self::trace('beats previous!');
           $best_play_player_id = $domino['location_arg']; // Note: location_arg = player id
           $best_play = $play;
         }
@@ -696,11 +696,11 @@ class TexasFortyTwo extends Table {
       //  before we move all cards to the winner (during the second)
       $players = self::loadPlayersBasicInfos();
       self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), [
-          'player_id' => $best_play_player_id,
-          'player_name' => $players[ $best_play_player_id ]['player_name']
+        'player_id' => $best_play_player_id,
+        'player_name' => $players[ $best_play_player_id ]['player_name']
       ]);
       self::notifyAllPlayers('giveAllCardsToPlayer', '', [
-          'player_id' => $best_play_player_id
+        'player_id' => $best_play_player_id
       ]);
 
       if ($this->dominoes->countCardInLocation('hand') == 0) {
