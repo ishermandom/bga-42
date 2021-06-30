@@ -43,6 +43,14 @@ abstract class NelloBidSuit {
   const NELLO_DOUBLES_SUIT_OF_THEIR_OWN = 2;
 }
 
+abstract class CardLocation {
+  const DECK = 'deck';
+  const TABLE = 'table';
+  const HAND = 'hand';
+  // TODO(isherman): I don't love this name, mebbe rename?
+  const CARDS_WON = 'cardswon';
+}
+
 class TexasFortyTwo extends Table {
   // All possible colors that players might have set as their preferred color.
   // The list of options is defined at
@@ -173,6 +181,17 @@ class TexasFortyTwo extends Table {
       "SELECT player_id id FROM player WHERE player_no = $dealer_seat"
     );
     return $player_id == $dealer_id;
+  }
+
+  private function getSuitAndRank($domino) {
+    $trumpSuit = self::getGameStateValue( 'trumpSuit' ) ;
+    $cardSuit = $domino['high'];
+    $cardRank = $domino['low'];
+    if ($domino['low'] == $trumpSuit) {
+      $cardSuit = $domino['low'];
+      $cardRank = $domino['high'];
+    }
+    return ['suit' => $cardSuit, 'rank' => $cardRank]
   }
 
   // Inserts a set of fields into the database named `$db_name`;
@@ -420,12 +439,16 @@ class TexasFortyTwo extends Table {
     self::debug("current_card [%d, %d, %d]\n", $current_card['id'], $current_card['low'], $current_card['high']);
     //print_r($current_card);
 
+    $trumpSuit = self::getGameStateValue( 'trumpSuit' ) ;
+    $suitAndRank = self::getSuitAndRank($current_card)
+
     // XXX check rules here
     // Set the trick color if it hasn't been set yet
-    //$currentTrickColor = self::getGameStateValue( 'trickColor' ) ;
-    //if( $currentTrickColor == 0 )
-    // TODO(sdspikes): if it's trump, use trump
-    //self::setGameStateValue( 'trickColor', $current_card['high'] );
+    $currentTrickSuit = self::getGameStateValue( 'trickSuit' ) ;
+    if(is_null($currentTrickSuit) ) {
+        self::setGameStateValue( 'trickSuit', $suitAndRank['suit'] );
+    }
+
     // And notify
     self::notifyAllPlayers(
       'playCard',
@@ -604,26 +627,27 @@ class TexasFortyTwo extends Table {
     // Active next player OR end the trick and go to the next trick OR end the hand
     if ($this->dominoes->countCardInLocation('table') == 4) {
       // This is the end of the trick
-      $cards_on_table = $this->dominoes->getCardsInLocation('table');
+      $dominoes_on_table = $this->dominoes->getCardsInLocation('table');
       $best_value = 0;
       $best_value_player_id = null;
       //$currentTrickColor = self::getGameStateValue('trickColor');
-      foreach ($cards_on_table as $card) {
+      foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
-                // if ($card ['type'] == $currentTrickColor) {
-                //     if ($best_value_player_id === null || $card ['type_arg'] > $best_value) {
-                //         $best_value_player_id = $card ['location_arg']; // Note: location_arg = player who played this card on table
-                //         $best_value = $card ['type_arg']; // Note: type_arg = value of the card
-                //     }
-                // }
+        $suitAndRank = self::getSuitAndRank($domino)
+          if ($suitAndRank ['suit'] == $currentTrickSuit) {
+              if ($best_value_player_id === null || $suitAndRank ['rank'] > $best_value) {
+                  $best_value_player_id = $domino ['location_arg']; // Note: location_arg = player who played this card on table
+                  $best_value = $suitAndRank['rank']; // Note: type_arg = value of the card
+              }
+          }
       }
 
       // Active this player => he's the one who starts the next trick
-      //$this->gamestate->changeActivePlayer( $best_value_player_id );
+      $this->gamestate->changeActivePlayer( $best_value_player_id );
       // TODO(isherman): Temporary hack while we don't have rules implemented :)
-      $best_value_player_id = self::activeNextPlayer();
+      // $best_value_player_id = self::activeNextPlayer();
 
-      // Move all cards to "cardswon" of the given player
+      // Move all dominoes to "cardswon" of the given player
       $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $best_value_player_id);
 
       // Notify
