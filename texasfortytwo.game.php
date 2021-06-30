@@ -633,7 +633,7 @@ class TexasFortyTwo extends Table {
       //$currentTrickColor = self::getGameStateValue('trickColor');
       foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
-        $suitAndRank = self::getSuitAndRank($domino)
+        $suitAndRank = self::getSuitAndRank($domino);
           if ($suitAndRank ['suit'] == $currentTrickSuit) {
               if ($best_value_player_id === null || $suitAndRank ['rank'] > $best_value) {
                   $best_value_player_id = $domino ['location_arg']; // Note: location_arg = player who played this card on table
