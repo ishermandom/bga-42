@@ -187,8 +187,8 @@ class TexasFortyTwo extends Table {
 
   private function getSuitAndRank($domino) {
     self::trace(print_r($domino, true));
-    $trumpSuit = self::getGameStateValue('trumpSuit');
-    $trickSuit = self::getGameStateValue('trickSuit');
+    $trumpSuit = self::getTrumpSuit();
+    $trickSuit = self::getTrickSuit();
     if ($domino['high'] !== $trumpSuit &&
         ($domino['low'] === $trumpSuit || $domino['low'] === $trickSuit)) {
       return ['suit' => $domino['low'], 'rank' => $domino['high']];
@@ -328,11 +328,11 @@ class TexasFortyTwo extends Table {
     $result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
     // Dominoes in play on the table.
     $result['table'] = $this->getDominoesInLocation('table');
-    $result['trickSuit'] = $this->getGameStateValue('trickSuit');
+    $result['trickSuit'] = self::getTrickSuit();
     $result['bidValue'] = $this->getGameStateValue('bidValue');
     $result['highestBidder'] = $this->getGameStateValue('highestBidder');
     $result['bidType'] = $this->getGameStateValue('bidType');
-    $result['trumpSuit'] = $this->getGameStateValue('trumpSuit');
+    $result['trumpSuit'] = self::getTrumpSuit();
     return $result;
   }
 
@@ -446,8 +446,8 @@ class TexasFortyTwo extends Table {
     self::trace("played domino: [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
     //print_r($current_card);
 
-    $trumpSuit = self::getGameStateValue('trumpSuit');
-    $trickSuit = self::getGameStateValue('trickSuit');
+    $trumpSuit = self::getTrumpSuit();
+    $trickSuit = self::getTrickSuit();
     $play = self::getSuitAndRank($domino);
 
     $player_id = self::getActivePlayerId();
@@ -578,7 +578,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function argPlayerTurn() {
-    return ['trickSuit' => self::getGameStateValue('trickSuit')];
+    return ['trickSuit' => self::getTrickSuit();];
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -665,6 +665,16 @@ class TexasFortyTwo extends Table {
     return $suited_domino['suit'] === $suited_domino['rank'];
   }
 
+  private function getTrumpSuit() {
+    const $trump = self::getGameStateValue('trumpSuit');
+    return is_null($trump) ? null : intval($trump);
+  }
+
+  private function getTrickSuit() {
+    const $suit = self::getGameStateValue('trickSuit');
+    return is_null($suit) ? null : intval($suit);
+  }
+
   public function stNextPlayer() {
     // Active next player OR end the trick and go to the next trick OR end the hand
     if ($this->dominoes->countCardInLocation('table') == 4) {
@@ -677,7 +687,7 @@ class TexasFortyTwo extends Table {
       $lead_domino =
         $this->getDominoesInLocation('table', $winning_player_id)[0];
       $winning_play = self::getSuitAndRank($lead_domino);
-      $trump_suit = self::getGameStateValue('trumpSuit');
+      $trump_suit = self::getTrumpSuit();
       foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
         $play = self::getSuitAndRank($domino);
