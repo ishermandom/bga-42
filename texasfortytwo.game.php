@@ -621,23 +621,37 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState();
   }
 
+  public static function beatsDomino($old, $new, $trickSuit, $trumpSuit) {
+    if ($new['suit'] === $old['suit']) {
+      return isDouble($new) || $new['rank'] > $old['rank'];
+    }
+    if ($new['suit'] === $trumpSuit) {
+      return false;
+    }
+  }
+
+  public static function isDouble($suitAndRank) {
+    return $suitAndRank['suit'] === $suitAndRank['rank'];
+  }
+
   public function stNextPlayer() {
     // Active next player OR end the trick and go to the next trick OR end the hand
     if ($this->dominoes->countCardInLocation('table') == 4) {
       // This is the end of the trick
       $dominoes_on_table = $this->dominoes->getCardsInLocation('table');
-      $best_value = 0;
-      $best_value_player_id = null;
+      $best_domino = null;
+      $best_domino_player_id = null;
       $currentTrickSuit = self::getGameStateValue('trickSuit');
       foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
         $suitAndRank = self::getSuitAndRank($domino);
         if ($suitAndRank['suit'] === $currentTrickSuit) {
-          if ($best_value_player_id === null ||
-              $suitAndRank['rank'] === $suitAndRank['suit'] ||
-              $suitAndRank['rank'] > $best_value) {
-            $best_value_player_id = $domino ['location_arg']; // Note: location_arg = player who played this card on table
-            $best_value = $suitAndRank['rank']; // Note: type_arg = value of the card
+          if ($best_domino === null ||
+              self::isDouble($suitAndRank) ||
+              (!self::isDouble($best_domino) &&
+               $suitAndRank['rank'] > $best_domino['rank'])) {
+            $best_domino_player_id = $domino['location_arg']; // Note: location_arg = player who played this card on table
+            $best_domino = $suitAndRank; // Note: type_arg = value of the card
           }
         }
       }
