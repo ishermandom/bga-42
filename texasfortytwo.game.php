@@ -670,37 +670,41 @@ class TexasFortyTwo extends Table {
     if ($this->dominoes->countCardInLocation('table') == 4) {
       // This is the end of the trick
       $dominoes_on_table = $this->getDominoesInLocation('table');
-      $best_play = null;
-      $best_play_player_id = null;
+      // The player after the final player is the player that lead.
+      $winning_player_id = self::getPlayerAfter(self::getActivePlayerId());
+      // TODO(isherman): Would be nice to assert that there is exactly one
+      // domino returned here:
+      $lead_domino =
+        $this->getDominoesInLocation('table', $winning_player_id)[0];
+      $winning_play = self::getSuitAndRank($lead_domino);
       $trump_suit = self::getGameStateValue('trumpSuit');
       foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
         $play = self::getSuitAndRank($domino);
         self::trace(print_r($play, true));
-        if ($best_play === null ||
-            self::beatsDomino($best_play, $play, $trump_suit)) {
+        if (self::beatsDomino($winning_play, $play, $trump_suit)) {
           self::trace('beats previous!');
-          $best_play_player_id = $domino['location_arg']; // Note: location_arg = player id
-          $best_play = $play;
+          $winning_player_id = $domino['location_arg']; // Note: location_arg = player id
+          $winning_play = $play;
         }
       }
 
       // Activate this player, they have the lead
-      $this->gamestate->changeActivePlayer($best_play_player_id);
+      $this->gamestate->changeActivePlayer($winning_player_id);
 
       // Move all dominoes to "cardswon" of the given player
-      $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $best_play_player_id);
+      $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $winning_player_id);
 
       // Notify
       // Note: we use 2 notifications here to pause the display during the first notification
       //  before we move all cards to the winner (during the second)
       $players = self::loadPlayersBasicInfos();
       self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), [
-        'player_id' => $best_play_player_id,
-        'player_name' => $players[ $best_play_player_id ]['player_name']
+        'player_id' => $winning_player_id,
+        'player_name' => $players[ $winning_player_id ]['player_name']
       ]);
       self::notifyAllPlayers('giveAllCardsToPlayer', '', [
-        'player_id' => $best_play_player_id
+        'player_id' => $winning_player_id
       ]);
 
       if ($this->dominoes->countCardInLocation('hand') == 0) {
