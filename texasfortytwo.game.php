@@ -176,24 +176,23 @@ class TexasFortyTwo extends Table {
   // Returns whether the given player id is the dealer for this hand.
   private function isDealer($player_id) {
     $first_player_seat = self::getUniqueValueFromDB(
-    'SELECT player_no seat FROM player WHERE is_first_player = true'
-  );
+      'SELECT player_no seat FROM player WHERE is_first_player = true'
+    );
     $dealer_seat = ($first_player_seat + self::NUM_PLAYERS - 1) % self::NUM_PLAYERS;
     $dealer_id = self::getUniqueValueFromDB(
-    "SELECT player_id id FROM player WHERE player_no = $dealer_seat"
-  );
+      "SELECT player_id id FROM player WHERE player_no = $dealer_seat"
+    );
     return $player_id == $dealer_id;
   }
 
-  private function getSuitAndRank($domino) {
+  private static function getSuitAndRank($domino) {
     $trumpSuit = self::getGameStateValue('trumpSuit');
-    $cardSuit = $domino['high'];
-    $cardRank = $domino['low'];
-    if ($domino['low'] == $trumpSuit) {
-      $cardSuit = $domino['low'];
-      $cardRank = $domino['high'];
+    $trickSuit = self::getGameStateValue('trickSuit');
+    if ($domino['high'] !== $trumpSuit &&
+        ($domino['low'] === $trumpSuit || $domino['low'] === $trickSuit)) {
+      return ['suit' => $domino['low'], 'rank' => $domino['high']];
     }
-    return ['suit' => $cardSuit, 'rank' => $cardRank];
+    return ['suit' => $domino['high'], 'rank' => $domino['low']];
   }
 
   // Inserts a set of fields into the database named `$db_name`;
@@ -314,8 +313,8 @@ class TexasFortyTwo extends Table {
     // for the pre-canned BGA UI surfaces.
     // Publicly visible state about the players.
     $result['players'] = self::getCollectionFromDb(
-    'SELECT player_id id, player_score score FROM player'
-  );
+      'SELECT player_id id, player_score score FROM player'
+    );
 
     // Dominoes in the current player's hand.
     $result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
@@ -433,26 +432,37 @@ class TexasFortyTwo extends Table {
    */
   public function playCard($card_id) {
     self::checkAction("playCard");
-    $player_id = self::getActivePlayerId();
-    $this->dominoes->moveCard($card_id, 'table', $player_id);
-    $current_card = self::getCollectionFromDb(
-      "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id")[$card_id];
-    self::debug("current_card [%d, %d, %d]\n", $current_card['id'], $current_card['low'], $current_card['high']);
+    $domino = self::getCollectionFromDb(
+      "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id"
+    )[$card_id];
+    self::debug("current_card [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
     //print_r($current_card);
 
-    $trumpSuit = self::getGameStateValue('trumpSuit') ;
-    $suitAndRank = self::getSuitAndRank($current_card);
+    $trumpSuit = self::getGameStateValue('trumpSuit');
+    $trickSuit = self::getGameStateValue('trickSuit');
+    $play = self::getSuitAndRank($domino);
+
+    $player_id = self::getActivePlayerId();
+    $hand = $this->getDominoesInLocation('hand', $player_id);
+    $could_have_followed_suit = false;
+    foreach ($hand as $domino) {
+      if ($domino['high'] === $trickSuit || $domino['low'] === $trickSuit) {
+        $could_have_followed_suit = true;
+        break;
+      }
+    }
 
     // XXX check rules here
-    // Set the trick color if it hasn't been set yet
-    $currentTrickSuit = self::getGameStateValue('trickSuit') ;
-    if (is_null($currentTrickSuit)) {
-      self::setGameStateValue('trickSuit', $suitAndRank['suit']);
-    } elseif ($suitAndRank['suit'] !== $currentTrickSuit &&
-              false /* todo: check for domino of matching suit in hand */) {
+    // Set the trick suit if it hasn't been set yet.
+    if (is_null($trickSuit)) {
+      self::setGameStateValue('trickSuit', $play['suit']);
+    } elseif ($play['suit'] !== $trickSuit &&
+              $could_have_followed_suit) {
       // TODO: How do we report an error for an invalid play?
       return false;
     }
+
+    $this->dominoes->moveCard($card_id, 'table', $player_id);
 
     // And notify
     self::notifyAllPlayers(
@@ -463,8 +473,8 @@ class TexasFortyTwo extends Table {
         'card_id' => $card_id,
         'player_id' => $player_id,
         'player_name' => self::getActivePlayerName(),
-        'high' => $current_card['high'],
-        'low' => $current_card['low']
+        'high' => $domino['high'],
+        'low' => $domino['low']
       ]
     );
     // 'value_displayed' => $this->values_label [$current_card ['type_arg']],'color' => $current_card ['type'],
@@ -599,14 +609,14 @@ class TexasFortyTwo extends Table {
       $bid_value = self::getGameStateValue('bidValue');
       $players = self::loadPlayersBasicInfos();
       self::notifyAllPlayers(
-      'bidWin',
-      clienttranslate('${player_name} wins the bid'),
-      [
+        'bidWin',
+        clienttranslate('${player_name} wins the bid'),
+        [
         // 'i18n' => array ('color_displayed','value_displayed' ),
         'player_id' => $player_id,
         'player_name' => $players[$highest_bidder]['player_name'],
       ]
-    );
+      );
 
       // TODO(sdspikes): only allow on dump? Need to track that in state if so
       // if ($highest_bidder == $player_id) {
