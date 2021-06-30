@@ -440,7 +440,7 @@ class TexasFortyTwo extends Table {
     //print_r($current_card);
 
     $trumpSuit = self::getGameStateValue( 'trumpSuit' ) ;
-    $suitAndRank = self::getSuitAndRank($current_card)
+    $suitAndRank = self::getSuitAndRank($current_card);
 
     // XXX check rules here
     // Set the trick color if it hasn't been set yet
