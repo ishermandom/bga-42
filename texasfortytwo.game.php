@@ -121,7 +121,7 @@ class TexasFortyTwo extends Table {
       // Of type `BidType`, e.g. nello.
       'bidType' => 12,
       // The trump suit for the bid, e.g. sixes are trump.
-      'bidSuit' => 13,
+      'trumpSuit' => 13,
       // The suit of the current trick, e.g. Jane led a four.
       'trickSuit' => 14,
       // 'my_first_game_variant' => 100,
@@ -149,7 +149,7 @@ class TexasFortyTwo extends Table {
     self::setGameStateInitialValue('highestBidder', null);
     self::setGameStateInitialValue('bidValue', null);
     self::setGameStateInitialValue('bidType', null);
-    self::setGameStateInitialValue('bidSuit', null);
+    self::setGameStateInitialValue('trumpSuit', null);
     self::setGameStateInitialValue('trickSuit', null);
 
     // Begin the game by activating the first player.
@@ -186,7 +186,7 @@ class TexasFortyTwo extends Table {
   }
 
   private function getSuitAndRank($domino) {
-    $trumpSuit = self::getGameStateValue('bidSuit');
+    $trumpSuit = self::getGameStateValue('trumpSuit');
     $cardSuit = $domino['high'];
     $cardRank = $domino['low'];
     if ($domino['low'] == $trumpSuit) {
@@ -325,7 +325,7 @@ class TexasFortyTwo extends Table {
     $result['bidValue'] = $this->getGameStateValue('bidValue');
     $result['highestBidder'] = $this->getGameStateValue('highestBidder');
     $result['bidType'] = $this->getGameStateValue('bidType');
-    $result['bidSuit'] = $this->getGameStateValue('bidSuit');
+    $result['trumpSuit'] = $this->getGameStateValue('trumpSuit');
     return $result;
   }
 
@@ -412,16 +412,16 @@ class TexasFortyTwo extends Table {
   }
 
 
-  public function chooseBidSuit($bid_suit) {
+  public function chooseBidSuit($trump_suit) {
     self::checkAction("chooseBidSuit");
-    self::setGameStateValue('bidSuit', $bid_suit);
+    self::setGameStateValue('trumpSuit', $trump_suit);
     // TODO(sdspikes): special case for no trump
-    $display_name = self::SUIT_TO_DISPLAY_NAME[$bid_suit];
+    $display_name = self::SUIT_TO_DISPLAY_NAME[$trump_suit];
     self::notifyAllPlayers(
       'setBidSuit',
-      clienttranslate('${bid_suit} are trump'),
+      clienttranslate('${trump_suit} are trump'),
       [
-        'bid_suit' => $display_name,
+        'trump_suit' => $display_name,
       ]
     );
     $this->gamestate->nextState();
@@ -440,7 +440,7 @@ class TexasFortyTwo extends Table {
     self::debug("current_card [%d, %d, %d]\n", $current_card['id'], $current_card['low'], $current_card['high']);
     //print_r($current_card);
 
-    $trumpSuit = self::getGameStateValue('bidSuit') ;
+    $trumpSuit = self::getGameStateValue('trumpSuit') ;
     $suitAndRank = self::getSuitAndRank($current_card);
 
     // XXX check rules here
@@ -472,7 +472,7 @@ class TexasFortyTwo extends Table {
   public function stChooseBidType() {
     // TODO
     self::checkAction("chooseBidType");
-    self::setGameStateValue('bidSuit', $bid_suit);
+    self::setGameStateValue('trumpSuit', $trump_suit);
     $this->gamestate->nextState();
   }
 
@@ -555,7 +555,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function argPlayerTurn() {
-    return self::SUIT_TO_DISPLAY_NAME;
+    return {'trickSuit' => self::getGameStateValue('trickSuit')};
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -644,12 +644,12 @@ class TexasFortyTwo extends Table {
 
   public function stNextPlayer() {
     // Active next player OR end the trick and go to the next trick OR end the hand
-    if ($this->dominoes->countCardInLocation('table') === 4) {
+    if ($this->dominoes->countCardInLocation('table') == 4) {
       // This is the end of the trick
       $dominoes_on_table = $this->dominoes->getCardsInLocation('table');
       $best_play = null;
       $best_play_player_id = null;
-      $trump_suit = self::getGameStateValue('bidSuit');
+      $trump_suit = self::getGameStateValue('trumpSuit');
       foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
         $play = self::getSuitAndRank($domino);
