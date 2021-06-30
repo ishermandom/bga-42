@@ -661,7 +661,7 @@ class TexasFortyTwo extends Table {
     // Active next player OR end the trick and go to the next trick OR end the hand
     if ($this->dominoes->countCardInLocation('table') == 4) {
       // This is the end of the trick
-      $dominoes_on_table = $this->dominoes->getCardsInLocation('table');
+      $dominoes_on_table = $this->getDominoesInLocation('table');
       $best_play = null;
       $best_play_player_id = null;
       $trump_suit = self::getGameStateValue('trumpSuit');
