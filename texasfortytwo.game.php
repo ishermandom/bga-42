@@ -74,7 +74,7 @@ class TexasFortyTwo extends Table {
         '7b7b7b',  // gray
     ];
 
-    private const SUIT_TO_DISPLAY_NAME = [
+  private const SUIT_TO_DISPLAY_NAME = [
       'Blanks',
       'Ones',
       'Twos',
@@ -86,7 +86,7 @@ class TexasFortyTwo extends Table {
       'No Trump',
     ];
 
-    private const NELLO_SUIT_TO_DISPLAY_NAME = [
+  private const NELLO_SUIT_TO_DISPLAY_NAME = [
       'Nello Doubles Low',
       'Nello Doubles High',
       'Nello Doubles are a suit of their own',
@@ -184,7 +184,7 @@ class TexasFortyTwo extends Table {
   }
 
   private function getSuitAndRank($domino) {
-    $trumpSuit = self::getGameStateValue( 'trumpSuit' );
+    $trumpSuit = self::getGameStateValue('bidSuit');
     $cardSuit = $domino['high'];
     $cardRank = $domino['low'];
     if ($domino['low'] == $trumpSuit) {
@@ -439,14 +439,14 @@ class TexasFortyTwo extends Table {
     self::debug("current_card [%d, %d, %d]\n", $current_card['id'], $current_card['low'], $current_card['high']);
     //print_r($current_card);
 
-    $trumpSuit = self::getGameStateValue( 'trumpSuit' ) ;
+    $trumpSuit = self::getGameStateValue('bidSuit') ;
     $suitAndRank = self::getSuitAndRank($current_card);
 
     // XXX check rules here
     // Set the trick color if it hasn't been set yet
-    $currentTrickSuit = self::getGameStateValue( 'trickSuit' ) ;
-    if(is_null($currentTrickSuit) ) {
-        self::setGameStateValue( 'trickSuit', $suitAndRank['suit'] );
+    $currentTrickSuit = self::getGameStateValue('trickSuit') ;
+    if (is_null($currentTrickSuit)) {
+      self::setGameStateValue('trickSuit', $suitAndRank['suit']);
     }
 
     // And notify
@@ -468,7 +468,7 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState('playCard');
   }
 
-  public function stChooseBidType(){
+  public function stChooseBidType() {
     // TODO
     self::checkAction("chooseBidType");
     self::setGameStateValue('bidSuit', $bid_suit);
@@ -634,16 +634,16 @@ class TexasFortyTwo extends Table {
       foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
         $suitAndRank = self::getSuitAndRank($domino);
-          if ($suitAndRank ['suit'] == $currentTrickSuit) {
-              if ($best_value_player_id === null || $suitAndRank ['rank'] > $best_value) {
-                  $best_value_player_id = $domino ['location_arg']; // Note: location_arg = player who played this card on table
+        if ($suitAndRank ['suit'] == $currentTrickSuit) {
+          if ($best_value_player_id === null || $suitAndRank ['rank'] > $best_value) {
+            $best_value_player_id = $domino ['location_arg']; // Note: location_arg = player who played this card on table
                   $best_value = $suitAndRank['rank']; // Note: type_arg = value of the card
-              }
           }
+        }
       }
 
       // Active this player => he's the one who starts the next trick
-      $this->gamestate->changeActivePlayer( $best_value_player_id );
+      $this->gamestate->changeActivePlayer($best_value_player_id);
       // TODO(isherman): Temporary hack while we don't have rules implemented :)
       // $best_value_player_id = self::activeNextPlayer();
 
