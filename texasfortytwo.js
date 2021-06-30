@@ -80,7 +80,7 @@ define([
 
       // Display dominoes in play on the table.
       for (const domino of this.gamedatas.table) {
-        const player_id = domino.card_location_arg;
+        const player_id = domino.location_arg;
         this.playDomino(player_id, domino.id);
       }
 
@@ -99,19 +99,25 @@ define([
       console.log('Entering state: ' + stateName);
 
       switch (stateName) {
-        /* Example:
-
-            case 'myGameState':
-
-                // Show some HTML block at this game state
-                dojo.style( 'my_html_block_id', 'display', 'block' );
-
-                break;
-           */
-
-        case 'dummmy':
+        case 'playerTurn':
+          this.updatePossibleMoves(args.args.trickSuit);
           break;
       }
+    },
+
+    updatePossibleMoves: function(trickSuit) {
+      // TODO(isherman): Fixme
+      /*
+      const handItems = this.hand.getAllItems();
+      for (const handItem of handItems) {
+        const id = handItem.id;
+        const domino = getDominoFromId(id);
+        if (domino.high === trickSuit || domino.low === trickSuit) {
+          const div = this.hand.getItemDivId(id);
+          div.style.border = "solid 4px yellow";
+        }
+      }
+      */
     },
 
     chooseBidSuit: function(e, bidSuit) {
@@ -242,6 +248,15 @@ define([
       // order to land in the `high` suit, and then index into the suit to get
       // the `low`th rank card.
       return (high * (high + 1)) / 2 + low;
+    },
+
+    // TODO(isherman): Docs
+    getDominoFromId: function(id) {
+      // TODO(isherman): Implement for realz
+      return {
+        high: 0,
+        low: 0,
+      };
     },
 
     // Animates a domino being played on the table.
@@ -382,6 +397,7 @@ define([
       console.log('in onBid with: ');
       console.log(data);
       // do whatever we need to do when someone bids?
+      // update player card thingy with bid?
     },
 
     onBidWin: function(data) {
