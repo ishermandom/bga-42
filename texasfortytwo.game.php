@@ -457,7 +457,7 @@ class TexasFortyTwo extends Table {
       if ($domino_in_hand['high'] === $trickSuit ||
           $domino_in_hand['low'] === $trickSuit) {
         self::trace('Could have followed suit.\n');
-        self::trace(print_r($domino_in_hand, true) + '\n');
+        self::trace(print_r($domino_in_hand, true).'\n');
         $could_have_followed_suit = true;
         break;
       }
