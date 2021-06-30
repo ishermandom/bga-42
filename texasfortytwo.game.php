@@ -186,7 +186,7 @@ class TexasFortyTwo extends Table {
   }
 
   private function getSuitAndRank($domino) {
-    self::trace($domino);
+    self::trace(print_r($domino, true));
     $trumpSuit = self::getGameStateValue('trumpSuit');
     $trickSuit = self::getGameStateValue('trickSuit');
     if ($domino['high'] !== $trumpSuit &&
@@ -385,7 +385,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function gamestatehack() {
-    self::trace($this->gamestate->state());
+    self::trace(print_r($this->gamestate->state(), true));
   }
 
   public function bid($bid_value) {
