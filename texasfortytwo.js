@@ -99,17 +99,8 @@ define([
       console.log('Entering state: ' + stateName);
 
       switch (stateName) {
-        /* Example:
-
-            case 'myGameState':
-
-                // Show some HTML block at this game state
-                dojo.style( 'my_html_block_id', 'display', 'block' );
-
-                break;
-           */
-
-        case 'dummmy':
+        case 'playerTurn':
+          // TODO: this.updatePossibleMoves(args.args.trickSuit);
           break;
       }
     },
@@ -374,7 +365,7 @@ define([
       }
     },
 
-    onPlayDomino: function(data) { // todo(removeme)
+    onPlayDomino: function(data) {
       this.playDomino(data.args.player_id, data.args.card_id);
     },
 
@@ -382,6 +373,7 @@ define([
       console.log('in onBid with: ');
       console.log(data);
       // do whatever we need to do when someone bids?
+      // update player card thingy with bid?
     },
 
     onBidWin: function(data) {

@@ -445,8 +445,9 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     $hand = $this->getDominoesInLocation('hand', $player_id);
     $could_have_followed_suit = false;
-    foreach ($hand as $domino) {
-      if ($domino['high'] === $trickSuit || $domino['low'] === $trickSuit) {
+    foreach ($hand as $domino_in_hand) {
+      if ($domino_in_hand['high'] === $trickSuit ||
+          $domino_in_hand['low'] === $trickSuit) {
         $could_have_followed_suit = true;
         break;
       }
