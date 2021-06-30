@@ -302,7 +302,7 @@ class TexasFortyTwo extends Table {
     $dominoes = self::getObjectListFromDB(
       "SELECT $fields FROM dominoes WHERE $where"
     );
-    return array_map(self::fixDataTypes, $dominoes);
+    return array_map([$this, 'fixDataTypes'], $dominoes);
   }
 
   // Returns all game state visible to the current player.
