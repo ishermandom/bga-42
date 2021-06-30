@@ -710,6 +710,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function stEndHand() {
+    // TODO: update this logic for 42!
     // Count and score points, then end the game or go to the next hand.
     $players = self::loadPlayersBasicInfos();
     // Gets all "hearts" + queen of spades
@@ -718,40 +719,40 @@ class TexasFortyTwo extends Table {
     foreach ($players as $player_id => $player) {
       $player_to_points [$player_id] = 0;
     }
-    $cards = $this->dominoes->getCardsInLocation("cardswon");
-    foreach ($cards as $card) {
-      $player_id = $card ['location_arg'];
-      // Note: 2 = heart
-      if ($card ['type'] == 2) {
-        $player_to_points [$player_id] ++;
-      }
-    }
+    $cards = $this->getDominoesInLocation("cardswon");
+    // foreach ($cards as $card) {
+    //   $player_id = $card ['location_arg'];
+    //   // Note: 2 = heart
+    //   if ($card ['type'] == 2) {
+    //     $player_to_points [$player_id] ++;
+    //   }
+    // }
     // Apply scores to player
-    foreach ($player_to_points as $player_id => $points) {
-      if ($points != 0) {
-        $sql = "UPDATE player SET player_score=player_score-$points  WHERE player_id='$player_id'";
-        self::DbQuery($sql);
-        $heart_number = $player_to_points [$player_id];
-        self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${nbr} hearts and looses ${nbr} points'), [
-            'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'],
-            'nbr' => $heart_number ]);
-      } else {
-        // No point lost (just notify)
-        self::notifyAllPlayers("points", clienttranslate('${player_name} did not get any hearts'), [
-            'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'] ]);
-      }
-    }
-    $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
-    self::notifyAllPlayers("newScores", '', [ 'newScores' => $newScores ]);
-
-    ///// Test if this is the end of the game
-    foreach ($newScores as $player_id => $score) {
-      if ($score <= -100) {
-        // Trigger the end of the game !
-        $this->gamestate->nextState("endGame");
-        return;
-      }
-    }
+    // foreach ($player_to_points as $player_id => $points) {
+    //   if ($points != 0) {
+    //     $sql = "UPDATE player SET player_score=player_score-$points  WHERE player_id='$player_id'";
+    //     self::DbQuery($sql);
+    //     $heart_number = $player_to_points [$player_id];
+    //     self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${nbr} hearts and looses ${nbr} points'), [
+    //         'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'],
+    //         'nbr' => $heart_number ]);
+    //   } else {
+    //     // No point lost (just notify)
+    //     self::notifyAllPlayers("points", clienttranslate('${player_name} did not get any hearts'), [
+    //         'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'] ]);
+    //   }
+    // }
+    // $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
+    // self::notifyAllPlayers("newScores", '', [ 'newScores' => $newScores ]);
+    //
+    // ///// Test if this is the end of the game
+    // foreach ($newScores as $player_id => $score) {
+    //   if ($score <= -100) {
+    //     // Trigger the end of the game !
+    //     $this->gamestate->nextState("endGame");
+    //     return;
+    //   }
+    // }
 
 
     $this->gamestate->nextState("nextHand");

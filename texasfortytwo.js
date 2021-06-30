@@ -100,9 +100,14 @@ define([
 
       switch (stateName) {
         case 'playerTurn':
-          // TODO: this.updatePossibleMoves(args.args.trickSuit);
+          this.updatePossibleMoves(args.args.trickSuit);
           break;
       }
+    },
+
+    updatePossibleMoves: function(trickSuit) {
+      // getItemDivId
+
     },
 
     chooseBidSuit: function(e, bidSuit) {
