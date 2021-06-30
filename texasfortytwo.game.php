@@ -44,11 +44,14 @@ abstract class NelloBidSuit {
 }
 
 abstract class CardLocation {
+  // Dominoes in the deck, prior to dealing.
   const DECK = 'deck';
-  const TABLE = 'table';
+  // Dominoes in a player's hand.
   const HAND = 'hand';
-  // TODO(isherman): I don't love this name, mebbe rename?
-  const CARDS_WON = 'cardswon';
+  // Dominoes played on the table as part of the current trick.
+  const TABLE = 'table';
+  // Dominoes in tricks won by a team.
+  const TEAM = 'team';
 }
 
 class TexasFortyTwo extends Table {
@@ -621,17 +624,17 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState();
   }
 
-  public static function beatsDomino($old, $new, $trickSuit, $trumpSuit) {
+  public static function beatsDomino($old, $new, $trump_suit) {
     if ($new['suit'] === $old['suit']) {
-      return isDouble($new) || $new['rank'] > $old['rank'];
+      return isDouble($new) || (!isDouble($old) && $new['rank'] > $old['rank']);
     }
-    if ($new['suit'] === $trumpSuit) {
-      return false;
-    }
+    // If not following the previously winning suit, trump always wins, and any
+    // other suit always loses.
+    return $new['suit'] === $trump_suit;
   }
 
-  public static function isDouble($suitAndRank) {
-    return $suitAndRank['suit'] === $suitAndRank['rank'];
+  public static function isDouble($suited_domino) {
+    return $suited_domino['suit'] === $suited_domino['rank'];
   }
 
   public function stNextPlayer() {
@@ -639,41 +642,35 @@ class TexasFortyTwo extends Table {
     if ($this->dominoes->countCardInLocation('table') == 4) {
       // This is the end of the trick
       $dominoes_on_table = $this->dominoes->getCardsInLocation('table');
-      $best_domino = null;
-      $best_domino_player_id = null;
-      $currentTrickSuit = self::getGameStateValue('trickSuit');
+      $best_play = null;
+      $best_play_player_id = null;
+      $trump_suit = self::getGameStateValue('bidSuit');
       foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
-        $suitAndRank = self::getSuitAndRank($domino);
-        if ($suitAndRank['suit'] === $currentTrickSuit) {
-          if ($best_domino === null ||
-              self::isDouble($suitAndRank) ||
-              (!self::isDouble($best_domino) &&
-               $suitAndRank['rank'] > $best_domino['rank'])) {
-            $best_domino_player_id = $domino['location_arg']; // Note: location_arg = player who played this card on table
-            $best_domino = $suitAndRank; // Note: type_arg = value of the card
-          }
+        $play = self::getSuitAndRank($domino);
+        if ($best_play === null ||
+            self::beatsDomino($best_play, $play, $trump_suit)) {
+          $best_play_player_id = $domino['location_arg']; // Note: location_arg = player id
+          $best_play = $play;
         }
       }
 
-      // Active this player => he's the one who starts the next trick
-      $this->gamestate->changeActivePlayer($best_value_player_id);
-      // TODO(isherman): Temporary hack while we don't have rules implemented :)
-      // $best_value_player_id = self::activeNextPlayer();
+      // Activate this player, they have the lead
+      $this->gamestate->changeActivePlayer($best_play_player_id);
 
       // Move all dominoes to "cardswon" of the given player
-      $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $best_value_player_id);
+      $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $best_play_player_id);
 
       // Notify
-      // Note: we use 2 notifications here in order we can pause the display during the first notification
+      // Note: we use 2 notifications here to pause the display during the first notification
       //  before we move all cards to the winner (during the second)
       $players = self::loadPlayersBasicInfos();
       self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), [
-          'player_id' => $best_value_player_id,
-          'player_name' => $players[ $best_value_player_id ]['player_name']
+          'player_id' => $best_play_player_id,
+          'player_name' => $players[ $best_play_player_id ]['player_name']
       ]);
       self::notifyAllPlayers('giveAllCardsToPlayer', '', [
-          'player_id' => $best_value_player_id
+          'player_id' => $best_play_player_id
       ]);
 
       if ($this->dominoes->countCardInLocation('hand') == 0) {
