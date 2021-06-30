@@ -214,11 +214,13 @@ class TexasFortyTwo extends Table {
   // SQL queries return strings even for int fields; this function converts
   // those strings back into ints.
   private static function fixDataTypes($domino) {
-    $int_fields = ['id, high, low, location_arg'];
+    $int_fields = ['id', 'high', 'low', 'location_arg'];
     $fixed = [];
     foreach ($domino as $field => $value) {
       if (in_array($field, $int_fields, true)) {
         $fixed[$field] = intval($value);
+      } else {
+        $fixed[$field] = $value;
       }
     }
     return $fixed;
