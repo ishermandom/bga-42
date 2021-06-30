@@ -186,6 +186,7 @@ class TexasFortyTwo extends Table {
   }
 
   private function getSuitAndRank($domino) {
+    self::trace($domino)
     $trumpSuit = self::getGameStateValue('trumpSuit');
     $trickSuit = self::getGameStateValue('trickSuit');
     if ($domino['high'] !== $trumpSuit &&
@@ -207,6 +208,17 @@ class TexasFortyTwo extends Table {
     $fields = join(',', $fields);
     $values = join(',', array_map($to_sql_row, $rows));
     self::DbQuery("INSERT INTO $db_name ($fields) VALUES $values");
+  }
+
+  // TODO(isherman): Docs.
+  private static function fixDataTypes($domino) {
+    $int_fields = ['id, high, low, card_location_arg'];
+    $fixed = [];
+    foreach ($domino as $field => $value) {
+      // All the queried fields are ints!
+      $fixed[$field] = intval($value);
+    }
+    return $fixed;
   }
 
   // Initializes the player database for the game. Called once, when a new game
@@ -445,7 +457,7 @@ class TexasFortyTwo extends Table {
       }
       return $fixed;
     };
-    $domino = array_map($fix_data_types, $domino);
+    $domino = $fix_data_types($domino);
 
     self::trace("current_card [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
     //print_r($current_card);
