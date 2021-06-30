@@ -185,7 +185,7 @@ class TexasFortyTwo extends Table {
     return $player_id == $dealer_id;
   }
 
-  private static function getSuitAndRank($domino) {
+  private function getSuitAndRank($domino) {
     $trumpSuit = self::getGameStateValue('trumpSuit');
     $trickSuit = self::getGameStateValue('trickSuit');
     if ($domino['high'] !== $trumpSuit &&

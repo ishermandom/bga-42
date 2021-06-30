@@ -374,7 +374,7 @@ define([
       }
     },
 
-    onPlayDomino: function(data) {
+    onPlayDomino: function(data) { // todo(removeme)
       this.playDomino(data.args.player_id, data.args.card_id);
     },
 
