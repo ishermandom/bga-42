@@ -578,7 +578,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function argPlayerTurn() {
-    return ['trickSuit' => self::getTrickSuit();];
+    return ['trickSuit' => self::getTrickSuit()];
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -666,12 +666,12 @@ class TexasFortyTwo extends Table {
   }
 
   private function getTrumpSuit() {
-    const $trump = self::getGameStateValue('trumpSuit');
+    $trump = self::getGameStateValue('trumpSuit');
     return is_null($trump) ? null : intval($trump);
   }
 
   private function getTrickSuit() {
-    const $suit = self::getGameStateValue('trickSuit');
+    $suit = self::getGameStateValue('trickSuit');
     return is_null($suit) ? null : intval($suit);
   }
 
