@@ -670,7 +670,7 @@ class TexasFortyTwo extends Table {
         $play = self::getSuitAndRank($domino);
         if ($best_play === null ||
             self::beatsDomino($best_play, $play, $trump_suit)) {
-          $best_play_player_id = $domino['location_arg']; // Note: location_arg = player id
+          $best_play_player_id = $domino['card_location_arg']; // Note: location_arg = player id
           $best_play = $play;
         }
       }

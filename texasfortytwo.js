@@ -107,6 +107,7 @@ define([
 
     updatePossibleMoves: function(trickSuit) {
       // getItemDivId
+      // var items = this.hand.getSelectedItems();
 
     },
 
