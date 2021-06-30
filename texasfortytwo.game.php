@@ -453,6 +453,8 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     $hand = $this->getDominoesInLocation('hand', $player_id);
     $could_have_followed_suit = false;
+    /*
+    TODO(isherman): Something about this logic seems to be broken...
     foreach ($hand as $domino_in_hand) {
       if ($domino_in_hand['high'] === $trickSuit ||
           $domino_in_hand['low'] === $trickSuit) {
@@ -462,6 +464,7 @@ class TexasFortyTwo extends Table {
         break;
       }
     }
+    */
 
     // XXX check rules here
     // Set the trick suit if it hasn't been set yet.
