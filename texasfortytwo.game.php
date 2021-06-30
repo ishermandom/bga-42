@@ -554,6 +554,10 @@ class TexasFortyTwo extends Table {
     return self::SUIT_TO_DISPLAY_NAME;
   }
 
+  public function argPlayerTurn() {
+    return self::SUIT_TO_DISPLAY_NAME;
+  }
+
   //////////////////////////////////////////////////////////////////////////////
   ///////////////////////////// Game state actions /////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
@@ -626,7 +630,8 @@ class TexasFortyTwo extends Table {
 
   public static function beatsDomino($old, $new, $trump_suit) {
     if ($new['suit'] === $old['suit']) {
-      return isDouble($new) || (!isDouble($old) && $new['rank'] > $old['rank']);
+      return self::isDouble($new) ||
+             (!self::isDouble($old) && $new['rank'] > $old['rank']);
     }
     // If not following the previously winning suit, trump always wins, and any
     // other suit always loses.
@@ -639,7 +644,7 @@ class TexasFortyTwo extends Table {
 
   public function stNextPlayer() {
     // Active next player OR end the trick and go to the next trick OR end the hand
-    if ($this->dominoes->countCardInLocation('table') == 4) {
+    if ($this->dominoes->countCardInLocation('table') === 4) {
       // This is the end of the trick
       $dominoes_on_table = $this->dominoes->getCardsInLocation('table');
       $best_play = null;

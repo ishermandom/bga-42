@@ -96,7 +96,8 @@ $machinestates = [
     "descriptionmyturn" => clienttranslate('${you} must play a domino'),
     "type" => "activeplayer",
     "possibleactions" => [ "playCard" ],
-    "transitions" => [ "playCard" => 32 ]
+    "transitions" => [ "playCard" => 32 ],
+    "args" => "argPlayerTurn",
   ],
   32 => [
     "name" => "nextPlayer",
