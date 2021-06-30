@@ -448,6 +448,10 @@ class TexasFortyTwo extends Table {
     $currentTrickSuit = self::getGameStateValue('trickSuit') ;
     if (is_null($currentTrickSuit)) {
       self::setGameStateValue('trickSuit', $suitAndRank['suit']);
+    } elseif ($suitAndRank['suit'] !== $currentTrickSuit &&
+              false /* todo: check for domino of matching suit in hand */) {
+      // TODO: How do we report an error for an invalid play?
+      return false;
     }
 
     // And notify
@@ -555,7 +559,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function argPlayerTurn() {
-    return {'trickSuit' => self::getGameStateValue('trickSuit')};
+    return ['trickSuit' => self::getGameStateValue('trickSuit')];
   }
 
   //////////////////////////////////////////////////////////////////////////////
