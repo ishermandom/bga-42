@@ -107,9 +107,9 @@ define([
 
     updatePossibleMoves: function(trickSuit) {
       // TODO(isherman): Fixme
-      /*const hand = this.hand.getAllItems();
-      for (const domino of hand) {
-        const
+      /*const handItems = this.hand.getAllItems();
+      for (const handItem of handItems) {
+        const id = handItem.id;
         const div = this.hand.getItemDivId(domino.id);
       }*/
       // getItemDivId
@@ -249,7 +249,11 @@ define([
 
     // TODO(isherman): Docs
     getDominoFromId: function(id) {
-      return null;
+      // TODO(isherman): Implement for realz
+      return {
+        high: 0,
+        low: 0,
+      };
     },
 
     // Animates a domino being played on the table.

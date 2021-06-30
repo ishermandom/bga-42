@@ -271,7 +271,7 @@ class TexasFortyTwo extends Table {
       'high',
       'low',
       'card_location',
-      'location_arg',
+      'card_location_arg',
       'card_type',
       'card_type_arg',
     ];
@@ -294,10 +294,10 @@ class TexasFortyTwo extends Table {
 
   // Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
   private function getDominoesInLocation($location, $location_arg = null) {
-    $fields = 'card_id id, high, low, location_arg';
+    $fields = 'card_id id, high, low, card_location_arg location_arg';
     $where = "card_location='$location'";
     if (!is_null($location_arg)) {
-      $where .= "AND location_arg=$location_arg";
+      $where .= "AND card_location_arg=$location_arg";
     }
     $dominoes = self::getObjectListFromDB(
       "SELECT $fields FROM dominoes WHERE $where"
