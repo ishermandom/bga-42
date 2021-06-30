@@ -96,7 +96,7 @@ class TexasFortyTwo extends Table {
   ];
 
   // The number of suits: blanks through sixes.
-  // HACK: It can be useful to set this to 3 for debugging.
+  // HACK: It can be useful to set this to 3 for traceging.
   private const NUM_SUITS = 7;
 
   private const NUM_PLAYERS = 4;
@@ -270,7 +270,7 @@ class TexasFortyTwo extends Table {
         $rows[] = [$high, $low, 'deck', 0, '', 0];
       }
     }
-    // HACK: As a debugging aid, it can be useful to set a low value for
+    // HACK: As a traceging aid, it can be useful to set a low value for
     // `self::NUM_SUITS`. Support that by ensuring that the number of dominoes
     // is always divisible evenly by the number of players.
     $rows = array_slice($rows, 0, count($rows) - (count($rows) % 4));
@@ -377,7 +377,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function gamestatehack() {
-    self::debug($this->gamestate->state());
+    self::trace($this->gamestate->state());
   }
 
   public function bid($bid_value) {
@@ -385,10 +385,10 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     // only allow bids higher than current bid if it exists
     $current_bid_value = self::getGameStateValue('bidValue') ;
-    self::debug("got bid value: ");
-    self::debug($bid_value);
-    self::debug("current bid value: ");
-    self::debug($current_bid_value);
+    self::trace("got bid value: ");
+    self::trace($bid_value);
+    self::trace("current bid value: ");
+    self::trace($current_bid_value);
     if ((is_null($current_bid_value) && $bid_value >= 30) || $bid_value > $current_bid_value) {
       self::setGameStateValue('bidValue', $bid_value);
       self::setGameStateValue('highestBidder', $player_id);
@@ -405,7 +405,7 @@ class TexasFortyTwo extends Table {
       );
       $this->gamestate->nextState('nextPlayerBid');
     } else {
-      self::debug("Bad bid!");
+      self::trace("Bad bid!");
       // TODO(sdspikes): throw error?
     }
   }
@@ -435,7 +435,19 @@ class TexasFortyTwo extends Table {
     $domino = self::getCollectionFromDb(
       "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id"
     )[$card_id];
-    self::debug("current_card [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
+
+    // TODO(isherman): This is copy/pasted, boo!
+    $fix_data_types = function ($d) {
+      $fixed = [];
+      foreach ($d as $field => $value) {
+        // All the queried fields are ints!
+        $fixed[$field] = intval($value);
+      }
+      return $fixed;
+    };
+    $domino = array_map($fix_data_types, $domino);
+
+    self::trace("current_card [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
     //print_r($current_card);
 
     $trumpSuit = self::getGameStateValue('trumpSuit');
@@ -591,7 +603,7 @@ class TexasFortyTwo extends Table {
     // Deal a new hand to each player.
     $players = self::loadPlayersBasicInfos();
     $hand_size = self::NUM_SUITS * (self::NUM_SUITS + 1) / 2 / count($players);
-    // HACK: As a debugging aid, it can be useful to set a low value for
+    // HACK: As a traceging aid, it can be useful to set a low value for
     // `self::NUM_SUITS`. Support that by ensuring that the number of dominoes
     // is always divisible evenly by the number of players.
     $hand_size = intval($hand_size);

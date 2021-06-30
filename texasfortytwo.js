@@ -106,6 +106,12 @@ define([
     },
 
     updatePossibleMoves: function(trickSuit) {
+      // TODO(isherman): Fixme
+      /*const hand = this.hand.getAllItems();
+      for (const domino of hand) {
+        const div = this.hand.getItemDivId(domino.id);
+        const
+      }*/
       // getItemDivId
       // var items = this.hand.getSelectedItems();
 
