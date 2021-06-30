@@ -60,37 +60,37 @@ class TexasFortyTwo extends Table {
   // defined in gameinfos.inc.php, and we can probably look at the list of
   // colors that players prefer via the result of `loadPlayersBasicInfos()``.
   private const POSSIBLE_PLAYER_COLORS = [
-        'ff0000',  // red
-        '008000',  // green
-        '0000ff',  // blue
-        'ffa500',  // yellow
-        '000000',  // black
-        'ffffff',  // white
-        'e94190',  // pink
-        '982fff',  // purple
-        '72c3b1',  // cyan
-        'f07f16',  // orange
-        'bdd002',  // khaki green
-        '7b7b7b',  // gray
-    ];
+    'ff0000',  // red
+    '008000',  // green
+    '0000ff',  // blue
+    'ffa500',  // yellow
+    '000000',  // black
+    'ffffff',  // white
+    'e94190',  // pink
+    '982fff',  // purple
+    '72c3b1',  // cyan
+    'f07f16',  // orange
+    'bdd002',  // khaki green
+    '7b7b7b',  // gray
+  ];
 
   private const SUIT_TO_DISPLAY_NAME = [
-      'Blanks',
-      'Ones',
-      'Twos',
-      'Threes',
-      'Fours',
-      'Fives',
-      'Sixes',
-      'Doubles',
-      'No Trump',
-    ];
+    'Blanks',
+    'Ones',
+    'Twos',
+    'Threes',
+    'Fours',
+    'Fives',
+    'Sixes',
+    'Doubles',
+    'No Trump',
+  ];
 
   private const NELLO_SUIT_TO_DISPLAY_NAME = [
-      'Nello Doubles Low',
-      'Nello Doubles High',
-      'Nello Doubles are a suit of their own',
-    ];
+    'Nello Doubles Low',
+    'Nello Doubles High',
+    'Nello Doubles are a suit of their own',
+  ];
 
   // The number of suits: blanks through sixes.
   // HACK: It can be useful to set this to 3 for debugging.
@@ -173,13 +173,12 @@ class TexasFortyTwo extends Table {
   // Returns whether the given player id is the dealer for this hand.
   private function isDealer($player_id) {
     $first_player_seat = self::getUniqueValueFromDB(
-      'SELECT player_no seat FROM player WHERE is_first_player = true'
-    );
-    $dealer_seat =
-        ($first_player_seat + self::NUM_PLAYERS - 1) % self::NUM_PLAYERS;
+    'SELECT player_no seat FROM player WHERE is_first_player = true'
+  );
+    $dealer_seat = ($first_player_seat + self::NUM_PLAYERS - 1) % self::NUM_PLAYERS;
     $dealer_id = self::getUniqueValueFromDB(
-      "SELECT player_id id FROM player WHERE player_no = $dealer_seat"
-    );
+    "SELECT player_id id FROM player WHERE player_no = $dealer_seat"
+  );
     return $player_id == $dealer_id;
   }
 
@@ -212,38 +211,38 @@ class TexasFortyTwo extends Table {
   // is launched.
   private function initializePlayers($players) {
     $fields = [
-        'player_id',
-        'player_color',
-        'player_canal',
-        'player_name',
-        'player_avatar',
-        // HACK: During development, it's useful to have a fixed order.
-        'player_no',
+      'player_id',
+      'player_color',
+      'player_canal',
+      'player_name',
+      'player_avatar',
+      // HACK: During development, it's useful to have a fixed order.
+      'player_no',
     ];
     $default_colors =
-            array_slice(self::POSSIBLE_PLAYER_COLORS, 0, count($players));
+      array_slice(self::POSSIBLE_PLAYER_COLORS, 0, count($players));
     $rows = [];
     foreach ($players as $player_id => $player) {
       $color = array_shift($default_colors);
       $rows[] = [
-          $player_id,
-          $color,
-          $player['player_canal'],
-          addslashes($player['player_name']),
-          addslashes($player['player_avatar']),
-          // HACK: During development, it's useful to have a fixed order.
-          // Order based on the player number, which is a suffix on the player
-          // name, 0-9.
-          intval($player['player_name'][-1]),
+        $player_id,
+        $color,
+        $player['player_canal'],
+        addslashes($player['player_name']),
+        addslashes($player['player_avatar']),
+        // HACK: During development, it's useful to have a fixed order.
+        // Order based on the player number, which is a suffix on the player
+        // name, 0-9.
+        intval($player['player_name'][-1]),
       ];
     }
     self::insertIntoDatabase('player', $fields, $rows);
 
     // Allow all possible player color preferences.
     self::reattributeColorsBasedOnPreferences(
-      $players,
-      self::POSSIBLE_PLAYER_COLORS
-    );
+    $players,
+    self::POSSIBLE_PLAYER_COLORS
+  );
     self::reloadPlayersBasicInfos();
   }
 
@@ -252,13 +251,13 @@ class TexasFortyTwo extends Table {
   // initialize custom database fields correctly.
   private function initializeDeck() {
     $fields = [
-            'high',
-            'low',
-            'card_location',
-            'card_location_arg',
-            'card_type',
-            'card_type_arg',
-        ];
+      'high',
+      'low',
+      'card_location',
+      'card_location_arg',
+      'card_type',
+      'card_type_arg',
+    ];
 
     $rows = [];
     for ($high = 0; $high < self::NUM_SUITS; ++$high) {
@@ -283,9 +282,8 @@ class TexasFortyTwo extends Table {
     if (!is_null($location_arg)) {
       $where .= "AND card_location_arg=$location_arg";
     }
-    $dominoes = self::getObjectListFromDB(
-      "SELECT $fields FROM dominoes WHERE $where"
-    );
+    $dominoes = self::getObjectListFromDB(``"SELECT $fields FROM dominoes WHERE $where"
+  );
 
     $fix_data_types = function ($domino) {
       $fixed = [];
@@ -312,8 +310,8 @@ class TexasFortyTwo extends Table {
     // for the pre-canned BGA UI surfaces.
     // Publicly visible state about the players.
     $result['players'] = self::getCollectionFromDb(
-      'SELECT player_id id, player_score score FROM player'
-    );
+    'SELECT player_id id, player_score score FROM player'
+  );
 
     // Dominoes in the current player's hand.
     $result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
@@ -328,14 +326,14 @@ class TexasFortyTwo extends Table {
   }
 
   /*
-      getGameProgression:
+    getGameProgression:
 
-      Compute and return the current game progression.
-      The number returned must be an integer beween 0 (=the game just started) and
-      100 (= the game is finished or almost finished).
+    Compute and return the current game progression.
+    The number returned must be an integer beween 0 (=the game just started) and
+    100 (= the game is finished or almost finished).
 
-      This method is called each time we are in a game state with the "updateGameProgression" property set to true
-      (see states.inc.php)
+    This method is called each time we are in a game state with the "updateGameProgression" property set to true
+    (see states.inc.php)
   */
   public function getGameProgression() {
     // TODO: compute and return the game progression
@@ -347,15 +345,15 @@ class TexasFortyTwo extends Table {
   //////////// Utility functions
   ////////////
   /*
-     * In this space, you can put any utility methods useful for your game logic
-     */
+   * In this space, you can put any utility methods useful for your game logic
+   */
   //////////////////////////////////////////////////////////////////////////////
   //////////// Player actions
   ////////////
   /*
-     * Each time a player is doing some game action, one of the methods below is called.
-     * (note: each method below must match an input method in template.action.php)
-     */
+   * Each time a player is doing some game action, one of the methods below is called.
+   * (note: each method below must match an input method in template.action.php)
+   */
   public function pass() {
     self::checkAction("pass");
     // TODO(isherman): Dealer shouldn't be allowed to pass.
@@ -426,16 +424,15 @@ class TexasFortyTwo extends Table {
   }
 
   /*
-     * Each time a player is doing some game action, one of the methods below is called.
-     * (note: each method below must match an input method in template.action.php)
-     */
+   * Each time a player is doing some game action, one of the methods below is called.
+   * (note: each method below must match an input method in template.action.php)
+   */
   public function playCard($card_id) {
     self::checkAction("playCard");
     $player_id = self::getActivePlayerId();
     $this->dominoes->moveCard($card_id, 'table', $player_id);
     $current_card = self::getCollectionFromDb(
-      "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id"
-    )[$card_id];
+      "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id")[$card_id];
     self::debug("current_card [%d, %d, %d]\n", $current_card['id'], $current_card['low'], $current_card['high']);
     //print_r($current_card);
 
@@ -479,10 +476,10 @@ class TexasFortyTwo extends Table {
   //////////// Game state arguments
   ////////////
   /*
-     * Here, you can create methods defined as "game state arguments" (see "args" property in states.inc.php).
-     * These methods function is to return some additional information that is specific to the current
-     * game state.
-     */
+   * Here, you can create methods defined as "game state arguments" (see "args" property in states.inc.php).
+   * These methods function is to return some additional information that is specific to the current
+   * game state.
+   */
   public function argGiveCards() {
     return [];
   }
@@ -502,7 +499,7 @@ class TexasFortyTwo extends Table {
     $current_bid = self::getGameStateValue('bidValue') || 0;
     foreach ($possible_dibs as $bid => $name) {
       if ($bid <= $current_bid) {
-        unset($possible_dibs[$bid]);
+      unset($possible_dibs[$bid]);
       }
     }
 
@@ -590,14 +587,14 @@ class TexasFortyTwo extends Table {
       $bid_value = self::getGameStateValue('bidValue');
       $players = self::loadPlayersBasicInfos();
       self::notifyAllPlayers(
-        'bidWin',
-        clienttranslate('${player_name} wins the bid'),
-        [
-          // 'i18n' => array ('color_displayed','value_displayed' ),
-          'player_id' => $player_id,
-          'player_name' => $players[$highest_bidder]['player_name'],
-        ]
-      );
+      'bidWin',
+      clienttranslate('${player_name} wins the bid'),
+      [
+        // 'i18n' => array ('color_displayed','value_displayed' ),
+        'player_id' => $player_id,
+        'player_name' => $players[$highest_bidder]['player_name'],
+      ]
+    );
 
       // TODO(sdspikes): only allow on dump? Need to track that in state if so
       // if ($highest_bidder == $player_id) {
@@ -637,7 +634,7 @@ class TexasFortyTwo extends Table {
         if ($suitAndRank ['suit'] == $currentTrickSuit) {
           if ($best_value_player_id === null || $suitAndRank ['rank'] > $best_value) {
             $best_value_player_id = $domino ['location_arg']; // Note: location_arg = player who played this card on table
-                  $best_value = $suitAndRank['rank']; // Note: type_arg = value of the card
+          $best_value = $suitAndRank['rank']; // Note: type_arg = value of the card
           }
         }
       }
@@ -655,12 +652,12 @@ class TexasFortyTwo extends Table {
       //  before we move all cards to the winner (during the second)
       $players = self::loadPlayersBasicInfos();
       self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), [
-                    'player_id' => $best_value_player_id,
-                    'player_name' => $players[ $best_value_player_id ]['player_name']
-            ]);
+          'player_id' => $best_value_player_id,
+          'player_name' => $players[ $best_value_player_id ]['player_name']
+      ]);
       self::notifyAllPlayers('giveAllCardsToPlayer', '', [
-                    'player_id' => $best_value_player_id
-            ]);
+          'player_id' => $best_value_player_id
+      ]);
 
       if ($this->dominoes->countCardInLocation('hand') == 0) {
         // End of the hand
@@ -702,12 +699,12 @@ class TexasFortyTwo extends Table {
         self::DbQuery($sql);
         $heart_number = $player_to_points [$player_id];
         self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${nbr} hearts and looses ${nbr} points'), [
-                        'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'],
-                        'nbr' => $heart_number ]);
+            'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'],
+            'nbr' => $heart_number ]);
       } else {
         // No point lost (just notify)
         self::notifyAllPlayers("points", clienttranslate('${player_name} did not get any hearts'), [
-                        'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'] ]);
+            'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'] ]);
       }
     }
     $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
@@ -732,11 +729,11 @@ class TexasFortyTwo extends Table {
   ////////////
 
   /*
-      zombieTurn:
+    zombieTurn:
 
-      This method is called each time it is the turn of a player who has quit the game (= "zombie" player).
-      You can do whatever you want in order to make sure the turn of this player ends appropriately
-      (ex: pass).
+    This method is called each time it is the turn of a player who has quit the game (= "zombie" player).
+    You can do whatever you want in order to make sure the turn of this player ends appropriately
+    (ex: pass).
   */
 
   public function zombieTurn($state, $active_player) {
@@ -744,10 +741,10 @@ class TexasFortyTwo extends Table {
 
     if ($state['type'] == "activeplayer") {
       switch ($statename) {
-                default:
-                    $this->gamestate->nextState("zombiePass");
-                    break;
-            }
+        default:
+          $this->gamestate->nextState("zombiePass");
+          break;
+      }
 
       return;
     }
@@ -773,22 +770,22 @@ class TexasFortyTwo extends Table {
   //////////
 
   /*
-      upgradeTableDb:
+    upgradeTableDb:
 
-      You don't have to care about this until your game has been published on BGA.
-      Once your game is on BGA, this method is called everytime the system detects a game running with your old
-      Database scheme.
-      In this case, if you change your Database scheme, you just have to apply the needed changes in order to
-      update the game database and allow the game to continue to run with your new version.
+    You don't have to care about this until your game has been published on BGA.
+    Once your game is on BGA, this method is called everytime the system detects a game running with your old
+    Database scheme.
+    In this case, if you change your Database scheme, you just have to apply the needed changes in order to
+    update the game database and allow the game to continue to run with your new version.
 
   */
 
   public function upgradeTableDb($from_version) {
     // $from_version is the current version of this game database, in numerical form.
-        // For example, if the game was running with a release of your game named "140430-1345",
-        // $from_version is equal to 1404301345
+    // For example, if the game was running with a release of your game named "140430-1345",
+    // $from_version is equal to 1404301345
 
-        // Example:
+    // Example:
 //        if( $from_version <= 1404301345 )
 //        {
 //            $sql = "ALTER TABLE xxxxxxx ....";
