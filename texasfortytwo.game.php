@@ -187,7 +187,7 @@ class TexasFortyTwo extends Table {
     self::setGameStateInitialValue('bidType', -1);
     self::setGameStateInitialValue('trumpSuit', -1);
     self::setGameStateInitialValue('trickSuit', -1);
-    self::trace("first dealer: %d", self::getFirstDealer());
+    self::trace(sprintf("first dealer: %d", self::getFirstDealer()));
     self::setGameStateInitialValue('currentDealer', self::getFirstDealer());
 
     // Begin the game by activating the first player.
@@ -451,8 +451,8 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     // only allow bids higher than current bid if it exists
     $current_bid_value = self::getGameStateValue('bidValue') ;
-    self::trace("got bid value: %d", $bid_value);
-    self::trace("current bid value: %d", $current_bid_value);
+    self::trace(sprintf("got bid value: %d", $bid_value));
+    self::trace(sprintf("current bid value: %d", $current_bid_value));
     if (($current_bid_value === -1 && $bid_value >= 30) || $bid_value > $current_bid_value) {
       self::setGameStateValue('bidValue', $bid_value);
       self::setGameStateValue('highestBidder', $player_id);
@@ -501,7 +501,7 @@ class TexasFortyTwo extends Table {
     );
     $domino = self::fixDataTypes($domino);
 
-    self::trace("played domino: [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
+    self::trace(sprintf("played domino: [%d, %d, %d]", $domino['id'], $domino['low'], $domino['high']));
     //print_r($current_card);
 
     $trumpSuit = self::getTrumpSuit();
@@ -513,7 +513,7 @@ class TexasFortyTwo extends Table {
     $could_have_followed_suit = false;
     foreach ($hand as $domino_in_hand) {
       if (self::followsSuit($domino_in_hand, $trickSuit, $trumpSuit)) {
-        self::trace('Could have followed suit.\n');
+        self::trace('Could have followed suit.');
         self::trace(print_r($domino_in_hand, true).'\n');
         $could_have_followed_suit = true;
         break;
@@ -642,7 +642,7 @@ class TexasFortyTwo extends Table {
     $trick_suit = self::getTrickSuit();
     $player_id = self::getActivePlayerId();
     $hand = $this->getDominoesInLocation('hand', $player_id);
-    $is_playable = function ($domino) {
+    $is_playable = function ($domino) use ($trump_suit, $trick_suit) {
       return self::followsSuit($domino, $trick_suit, $trump_suit);
     };
     $get_id = function ($domino) { return domino['id']; };
@@ -707,9 +707,11 @@ class TexasFortyTwo extends Table {
 
   public function stNextPlayerBid() {
     $player_id = self::getActivePlayerId();
-    self::trace("player id: %d", $player_id);
+    self::trace(sprintf("player id: %d", $player_id));
     $players = self::loadPlayersBasicInfos();
-    self::trace("player id: %s", $players[$player_id]);
+    self::trace(sprintf("player id: %s", $players[$player_id]));
+    self::trace(sprintf("isdealer?: %b", $this->isDealer($player_id)));
+
     if ($this->isDealer($player_id)) {
       self::trace("current player is dealer");
       $highest_bidder = self::getGameStateValue('highestBidder');
