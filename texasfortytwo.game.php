@@ -369,9 +369,10 @@ class TexasFortyTwo extends Table {
 
   /**
    * Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
+   * @param int|string|null $location_arg
    * @return array<array<string, int>>
    */
-  private function getDominoesInLocation(string $location, string $location_arg = null): array {
+  private function getDominoesInLocation(string $location, $location_arg = null): array {
     $fields = 'card_id id, high, low, card_location_arg location_arg';
     $where = "card_location='$location'";
     if (!is_null($location_arg)) {
@@ -471,6 +472,8 @@ class TexasFortyTwo extends Table {
   /** @param int|string $bid_value */
   public function bid($bid_value): void {
     self::checkAction("bid");
+    // TODO(isherman): Not sure whether this type coersion is needed or not...
+    $bid_value = intval($bid_value);
     $player_id = self::getActivePlayerId();
     // only allow bids higher than current bid if it exists
     $current_bid_value = self::getGameStateValue('bidValue') ;
@@ -697,6 +700,7 @@ class TexasFortyTwo extends Table {
   }
 
   // TODO(isherman): Docs.
+  /** @return array<string, mixed> */
   public function argPlayerTurn(): array {
     // Docs for sending private data to players:
     // https://en.doc.boardgamearena.com/Your_game_state_machine:_states.inc.php#Private_info_in_args
@@ -967,7 +971,11 @@ class TexasFortyTwo extends Table {
     (ex: pass).
   */
 
-  public function zombieTurn(array $state, int $active_player): void {
+  /**
+   * @param array<string, mixed> $state
+   * @param int $active_player
+   */
+  public function zombieTurn($state, $active_player): void {
     $statename = $state['name'];
 
     if ($state['type'] == "activeplayer") {
@@ -1013,9 +1021,8 @@ class TexasFortyTwo extends Table {
 
   /**
    * @param int $from_version
-   * @return void
    */
-  public function upgradeTableDb($from_version) {
+  public function upgradeTableDb($from_version): void {
     // $from_version is the current version of this game database, in numerical form.
     // For example, if the game was running with a release of your game named "140430-1345",
     // $from_version is equal to 1404301345
