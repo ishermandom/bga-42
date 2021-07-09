@@ -701,7 +701,7 @@ class TexasFortyTwo extends Table {
 
   // TODO(isherman): Docs.
   public static function followsSuit($domino, $suit, $trump_suit) {
-    if ($suit !== $trump_suit && isTrump($domino, $trump_suit)) {
+    if ($suit !== $trump_suit && self::isTrump($domino, $trump_suit)) {
       return false;
     }
 
