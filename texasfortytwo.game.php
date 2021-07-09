@@ -709,7 +709,8 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     self::trace(sprintf("player id: %d", $player_id));
     $players = self::loadPlayersBasicInfos();
-    self::trace(sprintf("player id: %s", $players[$player_id]));
+    $player_name = self::getActivePlayerName();
+    self::trace(sprintf("player name: %s", $player_name));
     self::trace(sprintf("isdealer?: %s", $this->isDealer($player_id) ? 'true' : 'false'));
 
     if ($this->isDealer($player_id)) {
