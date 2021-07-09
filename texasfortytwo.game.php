@@ -219,7 +219,7 @@ class TexasFortyTwo extends Table {
       'SELECT player_no seat FROM player WHERE is_first_player = true'
     );
     $dealer_seat = ($first_player_seat + self::NUM_PLAYERS - 1) % self::NUM_PLAYERS;
-    return self::getPlayerIdByPlayerNo($dealer_id);
+    return self::getPlayerIdByPlayerNo($dealer_seat);
   }
 
   private function getNextDealer() {
