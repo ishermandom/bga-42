@@ -101,7 +101,8 @@ define([
       switch (stateName) {
         case 'playerTurn':
           console.log(args);
-          this.updatePossibleMoves(args.args._private.playableDominoes);
+          this.updatePossibleMoves(
+            Object.values(args.args._private.playableDominoes));
           break;
       }
     },
