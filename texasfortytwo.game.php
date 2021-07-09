@@ -202,6 +202,7 @@ class TexasFortyTwo extends Table {
     self::setGameStateInitialValue('trumpSuit', -1);
     self::setGameStateInitialValue('trickSuit', -1);
     self::trace(sprintf("first dealer: %d", self::getFirstDealer()));
+    self::trace(sprintf("php version: %s", phpversion()));
     self::setGameStateInitialValue('currentDealer', self::getFirstDealer());
 
     // Begin the game by activating the first player.
