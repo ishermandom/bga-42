@@ -345,7 +345,7 @@ abstract class Table extends APP_GameClass {
   }
 
   /* Method to override to set up each game */
-  abstract protected function setupNewGame($players, $options = []);
+  abstract protected function setupNewGame(array $players, array $options = []);
 
   public function stMakeEveryoneActive() {
     $this->gamestate->setAllPlayersMultiactive();

@@ -89,7 +89,7 @@ class SuitedDomino {
     $this->rank = intval($rank);
   }
 
-  public function isDouble() {
+  public function isDouble(): bool {
     return $this->suit === $this->rank;
   }
 
@@ -182,7 +182,7 @@ class TexasFortyTwo extends Table {
   }
 
   // Called once, when a new game is launched. Initializes game state.
-  protected function setupNewGame($players, $options = []) {
+  protected function setupNewGame(array $players, array $options = []): void {
     self::initializePlayers($players);
 
     // Initialize game state.
@@ -205,7 +205,7 @@ class TexasFortyTwo extends Table {
     $this->activeNextPlayer();
   }
 
-  private function getDisplayStringForBid($bid_value) {
+  private function getDisplayStringForBid(int $bid_value): string {
     if ($bid_value < 42) {
       return strval($bid_value);
     }
@@ -222,13 +222,13 @@ class TexasFortyTwo extends Table {
     return '';
   }
 
-  private function getPlayerIdByPlayerNo($player_no) {
-    return self::getUniqueValueFromDB(
+  private function getPlayerIdByPlayerNo(int $player_no): int {
+    return intval(self::getUniqueValueFromDB(
       "SELECT player_id id FROM player WHERE player_no = $player_no"
-    );
+    ));
   }
 
-  private function getFirstDealer() {
+  private function getFirstDealer(): int {
     // TODO(isherman): I think this whole function should just be
     return self::getPlayerIdByPlayerNo(3);
     /*$first_player_seat = self::getUniqueValueFromDB(
@@ -238,7 +238,7 @@ class TexasFortyTwo extends Table {
     return self::getPlayerIdByPlayerNo($dealer_seat);*/
   }
 
-  private function getNextDealer() {
+  private function getNextDealer(): int {
     $dealer_id = self::getDealer();
     self::trace(sprintf("Prev dealer: %d", intval(self::getPlayerNoById($dealer_id))));
     self::trace(sprintf("Next dealer: %d", (intval(self::getPlayerNoById($dealer_id)) + 1) % self::getPlayersNumber()));
@@ -358,7 +358,7 @@ class TexasFortyTwo extends Table {
         $rows[] = [$high, $low, 'deck', 0, '', 0];
       }
     }
-    // HACK: As a traceging aid, it can be useful to set a low value for
+    // HACK: As a debugging aid, it can be useful to set a low value for
     // `self::NUM_SUITS`. Support that by ensuring that the number of dominoes
     // is always divisible evenly by the number of players.
     $rows = array_slice($rows, 0, count($rows) - (count($rows) % 4));
@@ -703,6 +703,10 @@ class TexasFortyTwo extends Table {
     self::setGameStateValue('trumpSuit', -1);
     self::setGameStateValue('trickSuit', -1);
 
+    $dealer = self::getNextDealer();
+    self::setGameStateValue('currentDealer', $dealer);
+    $this->gamestate->changeActivePlayer(self::getPlayerAfter($dealer));
+
     // Wash the dominoes.
     // Note: Moving cards from location `null` means from any/all locations.
     $this->dominoes->moveAllCardsInLocation(null, 'deck');
@@ -711,7 +715,7 @@ class TexasFortyTwo extends Table {
     // Deal a new hand to each player.
     $players = self::loadPlayersBasicInfos();
     $hand_size = self::NUM_SUITS * (self::NUM_SUITS + 1) / 2 / count($players);
-    // HACK: As a traceging aid, it can be useful to set a low value for
+    // HACK: As a debugging aid, it can be useful to set a low value for
     // `self::NUM_SUITS`. Support that by ensuring that the number of dominoes
     // is always divisible evenly by the number of players.
     $hand_size = intval($hand_size);
@@ -720,7 +724,7 @@ class TexasFortyTwo extends Table {
       $dominoes = $this->getDominoesInLocation('hand', $player_id);
       self::notifyPlayer($player_id, 'newHand', '', ['hand' => $dominoes]);
     }
-    $this->gamestate->nextState("");
+    $this->gamestate->nextState();
   }
 
   private function isPartner($player, $other_player) {
@@ -786,7 +790,6 @@ class TexasFortyTwo extends Table {
     // Reset trick color to 0 (= no color)
     //self::setGameStateInitialValue('trickColor', 0);
     self::setGameStateValue('trickSuit', -1);
-    self::setGameStateValue('currentDealer', self::getNextDealer());
     $this->gamestate->nextState();
   }
 
@@ -989,7 +992,7 @@ class TexasFortyTwo extends Table {
 
   */
 
-  public function upgradeTableDb($from_version) {
+  public function upgradeTableDb(int $from_version): void {
     // $from_version is the current version of this game database, in numerical form.
     // For example, if the game was running with a release of your game named "140430-1345",
     // $from_version is equal to 1404301345
