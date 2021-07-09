@@ -637,10 +637,9 @@ class TexasFortyTwo extends Table {
   }
 
   // TODO(isherman): Docs
-  public function getPlayableDominoIds() {
+  public function getPlayableDominoIdsForPlayer($player_id) {
     $trump_suit = self::getTrumpSuit();
     $trick_suit = self::getTrickSuit();
-    $player_id = self::getActivePlayerId();
     $hand = $this->getDominoesInLocation('hand', $player_id);
 
     // If the player can follow suit, they must play a domino from that suit.
@@ -659,15 +658,15 @@ class TexasFortyTwo extends Table {
 
   // TODO(isherman): Docs.
   public function argPlayerTurn() {
-    $playable_dominoes = [];
+    // Docs for sending private data to players:
+    // https://en.doc.boardgamearena.com/Your_game_state_machine:_states.inc.php#Private_info_in_args
     $player_ids = array_keys(self::loadPlayersBasicInfos());
+    $playable_dominoes = [];
     foreach ($player_ids as $player_id) {
       $playable_dominoes[$player_id] = [
         'playableDominoes' => self::getPlayableDominoIdsForPlayer($player_id),
       ];
     }
-    // Docs for sending private data to players:
-    // https://en.doc.boardgamearena.com/Your_game_state_machine:_states.inc.php#Private_info_in_args
     return [
       'trickSuit' => self::getTrickSuit(),
       '_private' => $playable_dominoes,
