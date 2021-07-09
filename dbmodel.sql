@@ -18,7 +18,8 @@
 -- Note: The database schema is created from this file when the game starts.
 -- If you modify this file, you have to restart a game to see your changes.
 
--- TODO(isherman): Do we need this? Probably...
+-- TODO(isherman): Do we need this? Probably not, I think we're storing this
+-- as a global instead...
 -- add info about first player
 ALTER TABLE `player` ADD `is_first_player` BOOLEAN NOT NULL DEFAULT false;
 

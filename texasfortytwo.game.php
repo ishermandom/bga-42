@@ -157,8 +157,10 @@ class TexasFortyTwo extends Table {
       'trumpSuit' => 13,
       // The suit of the current trick, e.g. Jane led a four.
       'trickSuit' => 14,
-      // 'my_first_game_variant' => 100,
+      // Which player is dealt the current trick, e.g. player id 0xB0BAC0DE is
+      // dealer.
       'currentDealer' => 15,
+      // 'my_first_game_variant' => 100,
     ]);
   }
 
@@ -216,6 +218,8 @@ class TexasFortyTwo extends Table {
   }
 
   private function getFirstDealer() {
+    // TODO(isherman): I think this whole function should just be
+    // return self::getPlayerIdByPlayerNo(3);
     $first_player_seat = self::getUniqueValueFromDB(
       'SELECT player_no seat FROM player WHERE is_first_player = true'
     );
@@ -226,7 +230,7 @@ class TexasFortyTwo extends Table {
   private function getNextDealer() {
     $dealer_id = self::getDealer();
     return self::getPlayerIdByPlayerNo(
-      (self::getPlayerNoById($dealer_id) + 1)% self::NUM_PLAYERS
+      (self::getPlayerNoById($dealer_id) + 1) % self::NUM_PLAYERS
     );
   }
 
@@ -642,7 +646,7 @@ class TexasFortyTwo extends Table {
       return self::followsSuit($domino, $trick_suit, $trump_suit);
     };
     $get_id = function ($domino) { return domino['id']; };
-    return array_map($get_id, array_filter($is_playable, hand));
+    return array_map($get_id, array_filter($hand, $is_playable));
   }
 
   public function argPlayerTurn() {
@@ -703,10 +707,13 @@ class TexasFortyTwo extends Table {
 
   public function stNextPlayerBid() {
     $player_id = self::getActivePlayerId();
+    self::trace("player id: %d", $player_id);
+    $players = self::loadPlayersBasicInfos();
+    self::trace("player id: %s", $players[$player_id]);
     if ($this->isDealer($player_id)) {
+      self::trace("current player is dealer");
       $highest_bidder = self::getGameStateValue('highestBidder');
       $bid_value = self::getGameStateValue('bidValue');
-      $players = self::loadPlayersBasicInfos();
       self::notifyAllPlayers(
         'bidWin',
         clienttranslate('${player_name} wins the bid'),
@@ -733,6 +740,7 @@ class TexasFortyTwo extends Table {
       }
       $this->gamestate->nextState('chooseBidSuit');
     } else {
+      self::trace("Current player not dealer, go to next player");
       self::activeNextPlayer();
       $this->gamestate->nextState('playerBid');
     }
