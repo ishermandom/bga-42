@@ -219,12 +219,12 @@ class TexasFortyTwo extends Table {
 
   private function getFirstDealer() {
     // TODO(isherman): I think this whole function should just be
-    // return self::getPlayerIdByPlayerNo(3);
-    $first_player_seat = self::getUniqueValueFromDB(
+    return self::getPlayerIdByPlayerNo(3);
+    /*$first_player_seat = self::getUniqueValueFromDB(
       'SELECT player_no seat FROM player WHERE is_first_player = true'
     );
     $dealer_seat = ($first_player_seat + self::NUM_PLAYERS - 1) % self::NUM_PLAYERS;
-    return self::getPlayerIdByPlayerNo($dealer_seat);
+    return self::getPlayerIdByPlayerNo($dealer_seat);*/
   }
 
   private function getNextDealer() {
@@ -657,10 +657,20 @@ class TexasFortyTwo extends Table {
     return array_map($get_id, $valid_plays);
   }
 
+  // TODO(isherman): Docs.
   public function argPlayerTurn() {
+    $playable_dominoes = [];
+    $player_ids = array_keys(self::loadPlayersBasicInfos());
+    foreach ($player_ids as $player_id) {
+      $playable_dominoes[$player_id] = [
+        'playableDominoes' => self::getPlayableDominoIdsForPlayer($player_id),
+      ];
+    }
+    // Docs for sending private data to players:
+    // https://en.doc.boardgamearena.com/Your_game_state_machine:_states.inc.php#Private_info_in_args
     return [
       'trickSuit' => self::getTrickSuit(),
-      'playableDominoes' => self::getPlayableDominoIds(),
+      '_private' => $playable_dominoes,
     ];
   }
 

@@ -100,18 +100,17 @@ define([
 
       switch (stateName) {
         case 'playerTurn':
-          this.updatePossibleMoves(args.args.trickSuit);
+          this.updatePossibleMoves(args.args._private.playableDominoes);
           break;
       }
     },
 
-    updatePossibleMoves: function(trickSuit) {
+    updatePossibleMoves: function(playableDominoes) {
       const handItems = this.hand.getAllItems();
       for (const handItem of handItems) {
         const id = handItem.id;
-        const domino = this.getDominoFromId(id);
         const div = document.getElementById(this.hand.getItemDivId(id));
-        if (domino.high === trickSuit || domino.low === trickSuit) {
+        if (playableDominoes.includes(id)) {
           div.classList.add('highlighted');
         } else {
           div.classList.remove('highlighted');
