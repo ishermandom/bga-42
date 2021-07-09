@@ -651,6 +651,15 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState("");
   }
 
+  private function isPartner($player, $other_player) {
+    return (self::getPlayerNoById($player) + 2) % 4 === self::getPlayerNoById($other_player)
+  }
+
+  private function getPartner($player) {
+    if
+    return (self::getPlayerNoById($player) + 2) % 4 == self::getPlayerNoById($other_player)
+  }
+
   public function stNextPlayerBid() {
     $player_id = self::getActivePlayerId();
     if ($this->isDealer($player_id)) {
@@ -676,7 +685,11 @@ class TexasFortyTwo extends Table {
       //   $this->gamestate->nextState('chooseBidType');
       // } else {
       // }
-      $this->gamestate->changeActivePlayer($highest_bidder);
+      if ($bidValue % 42 !== 0) {
+        $this->gamestate->changeActivePlayer($highest_bidder);
+      } else {
+        $this->gamestate->changeActivePlayer($highest_bidder);
+      }
       $this->gamestate->nextState('chooseBidSuit');
     } else {
       self::activeNextPlayer();

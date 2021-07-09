@@ -253,7 +253,7 @@ define([
       const sprite_index = id - 1;
       for (let high = 0; high <= 6; high++) {
         for (let low = 0; low <= high; low++) {
-          if (getSpriteIndex(high, low) === sprite_index) {
+          if (this.getSpriteIndex(high, low) === sprite_index) {
             return {
               high: high,
               low: low,
