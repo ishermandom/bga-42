@@ -112,8 +112,9 @@ define([
         const domino = this.getDominoFromId(id);
         if (domino.high === trickSuit || domino.low === trickSuit) {
           const div = this.hand.getItemDivId(id);
-          div.style.border = "solid 4px yellow";
+          div.style.border = "solid 4px gold";
           div.style.borderRadius = "22px";
+          div.style.boxShadow = "0 0 10px gold";
         }
       }
     },

@@ -689,7 +689,7 @@ class TexasFortyTwo extends Table {
       //   $this->gamestate->nextState('chooseBidType');
       // } else {
       // }
-      if ($bidValue % 42 !== 0) {
+      if ($bid_value % 42 !== 0) {
         $this->gamestate->changeActivePlayer($highest_bidder);
       } else {
         $this->gamestate->changeActivePlayer(self::getPartner($highest_bidder));
