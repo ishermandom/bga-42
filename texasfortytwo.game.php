@@ -453,18 +453,14 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     $hand = $this->getDominoesInLocation('hand', $player_id);
     $could_have_followed_suit = false;
-    /*
-    TODO(isherman): Something about this logic seems to be broken...
     foreach ($hand as $domino_in_hand) {
-      if ($domino_in_hand['high'] === $trickSuit ||
-          $domino_in_hand['low'] === $trickSuit) {
+      if (self::followsSuit($domino_in_hand, $trickSuit)) {
         self::trace('Could have followed suit.\n');
         self::trace(print_r($domino_in_hand, true).'\n');
         $could_have_followed_suit = true;
         break;
       }
     }
-    */
 
     // XXX check rules here
     // Set the trick suit if it hasn't been set yet.
@@ -596,6 +592,12 @@ class TexasFortyTwo extends Table {
 
   // Washes (shuffles) the dominoes and deals new hands to each player.
   public function stNewHand() {
+    self::setGameState('highestBidder', null);
+    self::setGameState('bidValue', null);
+    self::setGameState('bidType', null);
+    self::setGameState('trumpSuit', null);
+    self::setGameState('trickSuit', null);
+
     // Wash the dominoes.
     // Note: Moving cards from location `null` means from any/all locations.
     $this->dominoes->moveAllCardsInLocation(null, 'deck');
@@ -653,6 +655,7 @@ class TexasFortyTwo extends Table {
     // New trick: active the player who wins the last trick, or the player who own the club-2 card
     // Reset trick color to 0 (= no color)
     //self::setGameStateInitialValue('trickColor', 0);
+    self::setGameState('trickSuit', null);
     $this->gamestate->nextState();
   }
 
@@ -664,6 +667,15 @@ class TexasFortyTwo extends Table {
     // If not following the previously winning suit, trump always wins, and any
     // other suit always loses.
     return $new['suit'] === $trump_suit;
+  }
+
+  // TODO(isherman): Docs.
+  public static function followsSuit($domino, $suit, $trump_suit) {
+    if ($suit !== $trump_suit && isTrump($domino, $trump_suit)) {
+      return false;
+    }
+
+    return $domino['low'] === $suit || $domino['high'] === $suit;
   }
 
   public static function isDouble($suited_domino) {
