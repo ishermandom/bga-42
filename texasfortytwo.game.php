@@ -54,6 +54,7 @@ abstract class CardLocation {
   const TEAM = 'team';
 }
 
+// TODO(isherman): Docs, and actually use this object instead of associative arrays.
 class Domino {
   public function __construct($low, $high) {
     $this->low = intval($low);
@@ -68,6 +69,7 @@ class Domino {
   public $high;
 }
 
+// TODO(isherman): Docs, and actually use this object instead of associative arrays.
 class SuitedDomino {
   public function __construct($suit, $rank) {
     $this->suit = intval($suit);
@@ -704,6 +706,10 @@ class TexasFortyTwo extends Table {
     }
 
     return $domino['low'] === $suit || $domino['high'] === $suit;
+  }
+
+  public static function isTrump($domino, $trump_suit) {
+    return $domino['low'] === $trump_suit || $domino['high'] === $trump_suit;
   }
 
   public static function isDouble($suited_domino) {
