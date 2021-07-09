@@ -296,8 +296,11 @@ class TexasFortyTwo extends Table {
     return $fixed;
   }
 
-  // Initializes the player database for the game. Called once, when a new game
-  // is launched.
+  /**
+   * Initializes the player database for the game. Called once, when a new game
+   * is launched.
+   * @param array<int|string, mixed> $players
+   */
   private function initializePlayers(array $players): void {
     $fields = [
       'player_id',
@@ -1008,7 +1011,11 @@ class TexasFortyTwo extends Table {
 
   */
 
-  public function upgradeTableDb(int $from_version): void {
+  /**
+   * @param int $from_version
+   * @return void
+   */
+  public function upgradeTableDb($from_version) {
     // $from_version is the current version of this game database, in numerical form.
     // For example, if the game was running with a release of your game named "140430-1345",
     // $from_version is equal to 1404301345
