@@ -141,8 +141,8 @@ class TexasFortyTwo extends Table {
   ];
 
   // The number of suits: blanks through sixes.
-  // HACK: It can be useful to set this to 3 for traceging.
-  private const NUM_SUITS = 7;
+  // HACK: It can be useful to set this to 3 for debugging.
+  private const NUM_SUITS = 3;
 
   private $dominoes;
 
