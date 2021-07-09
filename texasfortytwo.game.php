@@ -174,11 +174,11 @@ class TexasFortyTwo extends Table {
     // TODO(isherman): Call self::initStat for all defined statistics.
 
     self::initializeDeck();
-    self::setGameStateInitialValue('highestBidder', null);
-    self::setGameStateInitialValue('bidValue', null);
-    self::setGameStateInitialValue('bidType', null);
-    self::setGameStateInitialValue('trumpSuit', null);
-    self::setGameStateInitialValue('trickSuit', null);
+    self::setGameStateInitialValue('highestBidder', -1);
+    self::setGameStateInitialValue('bidValue', -1);
+    self::setGameStateInitialValue('bidType', -1);
+    self::setGameStateInitialValue('trumpSuit', -1);
+    self::setGameStateInitialValue('trickSuit', -1);
 
     // Begin the game by activating the first player.
     $this->activeNextPlayer();
@@ -398,7 +398,7 @@ class TexasFortyTwo extends Table {
     // TODO(isherman): Dealer shouldn't be allowed to pass.
     $player_id = self::getActivePlayerId();
     $current_bid_value = self::getGameStateValue('bidValue') ;
-    if (!($this->isDealer($player_id) && is_null($current_bid_value))) {
+    if (!($this->isDealer($player_id) && $current_bid_value === -1)) {
       $this->gamestate->nextState('nextPlayerBid');
     }
     self::notifyAllPlayers(
@@ -423,7 +423,7 @@ class TexasFortyTwo extends Table {
     $current_bid_value = self::getGameStateValue('bidValue') ;
     self::trace("got bid value: %d", $bid_value);
     self::trace("current bid value: %d", $current_bid_value);
-    if ((is_null($current_bid_value) && $bid_value >= 30) || $bid_value > $current_bid_value) {
+    if (($current_bid_value === -1 && $bid_value >= 30) || $bid_value > $current_bid_value) {
       self::setGameStateValue('bidValue', $bid_value);
       self::setGameStateValue('highestBidder', $player_id);
 
@@ -492,7 +492,7 @@ class TexasFortyTwo extends Table {
 
     // XXX check rules here
     // Set the trick suit if it hasn't been set yet.
-    if (is_null($trickSuit)) {
+    if ($trickSuit === -1) {
       self::setGameStateValue('trickSuit', $play['suit']);
     } elseif ($play['suit'] !== $trickSuit &&
               $could_have_followed_suit) {
@@ -564,7 +564,7 @@ class TexasFortyTwo extends Table {
 
     $lowest_bid = 30;
     $bid_value = self::getGameStateValue('bidValue');
-    if (!is_null($bid_value) && $bid_value >= $lowest_bid) {
+    if ($bid_value !== -1 && $bid_value >= $lowest_bid) {
       $lowest_bid = $bid_value + 1;
     }
     $possible_bids = [];
@@ -620,11 +620,11 @@ class TexasFortyTwo extends Table {
 
   // Washes (shuffles) the dominoes and deals new hands to each player.
   public function stNewHand() {
-    self::setGameStateValue('highestBidder', null);
-    self::setGameStateValue('bidValue', null);
-    self::setGameStateValue('bidType', null);
-    self::setGameStateValue('trumpSuit', null);
-    self::setGameStateValue('trickSuit', null);
+    self::setGameStateValue('highestBidder', -1);
+    self::setGameStateValue('bidValue', -1);
+    self::setGameStateValue('bidType', -1);
+    self::setGameStateValue('trumpSuit', -1);
+    self::setGameStateValue('trickSuit', -1);
 
     // Wash the dominoes.
     // Note: Moving cards from location `null` means from any/all locations.
@@ -683,7 +683,7 @@ class TexasFortyTwo extends Table {
     // New trick: active the player who wins the last trick, or the player who own the club-2 card
     // Reset trick color to 0 (= no color)
     //self::setGameStateInitialValue('trickColor', 0);
-    self::setGameStateInitialValue('trickSuit', null);
+    self::setGameStateValue('trickSuit', -1);
     $this->gamestate->nextState();
   }
 
@@ -711,13 +711,11 @@ class TexasFortyTwo extends Table {
   }
 
   private function getTrumpSuit() {
-    $trump = self::getGameStateValue('trumpSuit');
-    return is_null($trump) ? null : intval($trump);
+    return intval(self::getGameStateValue('trumpSuit'));
   }
 
   private function getTrickSuit() {
-    $suit = self::getGameStateValue('trickSuit');
-    return is_null($suit) ? null : intval($suit);
+    return intval(self::getGameStateValue('trickSuit'));
   }
 
   public function stNextPlayer() {
