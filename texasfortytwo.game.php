@@ -185,6 +185,7 @@ class TexasFortyTwo extends Table {
     self::setGameStateInitialValue('bidType', -1);
     self::setGameStateInitialValue('trumpSuit', -1);
     self::setGameStateInitialValue('trickSuit', -1);
+    self::trace("first dealer: %d", self::getFirstDealer());
     self::setGameStateInitialValue('currentDealer', self::getFirstDealer());
 
     // Begin the game by activating the first player.
@@ -223,14 +224,14 @@ class TexasFortyTwo extends Table {
   }
 
   private function getNextDealer() {
-    $dealer_id = self::getGameStateValue('currentDealer');
+    $dealer_id = self::getDealer();
     return self::getPlayerIdByPlayerNo(
       (self::getPlayerNoById($dealer_id) + 1)% self::NUM_PLAYERS
     );
   }
 
   private function getDealer() {
-    return self::getGameStateValue('currentDealer');
+    return intval(self::getGameStateValue('currentDealer'));
   }
 
   // Returns whether the given player id is the dealer for this hand.
@@ -631,8 +632,24 @@ class TexasFortyTwo extends Table {
     return self::SUIT_TO_DISPLAY_NAME;
   }
 
+  // TODO(isherman): Docs
+  public function getPlayableDominoIds() {
+    $trump_suit = self::getTrumpSuit();
+    $trick_suit = self::getTrickSuit();
+    $player_id = self::getActivePlayerId();
+    $hand = $this->getDominoesInLocation('hand', $player_id);
+    $is_playable = function ($domino) {
+      return self::followsSuit($domino, $trick_suit, $trump_suit);
+    };
+    $get_id = function ($domino) { return domino['id']; };
+    return array_map($get_id, array_filter($is_playable, hand));
+  }
+
   public function argPlayerTurn() {
-    return ['trickSuit' => self::getTrickSuit()];
+    return [
+      'trickSuit' => self::getTrickSuit(),
+      'playableDominoes' => self::getPlayableDominoIds(),
+    ];
   }
 
   //////////////////////////////////////////////////////////////////////////////
