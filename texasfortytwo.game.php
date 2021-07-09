@@ -187,8 +187,8 @@ class TexasFortyTwo extends Table {
 
   private function getSuitAndRank($domino) {
     self::trace(print_r($domino, true));
-    $trumpSuit = self::getGameStateValue('trumpSuit');
-    $trickSuit = self::getGameStateValue('trickSuit');
+    $trumpSuit = self::getTrumpSuit();
+    $trickSuit = self::getTrickSuit();
     if ($domino['high'] !== $trumpSuit &&
         ($domino['low'] === $trumpSuit || $domino['low'] === $trickSuit)) {
       return ['suit' => $domino['low'], 'rank' => $domino['high']];
@@ -328,11 +328,11 @@ class TexasFortyTwo extends Table {
     $result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
     // Dominoes in play on the table.
     $result['table'] = $this->getDominoesInLocation('table');
-    $result['trickSuit'] = $this->getGameStateValue('trickSuit');
+    $result['trickSuit'] = self::getTrickSuit();
     $result['bidValue'] = $this->getGameStateValue('bidValue');
     $result['highestBidder'] = $this->getGameStateValue('highestBidder');
     $result['bidType'] = $this->getGameStateValue('bidType');
-    $result['trumpSuit'] = $this->getGameStateValue('trumpSuit');
+    $result['trumpSuit'] = self::getTrumpSuit();
     return $result;
   }
 
@@ -393,10 +393,8 @@ class TexasFortyTwo extends Table {
     $player_id = self::getActivePlayerId();
     // only allow bids higher than current bid if it exists
     $current_bid_value = self::getGameStateValue('bidValue') ;
-    self::trace("got bid value: ");
-    self::trace($bid_value);
-    self::trace("current bid value: ");
-    self::trace($current_bid_value);
+    self::trace("got bid value: %d", $bid_value);
+    self::trace("current bid value: %d", $current_bid_value);
     if ((is_null($current_bid_value) && $bid_value >= 30) || $bid_value > $current_bid_value) {
       self::setGameStateValue('bidValue', $bid_value);
       self::setGameStateValue('highestBidder', $player_id);
@@ -445,23 +443,28 @@ class TexasFortyTwo extends Table {
     );
     $domino = self::fixDataTypes($domino);
 
-    self::trace("current_card [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
+    self::trace("played domino: [%d, %d, %d]\n", $domino['id'], $domino['low'], $domino['high']);
     //print_r($current_card);
 
-    $trumpSuit = self::getGameStateValue('trumpSuit');
-    $trickSuit = self::getGameStateValue('trickSuit');
+    $trumpSuit = self::getTrumpSuit();
+    $trickSuit = self::getTrickSuit();
     $play = self::getSuitAndRank($domino);
 
     $player_id = self::getActivePlayerId();
     $hand = $this->getDominoesInLocation('hand', $player_id);
     $could_have_followed_suit = false;
+    /*
+    TODO(isherman): Something about this logic seems to be broken...
     foreach ($hand as $domino_in_hand) {
       if ($domino_in_hand['high'] === $trickSuit ||
           $domino_in_hand['low'] === $trickSuit) {
+        self::trace('Could have followed suit.\n');
+        self::trace(print_r($domino_in_hand, true).'\n');
         $could_have_followed_suit = true;
         break;
       }
     }
+    */
 
     // XXX check rules here
     // Set the trick suit if it hasn't been set yet.
@@ -580,7 +583,7 @@ class TexasFortyTwo extends Table {
   }
 
   public function argPlayerTurn() {
-    return ['trickSuit' => self::getGameStateValue('trickSuit')];
+    return ['trickSuit' => self::getTrickSuit()];
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -623,10 +626,10 @@ class TexasFortyTwo extends Table {
         'bidWin',
         clienttranslate('${player_name} wins the bid'),
         [
-        // 'i18n' => array ('color_displayed','value_displayed' ),
-        'player_id' => $player_id,
-        'player_name' => $players[$highest_bidder]['player_name'],
-      ]
+          // 'i18n' => array ('color_displayed','value_displayed' ),
+          'player_id' => $player_id,
+          'player_name' => $players[$highest_bidder]['player_name'],
+        ]
       );
 
       // TODO(sdspikes): only allow on dump? Need to track that in state if so
@@ -667,40 +670,56 @@ class TexasFortyTwo extends Table {
     return $suited_domino['suit'] === $suited_domino['rank'];
   }
 
+  private function getTrumpSuit() {
+    $trump = self::getGameStateValue('trumpSuit');
+    return is_null($trump) ? null : intval($trump);
+  }
+
+  private function getTrickSuit() {
+    $suit = self::getGameStateValue('trickSuit');
+    return is_null($suit) ? null : intval($suit);
+  }
+
   public function stNextPlayer() {
     // Active next player OR end the trick and go to the next trick OR end the hand
     if ($this->dominoes->countCardInLocation('table') == 4) {
       // This is the end of the trick
       $dominoes_on_table = $this->getDominoesInLocation('table');
-      $best_play = null;
-      $best_play_player_id = null;
-      $trump_suit = self::getGameStateValue('trumpSuit');
+      // The player after the final player is the player that lead.
+      $winning_player_id = self::getPlayerAfter(self::getActivePlayerId());
+      // TODO(isherman): Would be nice to assert that there is exactly one
+      // domino returned here:
+      $lead_domino =
+        $this->getDominoesInLocation('table', $winning_player_id)[0];
+      $winning_play = self::getSuitAndRank($lead_domino);
+      $trump_suit = self::getTrumpSuit();
       foreach ($dominoes_on_table as $domino) {
         // Note: type = card color
         $play = self::getSuitAndRank($domino);
-        if ($best_play === null ||
-            self::beatsDomino($best_play, $play, $trump_suit)) {
-          $best_play_player_id = $domino['location_arg']; // Note: location_arg = player id
-          $best_play = $play;
+        self::trace(print_r($play, true));
+        if (self::beatsDomino($winning_play, $play, $trump_suit)) {
+          self::trace('beats previous!');
+          $winning_player_id = $domino['location_arg']; // Note: location_arg = player id
+          $winning_play = $play;
         }
       }
 
       // Activate this player, they have the lead
-      $this->gamestate->changeActivePlayer($best_play_player_id);
+      $this->gamestate->changeActivePlayer($winning_player_id);
 
       // Move all dominoes to "cardswon" of the given player
-      $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $best_play_player_id);
+      $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $winning_player_id);
 
       // Notify
       // Note: we use 2 notifications here to pause the display during the first notification
       //  before we move all cards to the winner (during the second)
       $players = self::loadPlayersBasicInfos();
       self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), [
-          'player_id' => $best_play_player_id,
-          'player_name' => $players[ $best_play_player_id ]['player_name']
+        'player_id' => $winning_player_id,
+        'player_name' => $players[ $winning_player_id ]['player_name']
       ]);
       self::notifyAllPlayers('giveAllCardsToPlayer', '', [
-          'player_id' => $best_play_player_id
+        'player_id' => $winning_player_id
       ]);
 
       if ($this->dominoes->countCardInLocation('hand') == 0) {
