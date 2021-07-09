@@ -440,6 +440,9 @@ class TexasFortyTwo extends Table {
    */
   public function pass() {
     self::checkAction("pass");
+    self::trace(sprintf("first dealer: %d", self::getFirstDealer()));
+    self::trace(sprintf("php version: %s", phpversion()));
+    
     // TODO(isherman): Dealer shouldn't be allowed to pass.
     $player_id = self::getActivePlayerId();
     $current_bid_value = self::getGameStateValue('bidValue') ;
