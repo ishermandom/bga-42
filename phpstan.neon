@@ -1,7 +1,7 @@
 # To install: https://phpstan.org/user-guide/getting-started
 
 parameters:
-  level: 6
+  level: 8
   paths:
     #- .
     - texasfortytwo.game.php
