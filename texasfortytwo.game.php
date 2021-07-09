@@ -181,8 +181,13 @@ class TexasFortyTwo extends Table {
     return 'texasfortytwo';
   }
 
-  // Called once, when a new game is launched. Initializes game state.
-  protected function setupNewGame(array $players, array $options = []): void {
+  /**
+   * Called once, when a new game is launched. Initializes game state.
+   * @param array<int|string, mixed> $players Map from id to player info.
+   * @param array<int|string> $options TODO(isherman): Figure out what this data
+   *     is, exactly.
+   */
+  protected function setupNewGame($players, $options = []): void {
     self::initializePlayers($players);
 
     // Initialize game state.
