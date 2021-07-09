@@ -229,31 +229,19 @@ class TexasFortyTwo extends Table {
   }
 
   private function getFirstDealer(): int {
-    // TODO(isherman): I think this whole function should just be
     return self::getPlayerIdByPlayerNo(3);
-    /*$first_player_seat = self::getUniqueValueFromDB(
-      'SELECT player_no seat FROM player WHERE is_first_player = true'
-    );
-    $dealer_seat = ($first_player_seat + self::NUM_PLAYERS - 1) % self::NUM_PLAYERS;
-    return self::getPlayerIdByPlayerNo($dealer_seat);*/
   }
 
-  private function getNextDealer(): int {
-    $dealer_id = self::getDealer();
-    self::trace(sprintf("Prev dealer: %d", intval(self::getPlayerNoById($dealer_id))));
-    self::trace(sprintf("Next dealer: %d", (intval(self::getPlayerNoById($dealer_id)) + 1) % self::getPlayersNumber()));
-    return self::getPlayerIdByPlayerNo(
-      (intval(self::getPlayerNoById($dealer_id)) + 1) % self::getPlayersNumber()
-    );
-  }
-
-  private function getDealer() {
+  private function getDealer(): int {
     return intval(self::getGameStateValue('currentDealer'));
   }
 
-  // Returns whether the given player id is the dealer for this hand.
-  private function isDealer($player_id) {
-    return intval(self::getDealer()) === intval($player_id);
+  /**
+   * Returns whether the given player id is the dealer for this hand.
+   * @param int|string $player_id
+   */
+  private function isDealer($player_id): bool {
+    return self::getDealer() === intval($player_id);
   }
 
   private function getSuitAndRank($domino) {
@@ -267,12 +255,14 @@ class TexasFortyTwo extends Table {
     return ['suit' => $domino['high'], 'rank' => $domino['low']];
   }
 
-  // Inserts a set of fields into the database named `$db_name`;
-  // `$fields`: an array of field names, e.g. 'player_id'.
-  // `$rows`: an array of arrays, where each inner array defines the values for
-  //     one row, specified in the same order as
-  //     `$field_names`.
-  private function insertIntoDatabase($db_name, $fields, $rows) {
+  /**
+   * Inserts a set of fields into the database named `$db_name`.
+   * @param array<string> $fields An array of field names, e.g. 'player_id'.
+   * @param array<array<mixed>> $rows An array of arrays, where each inner array
+   *     defines the values for one row, specified in the same order as
+   *     `$field_names`.
+   */
+  private function insertIntoDatabase(string $db_name, array $fields, $rows): void {
     $to_sql_row = function ($row) {
       return "('".join("','", $row)."')";
     };
@@ -281,10 +271,14 @@ class TexasFortyTwo extends Table {
     $this->DbQuery("INSERT INTO $db_name ($fields) VALUES $values");
   }
 
-  // Returns a copy of the `$domino` with semantically correct data types.
-  // SQL queries return strings even for int fields; this function converts
-  // those strings back into ints.
-  private static function fixDataTypes($domino) {
+  /**
+   * Returns a copy of the `$domino` with semantically correct data types.
+   * SQL queries return strings even for int fields; this function converts
+   * those strings back into ints.
+   * @param array<string, mixed> $domino
+   * @return array<string, mixed>
+   */
+  private static function fixDataTypes(array $domino): array {
     $int_fields = ['id', 'high', 'low', 'location_arg'];
     $fixed = [];
     foreach ($domino as $field => $value) {
@@ -299,7 +293,7 @@ class TexasFortyTwo extends Table {
 
   // Initializes the player database for the game. Called once, when a new game
   // is launched.
-  private function initializePlayers($players) {
+  private function initializePlayers(array $players): void {
     $fields = [
       'player_id',
       'player_color',
@@ -339,7 +333,7 @@ class TexasFortyTwo extends Table {
   // Initializes the domino deck for the game. Called once, when a new game is
   // launched. Analogous to `Deck::createCards`, but with additional logic to
   // initialize custom database fields correctly.
-  private function initializeDeck() {
+  private function initializeDeck(): void {
     $fields = [
       'high',
       'low',
@@ -365,8 +359,11 @@ class TexasFortyTwo extends Table {
     self::insertIntoDatabase('dominoes', $fields, $rows);
   }
 
-  // Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
-  private function getDominoesInLocation($location, $location_arg = null) {
+  /**
+   * Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
+   * @return array<array<string, int>>
+   */
+  private function getDominoesInLocation(string $location, string $location_arg = null): array {
     $fields = 'card_id id, high, low, card_location_arg location_arg';
     $where = "card_location='$location'";
     if (!is_null($location_arg)) {
@@ -378,10 +375,13 @@ class TexasFortyTwo extends Table {
     return array_map([$this, 'fixDataTypes'], $dominoes);
   }
 
-  // Returns all game state visible to the current player.
-  // Called each time the game interface is displayed to a player, ie:
-  //   * when the game starts
-  //   * when a player refreshes the game page (F5)
+  /**
+   * Returns all game state visible to the current player.
+   * Called each time the game interface is displayed to a player, ie:
+   *   * when the game starts
+   *   * when a player refreshes the game page (F5)
+   * @return array<string, mixed>
+   */
   protected function getAllDatas() {
     // Important: Must only return game state visible to this player!
     $current_player_id = self::getCurrentPlayerId();
@@ -417,7 +417,7 @@ class TexasFortyTwo extends Table {
     This method is called each time we are in a game state with the "updateGameProgression" property set to true
     (see states.inc.php)
   */
-  public function getGameProgression() {
+  public function getGameProgression(): int {
     // TODO: compute and return the game progression
 
     return 0;
@@ -436,7 +436,7 @@ class TexasFortyTwo extends Table {
    * Each time a player is doing some game action, one of the methods below is called.
    * (note: each method below must match an input method in template.action.php)
    */
-  public function pass() {
+  public function pass(): void {
     self::checkAction("pass");
 
     // TODO(isherman): Dealer shouldn't be allowed to pass.
@@ -456,11 +456,12 @@ class TexasFortyTwo extends Table {
     }
   }
 
-  public function gamestatehack() {
+  public function gamestatehack(): void {
     self::trace(print_r($this->gamestate->state(), true));
   }
 
-  public function bid($bid_value) {
+  /** @param int|string $bid_value */
+  public function bid($bid_value): void {
     self::checkAction("bid");
     $player_id = self::getActivePlayerId();
     // only allow bids higher than current bid if it exists
@@ -489,7 +490,8 @@ class TexasFortyTwo extends Table {
   }
 
 
-  public function chooseBidSuit($trump_suit) {
+  /** @param int|string $trump_suit */
+  public function chooseBidSuit($trump_suit): void {
     self::checkAction("chooseBidSuit");
     self::setGameStateValue('trumpSuit', $trump_suit);
     // TODO(sdspikes): special case for no trump
@@ -504,11 +506,12 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState();
   }
 
-  /*
+  /**
    * Each time a player is doing some game action, one of the methods below is called.
    * (note: each method below must match an input method in template.action.php)
+   * @param int|string $card_id
    */
-  public function playCard($card_id) {
+  public function playCard($card_id): void {
     self::checkAction("playCard");
     $domino = self::getNonEmptyObjectFromDB(
       "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id"
@@ -565,7 +568,7 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState('playCard');
   }
 
-  public function stChooseBidType() {
+  public function stChooseBidType(): void {
     // TODO
     self::checkAction("chooseBidType");
     //self::setGameStateValue('trumpSuit', $trump_suit);
@@ -580,10 +583,15 @@ class TexasFortyTwo extends Table {
    * These methods function is to return some additional information that is specific to the current
    * game state.
    */
-  public function argGiveCards() {
-    return [];
-  }
 
+  // TODO(isherman): This method leaks whether a player has enough doubles to
+  // splash/plunge to _all_ players. Yikes!
+  // TODO(isherman): This is probably not l18n-friendly; needs translation of
+  // some sort.
+  /**
+   * @return array<int, string> The list of currently possible bids, mapped from
+   *     constants to human-readable names.
+   */
   public function argCurrentBid() {
     // A shorter version:
     /*
@@ -646,11 +654,21 @@ class TexasFortyTwo extends Table {
     return $possible_bids;
   }
 
+  // TODO(isherman): This probably needs to be translated for l18n.
+  /**
+   * @return array<int, string> A mapping from suit constants to their
+   *     human-readable labels, in English.
+   */
   public function argChooseBidSuit() {
     return self::SUIT_TO_DISPLAY_NAME;
   }
 
-  // TODO(isherman): Docs
+  /**
+   * Returns a list of domino ids corresponding to the dominoes in the player's
+   * hand that are currently playable.
+   * @param int|string $player_id
+   * @return array<int>
+   */
   public function getPlayableDominoIdsForPlayer($player_id) {
     $trump_suit = self::getTrumpSuit();
     $trick_suit = self::getTrickSuit();
@@ -671,7 +689,7 @@ class TexasFortyTwo extends Table {
   }
 
   // TODO(isherman): Docs.
-  public function argPlayerTurn() {
+  public function argPlayerTurn(): array {
     // Docs for sending private data to players:
     // https://en.doc.boardgamearena.com/Your_game_state_machine:_states.inc.php#Private_info_in_args
     $player_ids = array_keys(self::loadPlayersBasicInfos());
@@ -696,16 +714,16 @@ class TexasFortyTwo extends Table {
   //////////////////////////////////////////////////////////////////////////////
 
   // Washes (shuffles) the dominoes and deals new hands to each player.
-  public function stNewHand() {
+  public function stNewHand(): void {
     self::setGameStateValue('highestBidder', -1);
     self::setGameStateValue('bidValue', -1);
     self::setGameStateValue('bidType', -1);
     self::setGameStateValue('trumpSuit', -1);
     self::setGameStateValue('trickSuit', -1);
 
-    $dealer = self::getNextDealer();
-    self::setGameStateValue('currentDealer', $dealer);
-    $this->gamestate->changeActivePlayer(self::getPlayerAfter($dealer));
+    $new_dealer = self::getPlayerAfter(self::getDealer());
+    self::setGameStateValue('currentDealer', $new_dealer);
+    $this->gamestate->changeActivePlayer(self::getPlayerAfter($new_dealer));
 
     // Wash the dominoes.
     // Note: Moving cards from location `null` means from any/all locations.
@@ -727,20 +745,13 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState();
   }
 
-  private function isPartner($player, $other_player) {
-    return (intval(self::getPlayerNoById($player)) + 2) % 4 === intval(self::getPlayerNoById($other_player));
+  private function getPartnerId(int $player_id): int {
+    $player_no = intval(self::getPlayerNoById($player_id));
+    $partner_no = ($player_no + 2) % 4;
+    return self::getPlayerIdByPlayerNo($partner_no);
   }
 
-  private function getPartner($player) {
-    $players = self::loadPlayersBasicInfos();
-    foreach ($players as $other_player) {
-      if (self::isPartner($player, $other_player)) {
-        return $other_player;
-      }
-    }
-  }
-
-  public function stNextPlayerBid() {
+  public function stNextPlayerBid(): void {
     $player_id = self::getActivePlayerId();
     self::trace(sprintf("player id: %d", $player_id));
     $players = self::loadPlayersBasicInfos();
@@ -775,7 +786,7 @@ class TexasFortyTwo extends Table {
       if ($bid_value % 42 !== 0) {
         $this->gamestate->changeActivePlayer($highest_bidder);
       } else {
-        $this->gamestate->changeActivePlayer(self::getPartner($highest_bidder));
+        $this->gamestate->changeActivePlayer(self::getPartnerId($highest_bidder));
       }
       $this->gamestate->nextState('chooseBidSuit');
     } else {
@@ -785,7 +796,7 @@ class TexasFortyTwo extends Table {
     }
   }
 
-  public function stNewTrick() {
+  public function stNewTrick(): void {
     // New trick: active the player who wins the last trick, or the player who own the club-2 card
     // Reset trick color to 0 (= no color)
     //self::setGameStateInitialValue('trickColor', 0);
@@ -793,7 +804,7 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState();
   }
 
-  public static function beatsDomino($old, $new, $trump_suit) {
+  public static function beatsDomino($old, $new, int $trump_suit): bool {
     if ($new['suit'] === $old['suit']) {
       return self::isDouble($new) ||
              (!self::isDouble($old) && $new['rank'] > $old['rank']);
@@ -804,7 +815,7 @@ class TexasFortyTwo extends Table {
   }
 
   // TODO(isherman): Docs.
-  public static function followsSuit($domino, $suit, $trump_suit) {
+  public static function followsSuit($domino, int $suit, int $trump_suit): bool {
     if ($suit !== $trump_suit && self::isTrump($domino, $trump_suit)) {
       return false;
     }
@@ -812,23 +823,23 @@ class TexasFortyTwo extends Table {
     return $domino['low'] === $suit || $domino['high'] === $suit;
   }
 
-  public static function isTrump($domino, $trump_suit) {
+  public static function isTrump($domino, int $trump_suit): bool {
     return $domino['low'] === $trump_suit || $domino['high'] === $trump_suit;
   }
 
-  public static function isDouble($suited_domino) {
+  public static function isDouble($suited_domino): bool {
     return $suited_domino['suit'] === $suited_domino['rank'];
   }
 
-  private function getTrumpSuit() {
+  private function getTrumpSuit(): int {
     return intval(self::getGameStateValue('trumpSuit'));
   }
 
-  private function getTrickSuit() {
+  private function getTrickSuit(): int {
     return intval(self::getGameStateValue('trickSuit'));
   }
 
-  public function stNextPlayer() {
+  public function stNextPlayer(): void {
     // Active next player OR end the trick and go to the next trick OR end the hand
     if ($this->dominoes->countCardInLocation('table') == 4) {
       // This is the end of the trick
@@ -886,7 +897,7 @@ class TexasFortyTwo extends Table {
     }
   }
 
-  public function stEndHand() {
+  public function stEndHand(): void {
     // TODO: update this logic for 42!
     // Count and score points, then end the game or go to the next hand.
     $players = self::loadPlayersBasicInfos();
@@ -948,7 +959,7 @@ class TexasFortyTwo extends Table {
     (ex: pass).
   */
 
-  public function zombieTurn($state, $active_player) {
+  public function zombieTurn(array $state, int $active_player): void {
     $statename = $state['name'];
 
     if ($state['type'] == "activeplayer") {

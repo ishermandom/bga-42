@@ -303,7 +303,7 @@ abstract class Table extends APP_GameClass {
   }
 
   public function getPlayerNoById(int $id): string {
-    return '';
+    return '0';
   }
 
   public function reattributeColorsBasedOnPreferences($players, $colors) {
