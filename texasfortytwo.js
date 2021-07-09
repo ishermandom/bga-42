@@ -110,11 +110,11 @@ define([
       for (const handItem of handItems) {
         const id = handItem.id;
         const domino = this.getDominoFromId(id);
+        const div = document.getElementById(this.hand.getItemDivId(id));
         if (domino.high === trickSuit || domino.low === trickSuit) {
-          const div = document.getElementById(this.hand.getItemDivId(id));
-          div.style.border = "solid 2px hsl(58deg 100% 50%)";
-          div.style.borderRadius = "22px";
-          div.style.boxShadow = "0 0 22px hsl(58deg 100% 50%)";
+          div.classList.add('highlighted');
+        } else {
+          div.classList.remove('highlighted');
         }
       }
     },

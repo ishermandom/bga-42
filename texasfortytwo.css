@@ -102,3 +102,12 @@
     height: 104px;
     background-image: url("img/dominoes.svg");
 }
+
+/*** Player hand styles. ***/
+
+/* Add a yellow glow to highlight playable dominoes. */
+#hand .highlighted {
+  border: solid 2px hsl(58deg 100% 50%);
+  border-radius: 22px;
+  box-shadow: 0 0 22px hsl(58deg 100% 50%);
+}
