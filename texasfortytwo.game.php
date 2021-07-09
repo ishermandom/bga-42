@@ -652,12 +652,16 @@ class TexasFortyTwo extends Table {
   }
 
   private function isPartner($player, $other_player) {
-    return (self::getPlayerNoById($player) + 2) % 4 === self::getPlayerNoById($other_player)
+    return (self::getPlayerNoById($player) + 2) % 4 === self::getPlayerNoById($other_player);
   }
 
   private function getPartner($player) {
-    if
-    return (self::getPlayerNoById($player) + 2) % 4 == self::getPlayerNoById($other_player)
+    $players = self::loadPlayersBasicInfos();
+    foreach ($players as $other_player) {
+      if (self::isPartner($player, $other_player)) {
+        return $other_player;
+      }
+    }
   }
 
   public function stNextPlayerBid() {
@@ -688,7 +692,7 @@ class TexasFortyTwo extends Table {
       if ($bidValue % 42 !== 0) {
         $this->gamestate->changeActivePlayer($highest_bidder);
       } else {
-        $this->gamestate->changeActivePlayer($highest_bidder);
+        $this->gamestate->changeActivePlayer(self::getPartner($highest_bidder));
       }
       $this->gamestate->nextState('chooseBidSuit');
     } else {
