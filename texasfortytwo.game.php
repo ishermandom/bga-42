@@ -642,11 +642,19 @@ class TexasFortyTwo extends Table {
     $trick_suit = self::getTrickSuit();
     $player_id = self::getActivePlayerId();
     $hand = $this->getDominoesInLocation('hand', $player_id);
+
+    // If the player can follow suit, they must play a domino from that suit.
+    // Otherwise, any domino is playable.
     $is_playable = function ($domino) use ($trump_suit, $trick_suit) {
       return self::followsSuit($domino, $trick_suit, $trump_suit);
     };
+    $valid_plays = array_filter($hand, $is_playable);
+    if ($count($valid_plays) === 0) {
+      $valid_plays = $hand;
+    }
+
     $get_id = function ($domino) { return $domino['id']; };
-    return array_map($get_id, array_filter($hand, $is_playable));
+    return array_map($get_id, $valid_plays);
   }
 
   public function argPlayerTurn() {
@@ -712,6 +720,7 @@ class TexasFortyTwo extends Table {
     $player_name = self::getActivePlayerName();
     self::trace(sprintf("player name: %s", $player_name));
     self::trace(sprintf("isdealer?: %s", $this->isDealer($player_id) ? 'true' : 'false'));
+    self::trace(sprintf("dealer: %d", self::getDealer()));
 
     if ($this->isDealer($player_id)) {
       self::trace("current player is dealer");
