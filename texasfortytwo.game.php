@@ -54,6 +54,34 @@ abstract class CardLocation {
   const TEAM = 'team';
 }
 
+class Domino {
+  public function __construct($low, $high) {
+    $this->low = intval($low);
+    $this->high = intval($high);
+  }
+
+  public function isDouble() {
+    return $this->low === $this->high;
+  }
+
+  public $low;
+  public $high;
+}
+
+class SuitedDomino {
+  public function __construct($suit, $rank) {
+    $this->suit = intval($suit);
+    $this->rank = intval($rank);
+  }
+
+  public function isDouble() {
+    return $this->suit === $this->rank;
+  }
+
+  public $suit;
+  public $rank;
+}
+
 class TexasFortyTwo extends Table {
   // All possible colors that players might have set as their preferred color.
   // The list of options is defined at
@@ -655,7 +683,7 @@ class TexasFortyTwo extends Table {
     // New trick: active the player who wins the last trick, or the player who own the club-2 card
     // Reset trick color to 0 (= no color)
     //self::setGameStateInitialValue('trickColor', 0);
-    self::setGameStateValue('trickSuit', null);
+    self::setGameStateInitialValue('trickSuit', null);
     $this->gamestate->nextState();
   }
 
