@@ -106,8 +106,6 @@ define([
     },
 
     updatePossibleMoves: function(trickSuit) {
-      // TODO(isherman): Fixme
-      /*
       const handItems = this.hand.getAllItems();
       for (const handItem of handItems) {
         const id = handItem.id;
@@ -117,7 +115,6 @@ define([
           div.style.border = "solid 4px yellow";
         }
       }
-      */
     },
 
     chooseBidSuit: function(e, bidSuit) {
@@ -253,9 +250,20 @@ define([
     // TODO(isherman): Docs
     getDominoFromId: function(id) {
       // TODO(isherman): Implement for realz
+      const sprite_index = id - 1;
+      for (let high = 0; high <= 6; high++) {
+        for (let low = 0; low <= high; low++) {
+          if (getSpriteIndex(high, low) === sprite_index) {
+            return {
+              high: high,
+              low: low,
+            };
+          }
+        }
+      }
       return {
-        high: 0,
-        low: 0,
+        high: -1,
+        low: -1,
       };
     },
 

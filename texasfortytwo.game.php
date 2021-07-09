@@ -16,6 +16,9 @@
 
 require_once(APP_GAMEMODULE_PATH.'module/table/table.game.php');
 
+// TODO(isherman): Look into PHPStan for static analysis and PHP type hinting in
+// general.
+
 abstract class BidType {
   const TRUMP = 0;
   const NELLO = 1;
