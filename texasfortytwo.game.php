@@ -158,6 +158,7 @@ class TexasFortyTwo extends Table {
       // The suit of the current trick, e.g. Jane led a four.
       'trickSuit' => 14,
       // 'my_first_game_variant' => 100,
+      'currentDealer' => 15,
     ]);
   }
 
@@ -184,6 +185,7 @@ class TexasFortyTwo extends Table {
     self::setGameStateInitialValue('bidType', -1);
     self::setGameStateInitialValue('trumpSuit', -1);
     self::setGameStateInitialValue('trickSuit', -1);
+    self::setGameStateInitialValue('currentDealer', self::getFirstDealer());
 
     // Begin the game by activating the first player.
     $this->activeNextPlayer();
@@ -206,16 +208,34 @@ class TexasFortyTwo extends Table {
     return '';
   }
 
-  // Returns whether the given player id is the dealer for this hand.
-  private function isDealer($player_id) {
+  private function getPlayerIdByPlayerNo($player_no) {
+    return self::getUniqueValueFromDB(
+      "SELECT player_id id FROM player WHERE player_no = $player_no"
+    );
+  }
+
+  private function getFirstDealer() {
     $first_player_seat = self::getUniqueValueFromDB(
       'SELECT player_no seat FROM player WHERE is_first_player = true'
     );
     $dealer_seat = ($first_player_seat + self::NUM_PLAYERS - 1) % self::NUM_PLAYERS;
-    $dealer_id = self::getUniqueValueFromDB(
-      "SELECT player_id id FROM player WHERE player_no = $dealer_seat"
+    return self::getPlayerIdByPlayerNo($dealer_id);
+  }
+
+  private function getNextDealer() {
+    $dealer_id = self::getGameStateValue('currentDealer');
+    return self::getPlayerIdByPlayerNo(
+      (self::getPlayerNoById($dealer_id) + 1)% self::NUM_PLAYERS
     );
-    return $player_id == $dealer_id;
+  }
+
+  private function getDealer() {
+    return self::getGameStateValue('currentDealer');
+  }
+
+  // Returns whether the given player id is the dealer for this hand.
+  private function isDealer($player_id) {
+    return self::getDealer() === $player_id;
   }
 
   private function getSuitAndRank($domino) {
@@ -706,6 +726,7 @@ class TexasFortyTwo extends Table {
     // Reset trick color to 0 (= no color)
     //self::setGameStateInitialValue('trickColor', 0);
     self::setGameStateValue('trickSuit', -1);
+    self::setGameStateValue('currentDealer', self::getNextDealer());
     $this->gamestate->nextState();
   }
 
