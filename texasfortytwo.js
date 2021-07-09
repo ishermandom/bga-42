@@ -100,6 +100,7 @@ define([
 
       switch (stateName) {
         case 'playerTurn':
+          console.log(args);
           this.updatePossibleMoves(args.args._private.playableDominoes);
           break;
       }
@@ -107,6 +108,7 @@ define([
 
     updatePossibleMoves: function(playableDominoes) {
       const handItems = this.hand.getAllItems();
+      console.log(playableDominoes);
       for (const handItem of handItems) {
         const id = handItem.id;
         const div = document.getElementById(this.hand.getItemDivId(id));
