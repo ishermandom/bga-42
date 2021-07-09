@@ -240,7 +240,7 @@ class TexasFortyTwo extends Table {
 
   // Returns whether the given player id is the dealer for this hand.
   private function isDealer($player_id) {
-    return self::getDealer() === $player_id;
+    return intval(self::getDealer()) === intval($player_id);
   }
 
   private function getSuitAndRank($domino) {
