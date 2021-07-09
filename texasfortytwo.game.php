@@ -59,21 +59,29 @@ abstract class CardLocation {
 
 // TODO(isherman): Docs, and actually use this object instead of associative arrays.
 class Domino {
+  /**
+   * @param int|string $low
+   * @param int|string $high
+   */
   public function __construct($low, $high) {
     $this->low = intval($low);
     $this->high = intval($high);
   }
 
-  public function isDouble() {
+  public function isDouble(): bool {
     return $this->low === $this->high;
   }
 
-  public $low;
-  public $high;
+  public int $low;
+  public int $high;
 }
 
 // TODO(isherman): Docs, and actually use this object instead of associative arrays.
 class SuitedDomino {
+  /**
+   * @param int|string $suit
+   * @param int|string $rank
+   */
   public function __construct($suit, $rank) {
     $this->suit = intval($suit);
     $this->rank = intval($rank);
@@ -83,8 +91,8 @@ class SuitedDomino {
     return $this->suit === $this->rank;
   }
 
-  public $suit;
-  public $rank;
+  public int $suit;
+  public int $rank;
 }
 
 class TexasFortyTwo extends Table {
@@ -134,6 +142,8 @@ class TexasFortyTwo extends Table {
 
   private const NUM_PLAYERS = 4;
 
+  private $dominoes;
+
   public function __construct() {
     parent::__construct();
 
@@ -164,7 +174,7 @@ class TexasFortyTwo extends Table {
     ]);
   }
 
-  protected function getGameName() {
+  protected function getGameName(): string {
     // Used for translations and stuff. Please do not modify.
     return 'texasfortytwo';
   }
@@ -230,7 +240,7 @@ class TexasFortyTwo extends Table {
   private function getNextDealer() {
     $dealer_id = self::getDealer();
     return self::getPlayerIdByPlayerNo(
-      (self::getPlayerNoById($dealer_id) + 1) % self::NUM_PLAYERS
+      (intval(self::getPlayerNoById($dealer_id)) + 1) % self::NUM_PLAYERS
     );
   }
 
@@ -259,13 +269,13 @@ class TexasFortyTwo extends Table {
   // `$rows`: an array of arrays, where each inner array defines the values for
   //     one row, specified in the same order as
   //     `$field_names`.
-  private static function insertIntoDatabase($db_name, $fields, $rows) {
+  private function insertIntoDatabase($db_name, $fields, $rows) {
     $to_sql_row = function ($row) {
       return "('".join("','", $row)."')";
     };
     $fields = join(',', $fields);
     $values = join(',', array_map($to_sql_row, $rows));
-    self::DbQuery("INSERT INTO $db_name ($fields) VALUES $values");
+    $this->DbQuery("INSERT INTO $db_name ($fields) VALUES $values");
   }
 
   // Returns a copy of the `$domino` with semantically correct data types.
@@ -554,7 +564,7 @@ class TexasFortyTwo extends Table {
   public function stChooseBidType() {
     // TODO
     self::checkAction("chooseBidType");
-    self::setGameStateValue('trumpSuit', $trump_suit);
+    //self::setGameStateValue('trumpSuit', $trump_suit);
     $this->gamestate->nextState();
   }
 
@@ -710,7 +720,7 @@ class TexasFortyTwo extends Table {
   }
 
   private function isPartner($player, $other_player) {
-    return (self::getPlayerNoById($player) + 2) % 4 === self::getPlayerNoById($other_player);
+    return (intval(self::getPlayerNoById($player)) + 2) % 4 === intval(self::getPlayerNoById($other_player));
   }
 
   private function getPartner($player) {
