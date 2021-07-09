@@ -16,8 +16,8 @@
 
 require_once(APP_GAMEMODULE_PATH.'module/table/table.game.php');
 
-// TODO(isherman): Look into PHPStan for static analysis and PHP type hinting in
-// general.
+// General FYI: The server output of phpversion() as of 2021.07.08 is:
+// 7.2.12-1+ubuntu16.04.1+deb.sury.org+10.
 
 abstract class BidType {
   const TRUMP = 0;
@@ -144,8 +144,6 @@ class TexasFortyTwo extends Table {
   // HACK: It can be useful to set this to 3 for traceging.
   private const NUM_SUITS = 7;
 
-  private const NUM_PLAYERS = 4;
-
   private $dominoes;
 
   public function __construct() {
@@ -201,8 +199,6 @@ class TexasFortyTwo extends Table {
     self::setGameStateInitialValue('bidType', -1);
     self::setGameStateInitialValue('trumpSuit', -1);
     self::setGameStateInitialValue('trickSuit', -1);
-    self::trace(sprintf("first dealer: %d", self::getFirstDealer()));
-    self::trace(sprintf("php version: %s", phpversion()));
     self::setGameStateInitialValue('currentDealer', self::getFirstDealer());
 
     // Begin the game by activating the first player.
@@ -244,8 +240,10 @@ class TexasFortyTwo extends Table {
 
   private function getNextDealer() {
     $dealer_id = self::getDealer();
+    self::trace(sprintf("Prev dealer: %d", intval(self::getPlayerNoById($dealer_id))));
+    self::trace(sprintf("Next dealer: %d", (intval(self::getPlayerNoById($dealer_id)) + 1) % self::getPlayersNumber()));
     return self::getPlayerIdByPlayerNo(
-      (intval(self::getPlayerNoById($dealer_id)) + 1) % self::NUM_PLAYERS
+      (intval(self::getPlayerNoById($dealer_id)) + 1) % self::getPlayersNumber()
     );
   }
 
@@ -440,9 +438,7 @@ class TexasFortyTwo extends Table {
    */
   public function pass() {
     self::checkAction("pass");
-    self::trace(sprintf("first dealer: %d", self::getFirstDealer()));
-    self::trace(sprintf("php version: %s", phpversion()));
-    
+
     // TODO(isherman): Dealer shouldn't be allowed to pass.
     $player_id = self::getActivePlayerId();
     $current_bid_value = self::getGameStateValue('bidValue') ;
