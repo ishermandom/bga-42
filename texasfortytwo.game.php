@@ -649,7 +649,7 @@ class TexasFortyTwo extends Table {
       return self::followsSuit($domino, $trick_suit, $trump_suit);
     };
     $valid_plays = array_filter($hand, $is_playable);
-    if ($count($valid_plays) === 0) {
+    if (count($valid_plays) === 0) {
       $valid_plays = $hand;
     }
 
