@@ -72,8 +72,10 @@ class Domino {
     return $this->low === $this->high;
   }
 
-  public int $low;
-  public int $high;
+  /** @var int */
+  public $low;
+  /** @var int */
+  public $high;
 }
 
 // TODO(isherman): Docs, and actually use this object instead of associative arrays.
@@ -91,8 +93,10 @@ class SuitedDomino {
     return $this->suit === $this->rank;
   }
 
-  public int $suit;
-  public int $rank;
+  /** @var int */
+  public $suit;
+  /** @var int */
+  public $rank;
 }
 
 class TexasFortyTwo extends Table {
