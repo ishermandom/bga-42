@@ -544,7 +544,7 @@ class TexasFortyTwo extends Table {
     } elseif ($play['suit'] !== $trickSuit &&
               $could_have_followed_suit) {
       // TODO: How do we report an error for an invalid play?
-      return false;
+      return;
     }
 
     $this->dominoes->moveCard($card_id, 'table', $player_id);

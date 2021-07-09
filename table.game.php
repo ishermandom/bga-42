@@ -302,7 +302,11 @@ abstract class Table extends APP_GameClass {
     return 2;
   }
 
-  public function getPlayerNoById(int $id): string {
+  /**
+   * @param int|string $id
+   * @return int|string
+   */
+  public function getPlayerNoById($id) {
     return '0';
   }
 
