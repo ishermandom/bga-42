@@ -109,7 +109,7 @@ define([
       const handItems = this.hand.getAllItems();
       for (const handItem of handItems) {
         const id = handItem.id;
-        const domino = getDominoFromId(id);
+        const domino = this.getDominoFromId(id);
         if (domino.high === trickSuit || domino.low === trickSuit) {
           const div = this.hand.getItemDivId(id);
           div.style.border = "solid 4px yellow";
