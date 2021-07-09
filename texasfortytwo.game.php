@@ -592,11 +592,11 @@ class TexasFortyTwo extends Table {
 
   // Washes (shuffles) the dominoes and deals new hands to each player.
   public function stNewHand() {
-    self::setGameState('highestBidder', null);
-    self::setGameState('bidValue', null);
-    self::setGameState('bidType', null);
-    self::setGameState('trumpSuit', null);
-    self::setGameState('trickSuit', null);
+    self::setGameStateValue('highestBidder', null);
+    self::setGameStateValue('bidValue', null);
+    self::setGameStateValue('bidType', null);
+    self::setGameStateValue('trumpSuit', null);
+    self::setGameStateValue('trickSuit', null);
 
     // Wash the dominoes.
     // Note: Moving cards from location `null` means from any/all locations.
@@ -655,7 +655,7 @@ class TexasFortyTwo extends Table {
     // New trick: active the player who wins the last trick, or the player who own the club-2 card
     // Reset trick color to 0 (= no color)
     //self::setGameStateInitialValue('trickColor', 0);
-    self::setGameState('trickSuit', null);
+    self::setGameStateValue('trickSuit', null);
     $this->gamestate->nextState();
   }
 
