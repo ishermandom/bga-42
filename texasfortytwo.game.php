@@ -645,7 +645,7 @@ class TexasFortyTwo extends Table {
     $is_playable = function ($domino) use ($trump_suit, $trick_suit) {
       return self::followsSuit($domino, $trick_suit, $trump_suit);
     };
-    $get_id = function ($domino) { return domino['id']; };
+    $get_id = function ($domino) { return $domino['id']; };
     return array_map($get_id, array_filter($hand, $is_playable));
   }
 
@@ -710,7 +710,7 @@ class TexasFortyTwo extends Table {
     self::trace(sprintf("player id: %d", $player_id));
     $players = self::loadPlayersBasicInfos();
     self::trace(sprintf("player id: %s", $players[$player_id]));
-    self::trace(sprintf("isdealer?: %b", $this->isDealer($player_id)));
+    self::trace(sprintf("isdealer?: %s", $this->isDealer($player_id) ? 'true' : 'false'));
 
     if ($this->isDealer($player_id)) {
       self::trace("current player is dealer");
