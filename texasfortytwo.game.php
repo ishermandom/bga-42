@@ -482,7 +482,7 @@ class TexasFortyTwo extends Table {
     $hand = $this->getDominoesInLocation('hand', $player_id);
     $could_have_followed_suit = false;
     foreach ($hand as $domino_in_hand) {
-      if (self::followsSuit($domino_in_hand, $trickSuit)) {
+      if (self::followsSuit($domino_in_hand, $trickSuit, $trumpSuit)) {
         self::trace('Could have followed suit.\n');
         self::trace(print_r($domino_in_hand, true).'\n');
         $could_have_followed_suit = true;
