@@ -207,6 +207,7 @@ define([
         switch (stateName) {
           case 'playerBid':
             if (!args) {
+              console.error('Missing button args for "playerBid" state');
               // error message?
               return;
             }
