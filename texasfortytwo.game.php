@@ -102,9 +102,9 @@ class Domino {
    */
   public function toJson(): array {
     $json = [
-      'id': $this->id,
-      'high': $this->high,
-      'low': $this->low,
+      'id' => $this->id,
+      'high' => $this->high,
+      'low' => $this->low,
     ];
     if (!is_null($this->location_arg)) {
       $json['location_arg'] = $this->location_arg;
