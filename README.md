@@ -26,3 +26,6 @@ not want to turn on "Beautify on Save".
 
 For Javascript this works without any special configuration, though you may want
 to turn on Beautify on Save.
+
+You may also want to run PHPStan for static analysis: type checking and more.
+See `misc/phpstan.neon` for details

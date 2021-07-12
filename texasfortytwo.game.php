@@ -46,6 +46,7 @@ abstract class NelloBidSuit {
   const NELLO_DOUBLES_SUIT_OF_THEIR_OWN = 2;
 }
 
+// TODO(isherman): Actually use these constants throughout.
 abstract class CardLocation {
   // Dominoes in the deck, prior to dealing.
   const DECK = 'deck';
@@ -57,28 +58,124 @@ abstract class CardLocation {
   const TEAM = 'team';
 }
 
-// TODO(isherman): Docs, and actually use this object instead of associative arrays.
+/**
+ * An unsuited domino, represented as the number of pips on each (lower and
+ * higher) side.
+ */
 class Domino {
   /**
-   * @param int|string $low
-   * @param int|string $high
+   * @param array{
+   *     low: int|string,
+   *     high: int|string,
+   *     id?: int|string,
+   *     location_arg?: int|string,
+   * } $data
    */
-  public function __construct($low, $high) {
-    $this->low = intval($low);
-    $this->high = intval($high);
+  public function __construct($data) {
+    $this->low = intval($data['low']);
+    $this->high = intval($data['high']);
+
+    $this->id = self::computeId($this);
+    if (array_key_exists('id', $data) && intval($data['id']) !== $this->id) {
+      throw new Error(sprintf(
+        'Unexpected id %d for domino [%d : %d] – expected id %d',
+        intval($data['id']),
+        $this->high,
+        $this->low,
+        $this->id
+      ));
+    }
+
+    if (array_key_exists('location_arg', $data)) {
+      $this->location_arg = intval($data['location_arg']);
+    }
   }
 
+  /**
+   * Returns the suit and rank for this domino given the suit of the played
+   * trick and the trump suit.
+   */
+  public function toSuitedDomino(int $trick_suit, int $trump_suit): SuitedDomino {
+    $suit = -1;
+    $rank = -1;
+    if ($this->high !== $trump_suit &&
+        ($this->low === $trump_suit || $this->low === $trick_suit)) {
+      $suit = $this->low;
+      $rank = $this->high;
+    } else {
+      $suit = $this->high;
+      $rank = $this->low;
+    }
+    return new SuitedDomino($suit, $rank);
+  }
+
+  /** Returns a debug string representation for this domino. */
+  public function toDebugString(): string {
+    return "[$this->id -> $this->high : $this->low]";
+  }
+
+  /**
+   * Returns `true` iff this domino is a double, i.e., both sides are the same.
+   */
   public function isDouble(): bool {
     return $this->low === $this->high;
   }
 
+  /**
+   * Returns `true` iff this domino is of the given `suit`. Note that dominoes
+   * which are trump are not part of any other suit.
+   */
+  public function followsSuit(int $suit, int $trump_suit): bool {
+    if ($suit !== $trump_suit && $this->hasSuit($trump_suit)) {
+      return false;
+    }
+    return $this->hasSuit($suit);
+  }
+
+  /**
+   * Returns the expected id for the domino.
+   * Note: This is often called on a partially constructed domino; but that
+   * domino must have at least `low` and `high` initialized!
+   */
+  private static function computeId(Domino $domino): int {
+    // Dominoes are 1-indexed and added in the order [0:0], [0:1], [1:1], [0:2],
+    // etc. Thus compute a triangle number for the number of dominoes to skip in
+    // order to land in the `high` suit, and then index into the suit to get
+    // the `low`th rank card.
+    return 1 + ($domino->high * ($domino->high + 1)) / 2 + $domino->low;
+  }
+
+  /**
+   * Returns `true` iff this domino matches the suit. Note that this function
+   * *does not* check whether the domino might actually be part of the trump
+   * suit instead; this is why it's a private function.
+   */
+  private function hasSuit(int $suit): bool {
+    if ($suit === StandardBidSuit::DOUBLES) {
+      return $this->isDouble();
+    }
+    return $this->low === $suit || $this->high === $suit;
+  }
+
+  /** @var int */
+  public $id;
   /** @var int */
   public $low;
   /** @var int */
   public $high;
+  /**
+   * Additional metadata about the domino's location, e.g., the id of the
+   * player whose hand contains this domino.
+   * @var int|null
+   */
+  public $location_arg = null;
 }
 
-// TODO(isherman): Docs, and actually use this object instead of associative arrays.
+/**
+ * A suited domino, represented as the suit and rank in the suit. Note that the
+ * "rank" for a double is identical to the suit.
+ */
+
 class SuitedDomino {
   /**
    * @param int|string $suit
@@ -91,6 +188,16 @@ class SuitedDomino {
 
   public function isDouble(): bool {
     return $this->suit === $this->rank;
+  }
+
+  public function beats(SuitedDomino $other, int $trump_suit): bool {
+    if ($this->suit === $other->suit) {
+      return $this->isDouble() ||
+             (!$other->isDouble() && $this->rank > $other->rank);
+    }
+    // If not following the previously winning suit, trump always wins, and any
+    // other suit always loses.
+    return $this->suit === $trump_suit;
   }
 
   /** @var int */
@@ -144,6 +251,9 @@ class TexasFortyTwo extends Table {
   // HACK: It can be useful to set this to 3 for debugging.
   private const NUM_SUITS = 3;
 
+  // TODO(isherman): This disables type-checking for $this->dominoes; maybe
+  // provide stubs (a la misc/table.game.php) instead?
+  /** @var mixed */
   private $dominoes;
 
   public function __construct() {
@@ -249,15 +359,12 @@ class TexasFortyTwo extends Table {
     return self::getDealer() === intval($player_id);
   }
 
-  private function getSuitAndRank($domino) {
+  // TODO(isherman): Fix calls to this function to have the correct data type!
+  private function getSuitAndRank(Domino $domino): SuitedDomino {
     self::trace(print_r($domino, true));
-    $trumpSuit = self::getTrumpSuit();
-    $trickSuit = self::getTrickSuit();
-    if ($domino['high'] !== $trumpSuit &&
-        ($domino['low'] === $trumpSuit || $domino['low'] === $trickSuit)) {
-      return ['suit' => $domino['low'], 'rank' => $domino['high']];
-    }
-    return ['suit' => $domino['high'], 'rank' => $domino['low']];
+    $trick_suit = self::getTrickSuit();
+    $trump_suit = self::getTrumpSuit();
+    return $domino->toSuitedDomino($trick_suit, $trump_suit);
   }
 
   /**
@@ -274,26 +381,6 @@ class TexasFortyTwo extends Table {
     $fields = join(',', $fields);
     $values = join(',', array_map($to_sql_row, $rows));
     $this->DbQuery("INSERT INTO $db_name ($fields) VALUES $values");
-  }
-
-  /**
-   * Returns a copy of the `$domino` with semantically correct data types.
-   * SQL queries return strings even for int fields; this function converts
-   * those strings back into ints.
-   * @param array<string, mixed> $domino
-   * @return array<string, mixed>
-   */
-  private static function fixDataTypes(array $domino): array {
-    $int_fields = ['id', 'high', 'low', 'location_arg'];
-    $fixed = [];
-    foreach ($domino as $field => $value) {
-      if (in_array($field, $int_fields, true)) {
-        $fixed[$field] = intval($value);
-      } else {
-        $fixed[$field] = $value;
-      }
-    }
-    return $fixed;
   }
 
   /**
@@ -369,10 +456,11 @@ class TexasFortyTwo extends Table {
 
   /**
    * Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
+   * @param CardLocation::* $location
    * @param int|string|null $location_arg
-   * @return array<array<string, int>>
+   * @return array<Domino>
    */
-  private function getDominoesInLocation(string $location, $location_arg = null): array {
+  private function getDominoesInLocation($location, $location_arg = null): array {
     $fields = 'card_id id, high, low, card_location_arg location_arg';
     $where = "card_location='$location'";
     if (!is_null($location_arg)) {
@@ -381,7 +469,20 @@ class TexasFortyTwo extends Table {
     $dominoes = self::getObjectListFromDB(
       "SELECT $fields FROM dominoes WHERE $where"
     );
-    return array_map([$this, 'fixDataTypes'], $dominoes);
+    $make_domino = function ($args) { return new Domino($args); };
+    return array_map($make_domino, $dominoes);
+  }
+
+  /**
+   * Returns the dominoes in a location, serialized to JSON.
+   * @param CardLocation::* $location
+   * @param int|string|null $location_arg
+   * @return array<string, mixed>
+   */
+  private function serializeDominoesInLocation($location, $location_arg = null): array {
+    $dominoes = $this->getDominoesInLocation($location, $location_arg);
+    $serialize = function ($domino) { return $domino->toJson(); };
+    return array_map($serialize, $dominoes);
   }
 
   /**
@@ -405,9 +506,10 @@ class TexasFortyTwo extends Table {
     );
 
     // Dominoes in the current player's hand.
-    $result['hand'] = $this->getDominoesInLocation('hand', $current_player_id);
+    $result['hand'] =
+        $this->serializeDominoesInLocation('hand', $current_player_id);
     // Dominoes in play on the table.
-    $result['table'] = $this->getDominoesInLocation('table');
+    $result['table'] = $this->serializeDominoesInLocation('table');
     $result['trickSuit'] = self::getTrickSuit();
     $result['bidValue'] = $this->getGameStateValue('bidValue');
     $result['highestBidder'] = $this->getGameStateValue('highestBidder');
@@ -524,23 +626,22 @@ class TexasFortyTwo extends Table {
    */
   public function playCard($card_id): void {
     self::checkAction("playCard");
-    $domino = self::getNonEmptyObjectFromDB(
+    $domino = new Domino(self::getNonEmptyObjectFromDB(
       "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id"
-    );
-    $domino = self::fixDataTypes($domino);
+    ));
 
-    self::trace(sprintf("played domino: [%d, %d, %d]", $domino['id'], $domino['low'], $domino['high']));
-    //print_r($current_card);
+    self::trace(sprintf("played domino: %s", $domino->toDebugString()));
 
     $trumpSuit = self::getTrumpSuit();
     $trickSuit = self::getTrickSuit();
     $play = self::getSuitAndRank($domino);
 
+    // TODO(isherman): Reuse getPlayableDominoIdsForPlayer here.
     $player_id = self::getActivePlayerId();
     $hand = $this->getDominoesInLocation('hand', $player_id);
     $could_have_followed_suit = false;
     foreach ($hand as $domino_in_hand) {
-      if (self::followsSuit($domino_in_hand, $trickSuit, $trumpSuit)) {
+      if ($domino_in_hand->followsSuit($trickSuit, $trumpSuit)) {
         self::trace('Could have followed suit.');
         self::trace(print_r($domino_in_hand, true).'\n');
         $could_have_followed_suit = true;
@@ -551,8 +652,8 @@ class TexasFortyTwo extends Table {
     // XXX check rules here
     // Set the trick suit if it hasn't been set yet.
     if ($trickSuit === -1) {
-      self::setGameStateValue('trickSuit', $play['suit']);
-    } elseif ($play['suit'] !== $trickSuit &&
+      self::setGameStateValue('trickSuit', $play->suit);
+    } elseif ($play->suit !== $trickSuit &&
               $could_have_followed_suit) {
       // TODO: How do we report an error for an invalid play?
       return;
@@ -563,14 +664,14 @@ class TexasFortyTwo extends Table {
     // And notify
     self::notifyAllPlayers(
       'playCard',
-      clienttranslate('${player_name} plays the ${high} : ${low}'),
+      clienttranslate('${player_name} plays the [${high} : ${low}]'),
       [
         // 'i18n' => array ('color_displayed','value_displayed' ),
         'card_id' => $card_id,
         'player_id' => $player_id,
         'player_name' => self::getActivePlayerName(),
-        'high' => $domino['high'],
-        'low' => $domino['low']
+        'high' => $domino->high,
+        'low' => $domino->low,
       ]
     );
     // 'value_displayed' => $this->values_label [$current_card ['type_arg']],'color' => $current_card ['type'],
@@ -651,7 +752,7 @@ class TexasFortyTwo extends Table {
     $hand = $this->getDominoesInLocation('hand', $player_id);
     $num_doubles = 0;
     foreach ($hand as $domino) {
-      if ($domino['high'] === $domino['low']) {
+      if ($domino->isDouble()) {
         $num_doubles++;
       }
     }
@@ -680,22 +781,22 @@ class TexasFortyTwo extends Table {
    * @param int|string $player_id
    * @return array<int>
    */
-  public function getPlayableDominoIdsForPlayer($player_id) {
-    $trump_suit = self::getTrumpSuit();
+  private function getPlayableDominoIdsForPlayer($player_id) {
     $trick_suit = self::getTrickSuit();
+    $trump_suit = self::getTrumpSuit();
     $hand = $this->getDominoesInLocation('hand', $player_id);
 
     // If the player can follow suit, they must play a domino from that suit.
     // Otherwise, any domino is playable.
-    $is_playable = function ($domino) use ($trump_suit, $trick_suit) {
-      return self::followsSuit($domino, $trick_suit, $trump_suit);
+    $follows_suit = function (Domino $domino) use ($trick_suit, $trump_suit) {
+      return $domino->followsSuit($trick_suit, $trump_suit);
     };
-    $valid_plays = array_filter($hand, $is_playable);
+    $valid_plays = array_filter($hand, $follows_suit);
     if (count($valid_plays) === 0) {
       $valid_plays = $hand;
     }
 
-    $get_id = function ($domino) { return $domino['id']; };
+    $get_id = function (Domino $domino) { return $domino->id; };
     return array_map($get_id, $valid_plays);
   }
 
@@ -751,7 +852,7 @@ class TexasFortyTwo extends Table {
     $hand_size = intval($hand_size);
     foreach ($players as $player_id => $player) {
       $this->dominoes->pickCards($hand_size, 'deck', $player_id);
-      $dominoes = $this->getDominoesInLocation('hand', $player_id);
+      $dominoes = $this->serializeDominoesInLocation('hand', $player_id);
       self::notifyPlayer($player_id, 'newHand', '', ['hand' => $dominoes]);
     }
     $this->gamestate->nextState();
@@ -816,33 +917,6 @@ class TexasFortyTwo extends Table {
     $this->gamestate->nextState();
   }
 
-  public static function beatsDomino($old, $new, int $trump_suit): bool {
-    if ($new['suit'] === $old['suit']) {
-      return self::isDouble($new) ||
-             (!self::isDouble($old) && $new['rank'] > $old['rank']);
-    }
-    // If not following the previously winning suit, trump always wins, and any
-    // other suit always loses.
-    return $new['suit'] === $trump_suit;
-  }
-
-  // TODO(isherman): Docs.
-  public static function followsSuit($domino, int $suit, int $trump_suit): bool {
-    if ($suit !== $trump_suit && self::isTrump($domino, $trump_suit)) {
-      return false;
-    }
-
-    return $domino['low'] === $suit || $domino['high'] === $suit;
-  }
-
-  public static function isTrump($domino, int $trump_suit): bool {
-    return $domino['low'] === $trump_suit || $domino['high'] === $trump_suit;
-  }
-
-  public static function isDouble($suited_domino): bool {
-    return $suited_domino['suit'] === $suited_domino['rank'];
-  }
-
   private function getTrumpSuit(): int {
     return intval(self::getGameStateValue('trumpSuit'));
   }
@@ -852,60 +926,64 @@ class TexasFortyTwo extends Table {
   }
 
   public function stNextPlayer(): void {
-    // Active next player OR end the trick and go to the next trick OR end the hand
-    if ($this->dominoes->countCardInLocation('table') == 4) {
-      // This is the end of the trick
-      $dominoes_on_table = $this->getDominoesInLocation('table');
-      // The player after the final player is the player that lead.
-      $winning_player_id = self::getPlayerAfter(self::getActivePlayerId());
-      // TODO(isherman): Would be nice to assert that there is exactly one
-      // domino returned here:
-      $lead_domino =
-        $this->getDominoesInLocation('table', $winning_player_id)[0];
-      $winning_play = self::getSuitAndRank($lead_domino);
-      $trump_suit = self::getTrumpSuit();
-      foreach ($dominoes_on_table as $domino) {
-        // Note: type = card color
-        $play = self::getSuitAndRank($domino);
-        self::trace(print_r($play, true));
-        if (self::beatsDomino($winning_play, $play, $trump_suit)) {
-          self::trace('beats previous!');
-          $winning_player_id = $domino['location_arg']; // Note: location_arg = player id
-          $winning_play = $play;
-        }
-      }
-
-      // Activate this player, they have the lead
-      $this->gamestate->changeActivePlayer($winning_player_id);
-
-      // Move all dominoes to "cardswon" of the given player
-      $this->dominoes->moveAllCardsInLocation('table', 'cardswon', null, $winning_player_id);
-
-      // Notify
-      // Note: we use 2 notifications here to pause the display during the first notification
-      //  before we move all cards to the winner (during the second)
-      $players = self::loadPlayersBasicInfos();
-      self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), [
-        'player_id' => $winning_player_id,
-        'player_name' => $players[ $winning_player_id ]['player_name']
-      ]);
-      self::notifyAllPlayers('giveAllCardsToPlayer', '', [
-        'player_id' => $winning_player_id
-      ]);
-
-      if ($this->dominoes->countCardInLocation('hand') == 0) {
-        // End of the hand
-        $this->gamestate->nextState("endHand");
-      } else {
-        // End of the trick
-        $this->gamestate->nextState("nextTrick");
-      }
-    } else {
-      // Standard case (not the end of the trick)
-      // => just active the next player
+    // If some players haven't played a domino yet, simply activate the next
+    // player.
+    if ($this->dominoes->countCardInLocation('table') !== self::getPlayersNumber()) {
       $player_id = self::activeNextPlayer();
       self::giveExtraTime($player_id);
       $this->gamestate->nextState('nextPlayer');
+      return;
+    }
+
+    // All players have played a domino in this trick, so figure out who won the
+    // trick.
+    $dominoes_on_table = $this->getDominoesInLocation('table');
+    // The player after the final player is the player that lead.
+    $winning_player_id = self::getPlayerAfter(self::getActivePlayerId());
+    // TODO(isherman): Would be nice to assert that there is exactly one
+    // domino returned here:
+    $lead_domino =
+      $this->getDominoesInLocation('table', $winning_player_id)[0];
+    $winning_play = self::getSuitAndRank($lead_domino);
+    $trump_suit = self::getTrumpSuit();
+    foreach ($dominoes_on_table as $domino) {
+      // Note: type = card color
+      $play = self::getSuitAndRank($domino);
+      self::trace(print_r($play, true));
+      if ($play->beats($winning_play, $trump_suit)) {
+        self::trace('beats previous!');
+        $winning_player_id = $domino->location_arg; // location_arg is the player id
+        $winning_play = $play;
+      }
+    }
+
+    // Activate this player, they have the lead
+    $this->gamestate->changeActivePlayer($winning_player_id);
+
+    // TODO(isherman): This should move to a team, not to a single player.
+    // Move all dominoes to the won pile for the given player.
+    $this->dominoes->moveAllCardsInLocation('table', CardLocation::TEAM, null, $winning_player_id);
+
+    // Notify
+    // Note: we use 2 notifications here to pause the display during the first notification
+    //  before we move all cards to the winner (during the second)
+    $players = self::loadPlayersBasicInfos();
+    self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), [
+      'player_id' => $winning_player_id,
+      'player_name' => $players[ $winning_player_id ]['player_name']
+    ]);
+    self::notifyAllPlayers('giveAllCardsToPlayer', '', [
+      'player_id' => $winning_player_id
+    ]);
+
+    // TODO(isherman): I don't think this check makes sense for nello, where one
+    // of the players doesn't play.
+    if ($this->dominoes->countCardInLocation('hand') == 0) {
+      // All dominoes have been played; the hand is over.
+      $this->gamestate->nextState("endHand");
+    } else {
+      // Some dominoes remain unplayed, so proceed onto the next trick.
+      $this->gamestate->nextState("nextTrick");
     }
   }
 
@@ -919,7 +997,7 @@ class TexasFortyTwo extends Table {
     foreach ($players as $player_id => $player) {
       $player_to_points [$player_id] = 0;
     }
-    $cards = $this->getDominoesInLocation("cardswon");
+    $cards = $this->getDominoesInLocation(CardLocation::TEAM);
     // foreach ($cards as $card) {
     //   $player_id = $card ['location_arg'];
     //   // Note: 2 = heart
