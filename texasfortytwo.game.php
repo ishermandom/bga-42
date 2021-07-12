@@ -944,7 +944,7 @@ class TexasFortyTwo extends Table {
   public function stNextPlayer(): void {
     // If some players haven't played a domino yet, simply activate the next
     // player.
-    if ($this->dominoes->countCardInLocation('table') !== self::getPlayersNumber()) {
+    if ($this->dominoes->countCardInLocation('table') != self::getPlayersNumber()) {
       $player_id = self::activeNextPlayer();
       self::giveExtraTime($player_id);
       $this->gamestate->nextState('nextPlayer');
