@@ -91,6 +91,27 @@ class Domino {
     }
   }
 
+  /** Returns a debug string representation for this domino. */
+  public function toDebugString(): string {
+    return "[$this->id -> $this->high : $this->low]";
+  }
+
+  /**
+   * Returns a JSON serialization for this domino.
+   * @return array<string, mixed>
+   */
+  public function toJson(): array {
+    $json = [
+      'id': $this->id,
+      'high': $this->high,
+      'low': $this->low,
+    ];
+    if (!is_null($this->location_arg)) {
+      $json['location_arg'] = $this->location_arg;
+    }
+    return $json;
+  }
+
   /**
    * Returns the suit and rank for this domino given the suit of the played
    * trick and the trump suit.
@@ -107,11 +128,6 @@ class Domino {
       $rank = $this->low;
     }
     return new SuitedDomino($suit, $rank);
-  }
-
-  /** Returns a debug string representation for this domino. */
-  public function toDebugString(): string {
-    return "[$this->id -> $this->high : $this->low]";
   }
 
   /**
