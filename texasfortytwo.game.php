@@ -272,7 +272,7 @@ class TexasFortyTwo extends Table {
 
   // The number of suits: blanks through sixes.
   // HACK: It can be useful to set this to 3 for debugging.
-  private const NUM_SUITS = 3;
+  private const NUM_SUITS = 4;
 
   // TODO(isherman): This disables type-checking for $this->dominoes; maybe
   // provide stubs (a la misc/table.game.php) instead?
@@ -812,15 +812,15 @@ class TexasFortyTwo extends Table {
     } elseif ($trick_suit === -1 or $this->dominoes->countCardInLocation(CardLocation::TABLE, $player_id) !== 0) {
       $valid_plays = [];
     } else {
-    }
-    // If the player can follow suit, they must play a domino from that suit.
-    // Otherwise, any domino is playable.
-    $follows_suit = function (Domino $domino) use ($trick_suit, $trump_suit) {
-      return $domino->followsSuit($trick_suit, $trump_suit);
-    };
-    $valid_plays = array_filter($hand, $follows_suit);
-    if (count($valid_plays) === 0) {
-      $valid_plays = $hand;
+      // If the player can follow suit, they must play a domino from that suit.
+      // Otherwise, any domino is playable.
+      $follows_suit = function (Domino $domino) use ($trick_suit, $trump_suit) {
+        return $domino->followsSuit($trick_suit, $trump_suit);
+      };
+      $valid_plays = array_filter($hand, $follows_suit);
+      if (count($valid_plays) === 0) {
+        $valid_plays = $hand;
+      }
     }
 
     $get_id = function (Domino $domino) { return $domino->id; };
