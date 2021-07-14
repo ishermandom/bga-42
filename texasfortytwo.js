@@ -100,24 +100,25 @@ define([
 
       switch (stateName) {
         case 'playerTurn':
-          this.updatePossibleMoves(args.args.trickSuit);
+          console.log(args);
+          this.updatePossibleMoves(
+            Object.values(args.args._private.playableDominoes));
           break;
       }
     },
 
-    updatePossibleMoves: function(trickSuit) {
-      // TODO(isherman): Fixme
-      /*
+    updatePossibleMoves: function(playableDominoes) {
       const handItems = this.hand.getAllItems();
+      console.log(playableDominoes);
       for (const handItem of handItems) {
         const id = handItem.id;
-        const domino = getDominoFromId(id);
-        if (domino.high === trickSuit || domino.low === trickSuit) {
-          const div = this.hand.getItemDivId(id);
-          div.style.border = "solid 4px yellow";
+        const div = document.getElementById(this.hand.getItemDivId(id));
+        if (playableDominoes.includes(id)) {
+          div.classList.add('highlighted');
+        } else {
+          div.classList.remove('highlighted');
         }
       }
-      */
     },
 
     chooseBidSuit: function(e, bidSuit) {
@@ -206,6 +207,7 @@ define([
         switch (stateName) {
           case 'playerBid':
             if (!args) {
+              console.error('Missing button args for "playerBid" state');
               // error message?
               return;
             }
@@ -253,9 +255,20 @@ define([
     // TODO(isherman): Docs
     getDominoFromId: function(id) {
       // TODO(isherman): Implement for realz
+      const sprite_index = id - 1;
+      for (let high = 0; high <= 6; high++) {
+        for (let low = 0; low <= high; low++) {
+          if (this.getSpriteIndex(high, low) === sprite_index) {
+            return {
+              high: high,
+              low: low,
+            };
+          }
+        }
+      }
       return {
-        high: 0,
-        low: 0,
+        high: -1,
+        low: -1,
       };
     },
 

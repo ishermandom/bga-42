@@ -7,8 +7,8 @@ const DOUBLES_AS_TRUMP = -2;
 $DECK = buildDeck();
 $HAND_SIZE = count($DECK) / NUM_PLAYERS;
 
-class Domino {
-  public function __construct($suit, $rank) {
+class DominoPlayground {
+  public function __construct(int $suit, int $rank) {
     $this->suit = $suit;
     $this->rank = $rank;
   }
@@ -17,25 +17,26 @@ class Domino {
     //printf("destroying [%d, %d]\n", $this->suit, $this->rank);
   }
 
-  public function isDouble() {
+  public function isDouble(): bool {
     return $this->suit === $this->rank;
   }
 
-  public $suit;
-  public $rank;
+  public int $suit;
+  public int $rank;
 }
 
-function buildDeck() {
+/** @return array<DominoPlayground> */
+function buildDeck(): array {
   $deck = [];
   for ($i = 0; $i < NUM_SUITS; ++$i) {
     for ($j = 0; $j <= $i; ++$j) {
-      array_push($deck, new Domino($i, $j));
+      array_push($deck, new DominoPlayground($i, $j));
     }
   }
   return $deck;
 }
 
-function compareDominoes($a, $b) {
+function compareDominoes(DominoPlayground $a, DominoPlayground $b): int {
   if ($a->suit === $b->suit) {
     return $a->rank <=> $b->rank;
   }
@@ -44,7 +45,7 @@ function compareDominoes($a, $b) {
 
 // Note: Assumes that the suit vs. rank have already been
 // disambiguated based on the play!
-function beats($a, $b, $trump) {
+function beats(DominoPlayground $a, DominoPlayground $b, int $trump): bool {
   if ($trump === DOUBLES_AS_TRUMP) {
     if ($a->isDouble() && $b->isDouble()) {
       return $a->suit > $b->suit;
@@ -73,7 +74,7 @@ function beats($a, $b, $trump) {
   return true;
 }
 
-function printBeats($a, $b, $trump) {
+function printBeats(DominoPlayground $a, DominoPlayground $b, int $trump): void {
   printf(
     "[%d, %d] beats [%d, %d] with trump=%d ? %s\n",
     $a->suit,
@@ -94,8 +95,8 @@ for ($suit1 = 0; $suit1 < NUM_SUITS; ++$suit1) {
             continue;
           }
           printBeats(
-            new Domino($suit1, $rank1),
-            new Domino($suit2, $rank2),
+            new DominoPlayground($suit1, $rank1),
+            new DominoPlayground($suit2, $rank2),
             $trump
           );
         }

@@ -1,0 +1,18 @@
+# To install: https://phpstan.org/user-guide/getting-started
+# From the project root, this can be run as
+# `phpstan analyze -c misc/phpstan.neon`
+
+parameters:
+  level: 8
+  paths:
+    #- .
+    - ../texasfortytwo.game.php
+    - table.game.php
+  excludePaths:
+    - material.inc.php
+    - states.inc.php
+    - stats.inc.php
+  ignoreErrors:
+    -
+      message: '#.*#'
+      path: table.game.php
