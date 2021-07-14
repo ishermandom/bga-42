@@ -364,7 +364,10 @@ class TexasFortyTwo extends Table {
   }
 
   private function getFirstDealer(): int {
-    return self::getPlayerIdByPlayerNo(3);
+    // TODO(isherman): I think this is somehow being called and then the dealer
+    // is rotating before the first hand? Anyway, setting this to 2 seems to
+    // make player 0 the first to play in the first hand?
+    return self::getPlayerIdByPlayerNo(2);
   }
 
   private function getDealer(): int {
@@ -1047,17 +1050,21 @@ class TexasFortyTwo extends Table {
       }
       $team_points[$team] += count($dominoes) / count($players);
     }
+    self::trace(print_r($team_points, true));
     $bidder = intval(self::getGameStateValue('highestBidder'));
     $bidder_team = intval(self::getTeamForPlayer($bidder));
     $bid = intval(self::getGameStateValue('bidValue'));
+    self::trace(sprintf('bidder_team: %d', $bidder_team));
     $needed_points = $bid ? $bid < 42 : 42;
+    self::trace(sprintf('needed_points: %d', $needed_points));
     $winning_team = $bidder_team;
     if ($team_points[$bidder_team] < $needed_points) {
       $winning_team = ($bidder_team + 1) % 2;
     }
+    self::trace(sprintf('winning_team: %d', $winning_team));
     // Apply scores to player
     foreach (self::getPlayersForTeam($winning_team) as $player_id) {
-      $marks = intdiv($bid, 42);
+      $marks = $bid < 42 ? 1 : intdiv($bid, 42);
       $sql = "UPDATE player SET player_score=player_score+$marks WHERE player_id='$player_id'";
       self::DbQuery($sql);
       self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${marks} mark(s)'), [
