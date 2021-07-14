@@ -815,7 +815,7 @@ class TexasFortyTwo extends Table {
 
     if ($trick_suit === -1 and $player_id === $active_id) {
       $valid_plays = $hand;
-    } elseif ($trick_suit === -1 or $this->dominoes->countCardInLocation(CardLocation::TABLE, $player_id) !== 0) {
+    } elseif ($trick_suit === -1 or $this->dominoes->countCardInLocation(CardLocation::TABLE, $player_id) != 0) {
       $valid_plays = [];
     } else {
       // If the player can follow suit, they must play a domino from that suit.
