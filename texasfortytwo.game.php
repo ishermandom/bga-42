@@ -819,7 +819,7 @@ class TexasFortyTwo extends Table {
     self::trace(sprintf('hand: %s', print_r($hand, true)));
     self::trace(sprintf('Number of cards on table: %s', $this->dominoes->countCardInLocation(CardLocation::TABLE, $player_id)));
 
-    if ($trick_suit === -1 and $player_id === $active_id) {
+    if ($trick_suit === -1 and $player_id == $active_id) {
       self::trace('Case A!');
       $valid_plays = $hand;
     } elseif ($trick_suit === -1 or $this->dominoes->countCardInLocation(CardLocation::TABLE, $player_id) != 0) {
