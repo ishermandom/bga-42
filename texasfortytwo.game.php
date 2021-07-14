@@ -817,12 +817,16 @@ class TexasFortyTwo extends Table {
     self::trace(sprintf('player_id????: %d', $player_id));
     self::trace(sprintf('trick_suit????: %d', $trick_suit));
     self::trace(sprintf('hand: %s', print_r($hand, true)));
+    self::trace(sprintf('Number of cards on table: %s', $this->dominoes->countCardInLocation(CardLocation::TABLE, $player_id)));
 
     if ($trick_suit === -1 and $player_id === $active_id) {
+      self::trace('Case A!');
       $valid_plays = $hand;
     } elseif ($trick_suit === -1 or $this->dominoes->countCardInLocation(CardLocation::TABLE, $player_id) != 0) {
+      self::trace('Case B!');
       $valid_plays = [];
     } else {
+      self::trace('Case C!');
       // If the player can follow suit, they must play a domino from that suit.
       // Otherwise, any domino is playable.
       $follows_suit = function (Domino $domino) use ($trick_suit, $trump_suit) {
