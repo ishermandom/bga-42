@@ -177,7 +177,7 @@ class Domino {
    */
   public function getScore(): int {
     $sum = $this->low + $this->high;
-    return $sum % 5 ? $sum : 0;
+    return $sum % 5 === 0 ? $sum : 0;
   }
 
   /** @var int */
@@ -1050,6 +1050,7 @@ class TexasFortyTwo extends Table {
       $team_points[$team] = 0;
       foreach ($dominoes as $domino) {
         $team_points[$team] += $domino->getScore();
+        self::trace(sprintf('domino score: %d', $domino->getScore()));
       }
       $team_points[$team] += count($dominoes) / count($players);
     }
