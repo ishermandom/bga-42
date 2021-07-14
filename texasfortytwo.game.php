@@ -573,9 +573,14 @@ class TexasFortyTwo extends Table {
   public function pass(): void {
     self::checkAction('pass');
 
-    // TODO(isherman): Dealer shouldn't be allowed to pass.
     $player_id = self::getActivePlayerId();
-    $current_bid_value = self::getGameStateValue('bidValue') ;
+    $current_bid_value = intval(self::getGameStateValue('bidValue'));
+    if ($this->isDealer($player_id) && $current_bid_value === -1) {
+      // TODO(isherman): How best to indicate an error?
+      return;
+    }
+
+    // TODO(isherman): Dealer shouldn't be allowed to pass.
     self::notifyAllPlayers(
       'pass',
       clienttranslate('${player_name} passes'),
@@ -585,9 +590,7 @@ class TexasFortyTwo extends Table {
         'player_name' => self::getActivePlayerName()
       ]
     );
-    if (!($this->isDealer($player_id) && $current_bid_value === -1)) {
-      $this->gamestate->nextState('nextPlayerBid');
-    }
+    $this->gamestate->nextState('nextPlayerBid');
   }
 
   public function gamestatehack(): void {
