@@ -9,81 +9,93 @@ if (!defined('APP_GAMEMODULE_PATH')) {
  * Collection of stub classes for testing and stubs
  */
 class APP_Object {
-  public function dump($v, $value) {
+  public function dump($v, $value): void {
     echo "$v=";
     var_dump($value);
   }
 
-  public function info($value) {
+  public function info($value): void {
     echo "$value\n";
   }
 
-  public function trace($value) {
+  public function trace($value): void {
     echo "$value\n";
   }
 
-  public function debug($value) {
+  public function debug($value): void {
     echo "$value\n";
   }
 
-  public function watch($value) {
+  public function watch($value): void {
     echo "$value\n";
   }
 
-  public function warn($value) {
+  public function warn($value): void {
     echo "$value\n";
   }
 
-  public function error($msg) {
+  public function error($msg): void {
     echo "$msg\n";
   }
 }
 
 class APP_DbObject extends APP_Object {
+  /** @var string */
   public $query;
 
-  public function DbQuery($str) {
+  public function DbQuery(string $str): void {
     $this->query = $str;
     echo "dbquery: $str\n";
   }
 
-  public function getUniqueValueFromDB($sql) {
+  /** @return string */
+  public function getUniqueValueFromDB(string $sql) {
     return 0;
   }
 
-  public function getCollectionFromDB($query, $single = false) {
+  /** @return array<string, array<string, string>>|array<string, string> */
+  public function getCollectionFromDB(string $query, bool $single = false) {
     echo "dbquery coll: $query\n";
     return [];
   }
 
-  public function getNonEmptyCollectionFromDB($sql) {
+  /** @return non-empty-array<string, array<string, string>> */
+  public function getNonEmptyCollectionFromDB(string $sql) {
+    return ['key' => 'val'];
+  }
+
+  /** @return array<string, string> */
+  public function getObjectFromDB(string $sql) {
     return [];
   }
 
-  public function getObjectFromDB($sql) {
-    return [];
+  /** @return non-empty-array<string, string> */
+  public function getNonEmptyObjectFromDB(string $sql) {
+    return ['key' => 'val'];
   }
 
-  public function getNonEmptyObjectFromDB($sql) {
-    return [];
-  }
-
+  /** @return array<array<string, string>>|array<string> */
   public function getObjectListFromDB($query, $single = false) {
     echo "dbquery list: $query\n";
     return [];
   }
 
+  /**
+   * @return array<string, array<string, array<string, string>>>|array<string>
+   */
   public function getDoubleKeyCollectionFromDB($sql, $bSingleValue = false) {
     return [];
   }
 
-  public function DbGetLastId() {
+  public function DbGetLastId(): string {
   }
 
+  /** @return int|string (not sure which) */
   public function DbAffectedRow() {
   }
 
-  public function escapeStringForDB($string) {
+  public function escapeStringForDB(string $string): string {
+    return '';
   }
 }
 
@@ -206,8 +218,8 @@ abstract class Table extends APP_GameClass {
   public function setGameStateInitialValue($value_label, $value_value) {
   }
 
-  public function getGameStateValue($value_label) {
-    return 0;
+  public function getGameStateValue(string $value_label): string {
+    return '0';
   }
 
   public function setGameStateValue($value_label, $value_value) {

@@ -38,7 +38,6 @@ $machinestates = [
     "type" => "game",
     "action" => "stNewHand",
     "updateGameProgression" => true,
-    // TODO(isherman): Change to 21 once actually working on 42.
     "transitions" => [ "" => 21 ]
   ],
 
