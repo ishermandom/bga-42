@@ -809,13 +809,14 @@ class TexasFortyTwo extends Table {
    * @return array<int>
    */
   private function getPlayableDominoIdsForPlayer($player_id) {
-    $trick_suit = self::getTrickSuit(); // -1 if no domino has been played
+    $trick_suit = self::getTrickSuit();  // -1 if no domino has been played
     $trump_suit = self::getTrumpSuit();
     $hand = $this->getDominoesInLocation(CardLocation::HAND, $player_id);
     $active_id = self::getActivePlayerId();
     self::trace(sprintf('active_id????: %d', $active_id));
     self::trace(sprintf('player_id????: %d', $player_id));
     self::trace(sprintf('trick_suit????: %d', $trick_suit));
+    self::trace(sprintf('hand: %s', print_r($hand, true)));
 
     if ($trick_suit === -1 and $player_id === $active_id) {
       $valid_plays = $hand;

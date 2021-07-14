@@ -87,13 +87,15 @@ class APP_DbObject extends APP_Object {
     return [];
   }
 
-  public function DbGetLastId() {
+  public function DbGetLastId(): string {
   }
 
+  /** @return int|string (not sure which) */
   public function DbAffectedRow() {
   }
 
-  public function escapeStringForDB($string) {
+  public function escapeStringForDB(string $string): string {
+    return '';
   }
 }
 
