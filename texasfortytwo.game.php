@@ -272,7 +272,7 @@ class TexasFortyTwo extends Table {
 
   // The number of suits: blanks through sixes.
   // HACK: It can be useful to set this to 3 for debugging.
-  private const NUM_SUITS = 4;
+  private const NUM_SUITS = 7;
 
   // TODO(isherman): This disables type-checking for $this->dominoes; maybe
   // provide stubs (a la misc/table.game.php) instead?
@@ -1050,7 +1050,6 @@ class TexasFortyTwo extends Table {
       $team_points[$team] = 0;
       foreach ($dominoes as $domino) {
         $team_points[$team] += $domino->getScore();
-        self::trace(sprintf('domino score: %d', $domino->getScore()));
       }
       $team_points[$team] += count($dominoes) / count($players);
     }
