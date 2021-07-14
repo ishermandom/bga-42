@@ -1058,7 +1058,8 @@ class TexasFortyTwo extends Table {
     $bidder_team = intval(self::getTeamForPlayer($bidder));
     $bid = intval(self::getGameStateValue('bidValue'));
     self::trace(sprintf('bidder_team: %d', $bidder_team));
-    $needed_points = $bid ? $bid < 42 : 42;
+    self::trace(sprintf('bid: %d', $bid));
+    $needed_points = $bid < 42 ? $bid : 42;
     self::trace(sprintf('needed_points: %d', $needed_points));
     $winning_team = $bidder_team;
     if ($team_points[$bidder_team] < $needed_points) {
