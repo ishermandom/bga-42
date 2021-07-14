@@ -812,6 +812,7 @@ class TexasFortyTwo extends Table {
     $trump_suit = self::getTrumpSuit();
     $hand = $this->getDominoesInLocation(CardLocation::HAND, $player_id);
     $active_id = self::getActivePlayerId();
+    self::trace(sprintf('active_id????: %d', $active_id));
 
     if ($trick_suit === -1 and $player_id === $active_id) {
       $valid_plays = $hand;

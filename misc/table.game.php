@@ -43,24 +43,28 @@ class APP_DbObject extends APP_Object {
   /** @var string */
   public $query;
 
-  public function DbQuery(string $str) {
+  public function DbQuery(string $str): void {
     $this->query = $str;
     echo "dbquery: $str\n";
   }
 
+  /** @return string */
   public function getUniqueValueFromDB(string $sql) {
     return 0;
   }
 
+  ///** @return array<string, array<string, string>> */
   public function getCollectionFromDB(string $query, bool $single = false) {
     echo "dbquery coll: $query\n";
     return [];
   }
 
+  /** @return non-empty-array<string, array<string, string>> */
   public function getNonEmptyCollectionFromDB(string $sql) {
     return [];
   }
 
+  /** @return array<string, string> */
   public function getObjectFromDB(string $sql) {
     return [];
   }
