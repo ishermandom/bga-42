@@ -107,6 +107,7 @@ define([
       }
     },
 
+    // TODO(jasonptm): I just read this, and this is crazy, but it might not be right, so Update this maybe?
     updatePossibleMoves: function(playableDominoes) {
       const handItems = this.hand.getAllItems();
       console.log(playableDominoes);

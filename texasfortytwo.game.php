@@ -46,7 +46,6 @@ abstract class NelloBidSuit {
   const NELLO_DOUBLES_SUIT_OF_THEIR_OWN = 2;
 }
 
-// TODO(isherman): Actually use these constants throughout.
 abstract class CardLocation {
   // Dominoes in the deck, prior to dealing.
   const DECK = 'deck';
@@ -171,6 +170,14 @@ class Domino {
       return $this->isDouble();
     }
     return $this->low === $suit || $this->high === $suit;
+  }
+
+  /**
+   * Returns the point value for this domino.
+   */
+  public function getScore(): int {
+    $sum = $this->low + $this->high;
+    return $sum % 5 ? $sum : 0;
   }
 
   /** @var int */
@@ -317,13 +324,6 @@ class TexasFortyTwo extends Table {
     self::initializePlayers($players);
 
     // Initialize game state.
-    // TODO(isherman): Call self::setGameStateInitialValue for any relevant
-    // game state variables here.
-
-    // Initialize game statistics. Must match the list of stats defined in
-    // stats.inc.php.
-    // TODO(isherman): Call self::initStat for all defined statistics.
-
     self::initializeDeck();
     self::setGameStateInitialValue('highestBidder', -1);
     self::setGameStateInitialValue('bidValue', -1);
@@ -331,6 +331,10 @@ class TexasFortyTwo extends Table {
     self::setGameStateInitialValue('trumpSuit', -1);
     self::setGameStateInitialValue('trickSuit', -1);
     self::setGameStateInitialValue('currentDealer', self::getFirstDealer());
+
+    // Initialize game statistics. Must match the list of stats defined in
+    // stats.inc.php.
+    // TODO(isherman): Call self::initStat for all defined statistics.
 
     // Begin the game by activating the first player.
     $this->activeNextPlayer();
@@ -460,7 +464,7 @@ class TexasFortyTwo extends Table {
         // Note that the final three field values are not meaningful, and
         // therefore just set to some default values to appease the database
         // schema.
-        $rows[] = [$high, $low, 'deck', 0, '', 0];
+        $rows[] = [$high, $low, CardLocation::DECK, 0, '', 0];
       }
     }
     // HACK: As a debugging aid, it can be useful to set a low value for
@@ -523,9 +527,9 @@ class TexasFortyTwo extends Table {
 
     // Dominoes in the current player's hand.
     $result['hand'] =
-        $this->serializeDominoesInLocation('hand', $current_player_id);
+        $this->serializeDominoesInLocation(CardLocation::HAND, $current_player_id);
     // Dominoes in play on the table.
-    $result['table'] = $this->serializeDominoesInLocation('table');
+    $result['table'] = $this->serializeDominoesInLocation(CardLocation::TABLE);
     $result['trickSuit'] = self::getTrickSuit();
     $result['bidValue'] = $this->getGameStateValue('bidValue');
     $result['highestBidder'] = $this->getGameStateValue('highestBidder');
@@ -564,7 +568,7 @@ class TexasFortyTwo extends Table {
    * (note: each method below must match an input method in template.action.php)
    */
   public function pass(): void {
-    self::checkAction("pass");
+    self::checkAction('pass');
 
     // TODO(isherman): Dealer shouldn't be allowed to pass.
     $player_id = self::getActivePlayerId();
@@ -589,14 +593,14 @@ class TexasFortyTwo extends Table {
 
   /** @param int|string $bid_value */
   public function bid($bid_value): void {
-    self::checkAction("bid");
+    self::checkAction('bid');
     // TODO(isherman): Not sure whether this type coersion is needed or not...
     $bid_value = intval($bid_value);
     $player_id = self::getActivePlayerId();
     // only allow bids higher than current bid if it exists
     $current_bid_value = self::getGameStateValue('bidValue') ;
-    self::trace(sprintf("got bid value: %d", $bid_value));
-    self::trace(sprintf("current bid value: %d", $current_bid_value));
+    self::trace(sprintf('got bid value: %d', $bid_value));
+    self::trace(sprintf('current bid value: %d', $current_bid_value));
     if (($current_bid_value === -1 && $bid_value >= 30) || $bid_value > $current_bid_value) {
       self::setGameStateValue('bidValue', $bid_value);
       self::setGameStateValue('highestBidder', $player_id);
@@ -613,7 +617,7 @@ class TexasFortyTwo extends Table {
       );
       $this->gamestate->nextState('nextPlayerBid');
     } else {
-      self::trace("Bad bid!");
+      self::trace('Bad bid!');
       // TODO(sdspikes): throw error?
     }
   }
@@ -621,7 +625,7 @@ class TexasFortyTwo extends Table {
 
   /** @param int|string $trump_suit */
   public function chooseBidSuit($trump_suit): void {
-    self::checkAction("chooseBidSuit");
+    self::checkAction('chooseBidSuit');
     self::setGameStateValue('trumpSuit', $trump_suit);
     // TODO(sdspikes): special case for no trump
     $display_name = self::SUIT_TO_DISPLAY_NAME[$trump_suit];
@@ -641,12 +645,12 @@ class TexasFortyTwo extends Table {
    * @param int|string $card_id
    */
   public function playCard($card_id): void {
-    self::checkAction("playCard");
+    self::checkAction('playCard');
     $domino = new Domino(self::getNonEmptyObjectFromDB(
       "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id"
     ));
 
-    self::trace(sprintf("played domino: %s", $domino->toDebugString()));
+    self::trace(sprintf('played domino: %s', $domino->toDebugString()));
 
     $trumpSuit = self::getTrumpSuit();
     $trickSuit = self::getTrickSuit();
@@ -654,7 +658,7 @@ class TexasFortyTwo extends Table {
 
     // TODO(isherman): Reuse getPlayableDominoIdsForPlayer here.
     $player_id = self::getActivePlayerId();
-    $hand = $this->getDominoesInLocation('hand', $player_id);
+    $hand = $this->getDominoesInLocation(CardLocation::HAND, $player_id);
     $could_have_followed_suit = false;
     foreach ($hand as $domino_in_hand) {
       if ($domino_in_hand->followsSuit($trickSuit, $trumpSuit)) {
@@ -675,7 +679,7 @@ class TexasFortyTwo extends Table {
       return;
     }
 
-    $this->dominoes->moveCard($card_id, 'table', $player_id);
+    $this->dominoes->moveCard($card_id, CardLocation::TABLE, $player_id);
 
     // And notify
     self::notifyAllPlayers(
@@ -698,7 +702,7 @@ class TexasFortyTwo extends Table {
 
   public function stChooseBidType(): void {
     // TODO
-    self::checkAction("chooseBidType");
+    self::checkAction('chooseBidType');
     //self::setGameStateValue('trumpSuit', $trump_suit);
     $this->gamestate->nextState();
   }
@@ -743,7 +747,7 @@ class TexasFortyTwo extends Table {
     */
 
     $lowest_bid = 30;
-    $bid_value = self::getGameStateValue('bidValue');
+    $bid_value = intval(self::getGameStateValue('bidValue'));
     if ($bid_value !== -1 && $bid_value >= $lowest_bid) {
       $lowest_bid = $bid_value + 1;
     }
@@ -765,7 +769,7 @@ class TexasFortyTwo extends Table {
 
     // Only show splash/plunge if you have the doubles to support the bid.
     $player_id = self::getActivePlayerId();
-    $hand = $this->getDominoesInLocation('hand', $player_id);
+    $hand = $this->getDominoesInLocation(CardLocation::HAND, $player_id);
     $num_doubles = 0;
     foreach ($hand as $domino) {
       if ($domino->isDouble()) {
@@ -798,10 +802,17 @@ class TexasFortyTwo extends Table {
    * @return array<int>
    */
   private function getPlayableDominoIdsForPlayer($player_id) {
-    $trick_suit = self::getTrickSuit();
+    $trick_suit = self::getTrickSuit(); // -1 if no domino has been played
     $trump_suit = self::getTrumpSuit();
-    $hand = $this->getDominoesInLocation('hand', $player_id);
+    $hand = $this->getDominoesInLocation(CardLocation::HAND, $player_id);
+    $active_id = self::getActivePlayerId();
 
+    if ($trick_suit === -1 and $player_id === $active_id) {
+      $valid_plays = $hand;
+    } elseif ($trick_suit === -1 or $this->dominoes->countCardInLocation(CardLocation::TABLE, $player_id) !== 0) {
+      $valid_plays = [];
+    } else {
+    }
     // If the player can follow suit, they must play a domino from that suit.
     // Otherwise, any domino is playable.
     $follows_suit = function (Domino $domino) use ($trick_suit, $trump_suit) {
@@ -830,6 +841,7 @@ class TexasFortyTwo extends Table {
     }
     return [
       'trickSuit' => self::getTrickSuit(),
+      // TODO(jasonptm): Update this maybe?
       '_private' => $playable_dominoes,
     ];
   }
@@ -856,8 +868,8 @@ class TexasFortyTwo extends Table {
 
     // Wash the dominoes.
     // Note: Moving cards from location `null` means from any/all locations.
-    $this->dominoes->moveAllCardsInLocation(null, 'deck');
-    $this->dominoes->shuffle('deck');
+    $this->dominoes->moveAllCardsInLocation(null, CardLocation::DECK);
+    $this->dominoes->shuffle(CardLocation::DECK);
 
     // Deal a new hand to each player.
     $players = self::loadPlayersBasicInfos();
@@ -867,8 +879,8 @@ class TexasFortyTwo extends Table {
     // is always divisible evenly by the number of players.
     $hand_size = intval($hand_size);
     foreach ($players as $player_id => $player) {
-      $this->dominoes->pickCards($hand_size, 'deck', $player_id);
-      $dominoes = $this->serializeDominoesInLocation('hand', $player_id);
+      $this->dominoes->pickCards($hand_size, CardLocation::DECK, $player_id);
+      $dominoes = $this->serializeDominoesInLocation(CardLocation::HAND, $player_id);
       self::notifyPlayer($player_id, 'newHand', '', ['hand' => $dominoes]);
     }
     $this->gamestate->nextState();
@@ -882,17 +894,17 @@ class TexasFortyTwo extends Table {
 
   public function stNextPlayerBid(): void {
     $player_id = self::getActivePlayerId();
-    self::trace(sprintf("player id: %d", $player_id));
+    self::trace(sprintf('player id: %d', $player_id));
     $players = self::loadPlayersBasicInfos();
     $player_name = self::getActivePlayerName();
-    self::trace(sprintf("player name: %s", $player_name));
-    self::trace(sprintf("isdealer?: %s", $this->isDealer($player_id) ? 'true' : 'false'));
-    self::trace(sprintf("dealer: %d", self::getDealer()));
+    self::trace(sprintf('player name: %s', $player_name));
+    self::trace(sprintf('isdealer?: %s', $this->isDealer($player_id) ? 'true' : 'false'));
+    self::trace(sprintf('dealer: %d', self::getDealer()));
 
     if ($this->isDealer($player_id)) {
-      self::trace("current player is dealer");
-      $highest_bidder = self::getGameStateValue('highestBidder');
-      $bid_value = self::getGameStateValue('bidValue');
+      self::trace('current player is dealer');
+      $highest_bidder = intval(self::getGameStateValue('highestBidder'));
+      $bid_value = intval(self::getGameStateValue('bidValue'));
       self::notifyAllPlayers(
         'bidWin',
         clienttranslate('${player_name} wins the bid'),
@@ -919,7 +931,7 @@ class TexasFortyTwo extends Table {
       }
       $this->gamestate->nextState('chooseBidSuit');
     } else {
-      self::trace("Current player not dealer, go to next player");
+      self::trace('Current player not dealer, go to next player');
       self::activeNextPlayer();
       $this->gamestate->nextState('playerBid');
     }
@@ -941,10 +953,25 @@ class TexasFortyTwo extends Table {
     return intval(self::getGameStateValue('trickSuit'));
   }
 
+  private function getTeamForPlayer(int $player_id): int {
+    return self::getPlayerNoById($player_id) % 2;
+  }
+
+  /**
+   * Returns the ids of players on a given team.
+   * @return array<int>
+   */
+  private function getPlayersForTeam(int $team_id): array {
+    return [
+      self::getPlayerIdByPlayerNo($team_id),
+      self::getPlayerIdByPlayerNo($team_id + 2),
+    ];
+  }
+
   public function stNextPlayer(): void {
     // If some players haven't played a domino yet, simply activate the next
     // player.
-    if ($this->dominoes->countCardInLocation('table') != self::getPlayersNumber()) {
+    if ($this->dominoes->countCardInLocation(CardLocation::TABLE) != self::getPlayersNumber()) {
       $player_id = self::activeNextPlayer();
       self::giveExtraTime($player_id);
       $this->gamestate->nextState('nextPlayer');
@@ -953,13 +980,13 @@ class TexasFortyTwo extends Table {
 
     // All players have played a domino in this trick, so figure out who won the
     // trick.
-    $dominoes_on_table = $this->getDominoesInLocation('table');
+    $dominoes_on_table = $this->getDominoesInLocation(CardLocation::TABLE);
     // The player after the final player is the player that lead.
     $winning_player_id = self::getPlayerAfter(self::getActivePlayerId());
     // TODO(isherman): Would be nice to assert that there is exactly one
     // domino returned here:
     $lead_domino =
-      $this->getDominoesInLocation('table', $winning_player_id)[0];
+      $this->getDominoesInLocation(CardLocation::TABLE, $winning_player_id)[0];
     $winning_play = self::getSuitAndRank($lead_domino);
     $trump_suit = self::getTrumpSuit();
     foreach ($dominoes_on_table as $domino) {
@@ -976,9 +1003,13 @@ class TexasFortyTwo extends Table {
     // Activate this player, they have the lead
     $this->gamestate->changeActivePlayer($winning_player_id);
 
-    // TODO(isherman): This should move to a team, not to a single player.
-    // Move all dominoes to the won pile for the given player.
-    $this->dominoes->moveAllCardsInLocation('table', CardLocation::TEAM, null, $winning_player_id);
+    // Move all dominoes to the won pile for the given player's team.
+    $this->dominoes->moveAllCardsInLocation(
+      CardLocation::TABLE,
+      CardLocation::TEAM,
+      null,
+      self::getTeamForPlayer($winning_player_id)
+    );
 
     // Notify
     // Note: we use 2 notifications here to pause the display during the first notification
@@ -994,62 +1025,57 @@ class TexasFortyTwo extends Table {
 
     // TODO(isherman): I don't think this check makes sense for nello, where one
     // of the players doesn't play.
-    if ($this->dominoes->countCardInLocation('hand') == 0) {
+    if ($this->dominoes->countCardInLocation(CardLocation::HAND) == 0) {
       // All dominoes have been played; the hand is over.
-      $this->gamestate->nextState("endHand");
+      $this->gamestate->nextState('endHand');
     } else {
       // Some dominoes remain unplayed, so proceed onto the next trick.
-      $this->gamestate->nextState("nextTrick");
+      $this->gamestate->nextState('nextTrick');
     }
   }
 
   public function stEndHand(): void {
-    // TODO: update this logic for 42!
     // Count and score points, then end the game or go to the next hand.
     $players = self::loadPlayersBasicInfos();
-    // Gets all "hearts" + queen of spades
 
-    $player_to_points = [];
-    foreach ($players as $player_id => $player) {
-      $player_to_points [$player_id] = 0;
+    $team_points = [];
+    foreach (range(0, 1) as $team) {
+      $dominoes = $this->getDominoesInLocation(CardLocation::TEAM, $team);
+      $team_points[$team] = 0;
+      foreach ($dominoes as $domino) {
+        $team_points[$team] += $domino->getScore();
+      }
+      $team_points[$team] += count($dominoes) / count($players);
     }
-    $cards = $this->getDominoesInLocation(CardLocation::TEAM);
-    // foreach ($cards as $card) {
-    //   $player_id = $card ['location_arg'];
-    //   // Note: 2 = heart
-    //   if ($card ['type'] == 2) {
-    //     $player_to_points [$player_id] ++;
-    //   }
-    // }
+    $bidder = intval(self::getGameStateValue('highestBidder'));
+    $bidder_team = intval(self::getTeamForPlayer($bidder));
+    $bid = intval(self::getGameStateValue('bidValue'));
+    $needed_points = $bid ? $bid < 42 : 42;
+    $winning_team = $bidder_team;
+    if ($team_points[$bidder_team] < $needed_points) {
+      $winning_team = ($bidder_team + 1) % 2;
+    }
     // Apply scores to player
-    // foreach ($player_to_points as $player_id => $points) {
-    //   if ($points != 0) {
-    //     $sql = "UPDATE player SET player_score=player_score-$points  WHERE player_id='$player_id'";
-    //     self::DbQuery($sql);
-    //     $heart_number = $player_to_points [$player_id];
-    //     self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${nbr} hearts and looses ${nbr} points'), [
-    //         'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'],
-    //         'nbr' => $heart_number ]);
-    //   } else {
-    //     // No point lost (just notify)
-    //     self::notifyAllPlayers("points", clienttranslate('${player_name} did not get any hearts'), [
-    //         'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'] ]);
-    //   }
-    // }
-    // $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
-    // self::notifyAllPlayers("newScores", '', [ 'newScores' => $newScores ]);
-    //
-    // ///// Test if this is the end of the game
-    // foreach ($newScores as $player_id => $score) {
-    //   if ($score <= -100) {
-    //     // Trigger the end of the game !
-    //     $this->gamestate->nextState("endGame");
-    //     return;
-    //   }
-    // }
+    foreach (self::getPlayersForTeam($winning_team) as $player_id) {
+      $marks = intdiv($bid, 42);
+      $sql = "UPDATE player SET player_score=player_score+$marks WHERE player_id='$player_id'";
+      self::DbQuery($sql);
+      self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${marks} mark(s)'), [
+        'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'],
+        'marks' => $marks ]);
+    }
+    $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
+    self::notifyAllPlayers("newScores", '', [ 'newScores' => $newScores ]);
 
-
-    $this->gamestate->nextState("nextHand");
+    ///// Test if this is the end of the game
+    foreach ($newScores as $player_id => $score) {
+      if ($score >= 7) {
+        // Trigger the end of the game !
+        $this->gamestate->nextState("endGame");
+        return;
+      }
+    }
+    $this->gamestate->nextState('nextHand');
   }
 
 
@@ -1072,17 +1098,17 @@ class TexasFortyTwo extends Table {
   public function zombieTurn($state, $active_player): void {
     $statename = $state['name'];
 
-    if ($state['type'] == "activeplayer") {
+    if ($state['type'] == 'activeplayer') {
       switch ($statename) {
         default:
-          $this->gamestate->nextState("zombiePass");
+          $this->gamestate->nextState('zombiePass');
           break;
       }
 
       return;
     }
 
-    if ($state['type'] == "multipleactiveplayer") {
+    if ($state['type'] == 'multipleactiveplayer') {
       // Make sure player is in a non blocking status for role turn
       $sql = "
                 UPDATE  player
@@ -1095,7 +1121,7 @@ class TexasFortyTwo extends Table {
       return;
     }
 
-    throw new feException("Zombie mode not supported at this game state: ".$statename);
+    throw new feException('Zombie mode not supported at this game state: '.$statename);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////:
