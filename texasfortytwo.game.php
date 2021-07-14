@@ -604,7 +604,7 @@ class TexasFortyTwo extends Table {
     $bid_value = intval($bid_value);
     $player_id = self::getActivePlayerId();
     // only allow bids higher than current bid if it exists
-    $current_bid_value = self::getGameStateValue('bidValue') ;
+    $current_bid_value = intval(self::getGameStateValue('bidValue'));
     self::trace(sprintf('got bid value: %d', $bid_value));
     self::trace(sprintf('current bid value: %d', $current_bid_value));
     if (($current_bid_value === -1 && $bid_value >= 30) || $bid_value > $current_bid_value) {
@@ -652,6 +652,7 @@ class TexasFortyTwo extends Table {
    */
   public function playCard($card_id): void {
     self::checkAction('playCard');
+    /** @phpstan-ignore-next-line */
     $domino = new Domino(self::getNonEmptyObjectFromDB(
       "SELECT card_id id, high, low FROM dominoes WHERE card_id=$card_id"
     ));
@@ -813,6 +814,8 @@ class TexasFortyTwo extends Table {
     $hand = $this->getDominoesInLocation(CardLocation::HAND, $player_id);
     $active_id = self::getActivePlayerId();
     self::trace(sprintf('active_id????: %d', $active_id));
+    self::trace(sprintf('player_id????: %d', $player_id));
+    self::trace(sprintf('trick_suit????: %d', $trick_suit));
 
     if ($trick_suit === -1 and $player_id === $active_id) {
       $valid_plays = $hand;

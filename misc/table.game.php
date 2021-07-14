@@ -53,7 +53,7 @@ class APP_DbObject extends APP_Object {
     return 0;
   }
 
-  ///** @return array<string, array<string, string>> */
+  /** @return array<string, array<string, string>>|array<string, string> */
   public function getCollectionFromDB(string $query, bool $single = false) {
     echo "dbquery coll: $query\n";
     return [];
@@ -61,7 +61,7 @@ class APP_DbObject extends APP_Object {
 
   /** @return non-empty-array<string, array<string, string>> */
   public function getNonEmptyCollectionFromDB(string $sql) {
-    return [];
+    return ['key' => 'val'];
   }
 
   /** @return array<string, string> */
@@ -69,15 +69,20 @@ class APP_DbObject extends APP_Object {
     return [];
   }
 
+  /** @return non-empty-array<string, string> */
   public function getNonEmptyObjectFromDB(string $sql) {
-    return [];
+    return ['key' => 'val'];
   }
 
+  /** @return array<array<string, string>>|array<string> */
   public function getObjectListFromDB($query, $single = false) {
     echo "dbquery list: $query\n";
     return [];
   }
 
+  /**
+   * @return array<string, array<string, array<string, string>>>|array<string>
+   */
   public function getDoubleKeyCollectionFromDB($sql, $bSingleValue = false) {
     return [];
   }
@@ -211,11 +216,8 @@ abstract class Table extends APP_GameClass {
   public function setGameStateInitialValue($value_label, $value_value) {
   }
 
-  /**
-   * @return int|string
-   */
-  public function getGameStateValue(string $value_label) {
-    return 0;
+  public function getGameStateValue(string $value_label): string {
+    return '0';
   }
 
   public function setGameStateValue($value_label, $value_value) {
