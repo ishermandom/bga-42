@@ -155,7 +155,7 @@ define([
     // TODO(isherman): Docs.
     getLabelElement: function(label) {
       return $(`${label}-label`);
-    }
+    },
 
     ///////////////////////////////////////////////////
     //// Game & client states
