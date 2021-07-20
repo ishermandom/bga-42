@@ -87,14 +87,27 @@ define([
       this.setUpNotifications();
 
       // TODO(isherman): Fill in real values.
-      dojo.query('#declaring-team .slot')[0].innerText = 'Thus';
-      dojo.query('#bid .slot')[0].innerText = this.gamedatas.bidValue;
+      dojo.query('#declaring-team-label .slot')[0].innerText = 'Thus';
+      this.showBid(this.gamedatas.bidValue);
       dojo.query('#trump-suit-label .slot')[0].innerText =
         this.gamedatas.trumpSuit;
       dojo.query('#points-label-us .slot')[0].innerText = '-1';
       dojo.query('#points-label-them .slot')[0].innerText = '50 :(';
 
       console.log('Ending game setup');
+    },
+
+    // TODO(isherman): Organize this file better.
+    // TODO(isherman): Docs.
+    updateLabel: function(label, value) {
+      // TODO(isherman): Add error handling in case the slot is not found.
+      const slot = dojo.query(`#${label} .slot`)[0];
+      slot.innerText = value;
+    },
+
+    // TODO(isherman): Docs.
+    showBid: function(bid) {
+      this.updateLabel('bid-label', bid);
     },
 
     ///////////////////////////////////////////////////
