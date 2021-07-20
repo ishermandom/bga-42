@@ -87,21 +87,39 @@ define([
       this.setUpNotifications();
 
       // TODO(isherman): Fill in real values.
-      dojo.query('#declaring-team-label .slot')[0].innerText = 'Thus';
+      this.showDeclaringTeam('Thus');
       this.showBid(this.gamedatas.bidValue);
       this.showTrumpSuit(this.gamedatas.trumpSuit);
-      dojo.query('#points-label-us .slot')[0].innerText = '-1';
-      dojo.query('#points-label-them .slot')[0].innerText = '50 :(';
+      this.showPointsForUs('-1');
+      this.showPointsForThem('50 :(');
 
       console.log('Ending game setup');
     },
 
     // TODO(isherman): Organize this file better.
     // TODO(isherman): Docs.
-    updateLabel: function(label, value) {
+    updateLabel: function(label, value, show = true) {
       // TODO(isherman): Add error handling in case the slot is not found.
       const slot = dojo.query(`#${label}-label .slot`)[0];
       slot.innerText = value;
+      if (show) {
+        this.showLabel(label);
+      }
+    },
+
+    // TODO(isherman): Docs.
+    showDeclaringTeam: function(team) {
+      this.updateLabel('declaring-team', team);
+    },
+
+    // TODO(isherman): Docs.
+    showPointsForUs: function(team) {
+      this.updateLabel('points-us', team);
+    },
+
+    // TODO(isherman): Docs.
+    showPointsForThem: function(team) {
+      this.updateLabel('points-them', team);
     },
 
     // TODO(isherman): Docs.
@@ -430,7 +448,8 @@ define([
 
       dojo.subscribe('newHand', this, 'onNewHand'); //No update necesary but clear non-mark fields
       dojo.subscribe('bid', this, 'onBid');
-      dojo.subscribe('bidWin', this, 'onBidWin'); // Update bid winner + bid // Need new notification for trump chosen
+      dojo.subscribe('bidWin', this, 'onBidWin'); // Update bid winner + bid
+      dojo.subscribe('setBidSuit', this, 'onSetBidSuit');
       dojo.subscribe('playCard', this, 'onPlayDomino');
 
       dojo.subscribe('trickWin', this, 'notif_trickWin'); // Update current point total
@@ -465,6 +484,10 @@ define([
 
     onBidWin: function(data) {
       // TODO(sdspikes): update display with winning bid
+    },
+
+    onSetBidSuit: function(data) {
+      // TODO: update display with trump suit
     },
 
     notif_trickWin: function(notif) {

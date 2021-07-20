@@ -57,8 +57,8 @@ BGA docs:
     <p id="declaring-team-label">Declaring team: <span class="slot"></span></p>
     <p id="bid-label">Bid: <span class="slot"></span></p>
     <p id="trump-suit-label">Trump suit: <span class="slot"></span></p>
-    <p id="points-label-us">Current points for us: <span class="slot"></span></p>
-    <p id="points-label-them">Current points for them: <span class="slot"></span></p>
+    <p id="points-us-label">Current points for us: <span class="slot"></span></p>
+    <p id="points-them-label">Current points for them: <span class="slot"></span></p>
   </div>
 </div>
 
