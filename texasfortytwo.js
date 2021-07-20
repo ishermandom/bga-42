@@ -86,6 +86,12 @@ define([
 
       this.setUpNotifications();
 
+      // TODO(isherman): Fill in real values.
+      dojo.query('#bid-winner-label .slot')[0].innerText = 'Thus';
+      dojo.query('#trump-suit-label .slot')[0].innerText = 'Sevens';
+      dojo.query('#points-label-us .slot')[0].innerText = '-1';
+      dojo.query('#points-label-them .slot')[0].innerText = '50 :(';
+
       console.log('Ending game setup');
     },
 

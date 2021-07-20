@@ -41,6 +41,7 @@ BGA docs:
 
   </div>
 
+  <!-- TODO(isherman): Use variables for all text so that it can be translated. -->
   <div id="scores" class="whiteblock">
     <table>
       <thead>
@@ -52,6 +53,11 @@ BGA docs:
         <td>T marks</td>
       </tbody>
     </table>
+
+    <p id="bid-winner-label">Winner of the bid: <span class="slot"></span></p>
+    <p id="trump-suit-label">Trump suit: <span class="slot"></span></p>
+    <p id="points-label-us">Current points for us: <span class="slot"></span></p>
+    <p id="label-them">Current points for them: <span class="slot"></span></p>
   </div>
 </div>
 
