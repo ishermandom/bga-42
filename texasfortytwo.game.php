@@ -940,7 +940,7 @@ class TexasFortyTwo extends Table {
           // 'i18n' => array ('color_displayed','value_displayed' ),
           'player_id' => $player_id,
           'player_name' => $players[$highest_bidder]['player_name'],
-          'bidValue' => $bid_value,
+          'bidValue' => $bid_value, //TODO(jasonptm): This should be the human-readable value
         ]
       );
 
@@ -1053,7 +1053,8 @@ class TexasFortyTwo extends Table {
     // Note: we use 2 notifications here to pause the display during the first notification
     //  before we move all cards to the winner (during the second)
     $players = self::loadPlayersBasicInfos();
-    $team_points = $this->getCurrentPointTotals();
+    //TODO(jasonptm):Send some kind of array with player -> score mapping
+    //$team_points = $this->getCurrentPointTotals();
     self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), [
       'player_id' => $winning_player_id,
       'player_name' => $players[ $winning_player_id ]['player_name']

@@ -458,13 +458,13 @@ define([
     setUpNotifications: function() {
       console.log('notifications subscriptions setup');
 
-      dojo.subscribe('newHand', this, 'onNewHand'); //No update necesary but clear non-mark fields
+      dojo.subscribe('newHand', this, 'onNewHand');
       dojo.subscribe('bid', this, 'onBid');
-      dojo.subscribe('bidWin', this, 'onBidWin'); // TODO(jasonptm): Check that I shouldn't be sending a human-readable name
+      dojo.subscribe('bidWin', this, 'onBidWin');
       dojo.subscribe('setBidSuit', this, 'onSetBidSuit');
       dojo.subscribe('playCard', this, 'onPlayDomino');
 
-      dojo.subscribe('trickWin', this, 'notif_trickWin'); // Update current point total
+      dojo.subscribe('trickWin', this, 'notif_trickWin');
       this.notifqueue.setSynchronous('trickWin', 1000);
       dojo.subscribe(
         'giveAllCardsToPlayer',
