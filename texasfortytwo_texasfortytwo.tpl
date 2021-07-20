@@ -26,31 +26,33 @@ BGA docs:
     Please REMOVE this comment before publishing your game on BGA
 -->
 
-<div id="playertables">
+<div id="tabletop">
+  <div id="playertables">
 
-    <!-- BEGIN player -->
-    <div class="playertable whiteblock playertable_{SEAT}">
-        <div class="playertablename" style="color:#{PLAYER_COLOR}">
-            {PLAYER_NAME}
-        </div>
-        <div class="playertablecard" id="playertablecard_{PLAYER_ID}">
-        </div>
-    </div>
-    <!-- END player -->
+      <!-- BEGIN player -->
+      <div class="playertable whiteblock playertable_{SEAT}">
+          <div class="playertablename" style="color:#{PLAYER_COLOR}">
+              {PLAYER_NAME}
+          </div>
+          <div class="playertablecard" id="playertablecard_{PLAYER_ID}">
+          </div>
+      </div>
+      <!-- END player -->
 
-</div>
+  </div>
 
-<div id="scores">
-  <table>
-    <thead>
-      <th>Us</th>
-      <th>Them</th>
-    </thead>
-    <tbody>
-      <td>U marks</td>
-      <td>T marks</td>
-    </tbody>
-  </table>
+  <div id="scores" class="whiteblock">
+    <table>
+      <thead>
+        <th>Us</th>
+        <th>Them</th>
+      </thead>
+      <tbody>
+        <td>U marks</td>
+        <td>T marks</td>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <div id="hand_wrap" class="whiteblock">
