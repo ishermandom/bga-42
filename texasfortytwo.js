@@ -89,8 +89,7 @@ define([
       // TODO(isherman): Fill in real values.
       dojo.query('#declaring-team-label .slot')[0].innerText = 'Thus';
       this.showBid(this.gamedatas.bidValue);
-      dojo.query('#trump-suit-label .slot')[0].innerText =
-        this.gamedatas.trumpSuit;
+      this.showTrumpSuit(this.gamedatas.trumpSuit);
       dojo.query('#points-label-us .slot')[0].innerText = '-1';
       dojo.query('#points-label-them .slot')[0].innerText = '50 :(';
 
@@ -101,14 +100,44 @@ define([
     // TODO(isherman): Docs.
     updateLabel: function(label, value) {
       // TODO(isherman): Add error handling in case the slot is not found.
-      const slot = dojo.query(`#${label} .slot`)[0];
+      const slot = dojo.query(`#${label}-label .slot`)[0];
       slot.innerText = value;
     },
 
     // TODO(isherman): Docs.
     showBid: function(bid) {
-      this.updateLabel('bid-label', bid);
+      this.updateLabel('bid', bid);
     },
+
+    // TODO(isherman): Docs.
+    showTrumpSuit: function(suit) {
+      this.updateLabel('trump-suit', suit);
+    },
+
+    // TODO(isherman): Docs.
+    toggleLabelVisibility: function(label) {
+      const element = this.getLabelElement(label);
+      if (dojo.style(element, 'display') === 'none') {
+        this.showLabel(label);
+      } else {
+        this.hideLabel(label);
+      }
+    },
+
+    // TODO(isherman): Docs.
+    showLabel: function(label) {
+      dojo.style(this.getLabelElement(label), 'display', 'block');
+    },
+
+    // TODO(isherman): Docs.
+    hideLabel: function(label) {
+      dojo.style(this.getLabelElement(label), 'display', 'none');
+    },
+
+    // TODO(isherman): Docs.
+    getLabelElement: function(label) {
+      return $(`${label}-label`);
+    }
 
     ///////////////////////////////////////////////////
     //// Game & client states
@@ -399,12 +428,12 @@ define([
     setUpNotifications: function() {
       console.log('notifications subscriptions setup');
 
-      dojo.subscribe('newHand', this, 'onNewHand');
+      dojo.subscribe('newHand', this, 'onNewHand'); //No update necesary but clear non-mark fields
       dojo.subscribe('bid', this, 'onBid');
-      dojo.subscribe('bidWin', this, 'onBidWin');
+      dojo.subscribe('bidWin', this, 'onBidWin'); // Update bid winner + bid // Need new notification for trump chosen
       dojo.subscribe('playCard', this, 'onPlayDomino');
 
-      dojo.subscribe('trickWin', this, 'notif_trickWin');
+      dojo.subscribe('trickWin', this, 'notif_trickWin'); // Update current point total
       this.notifqueue.setSynchronous('trickWin', 1000);
       dojo.subscribe(
         'giveAllCardsToPlayer',
