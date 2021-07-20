@@ -87,6 +87,8 @@ define([
       this.setUpNotifications();
 
       // TODO(isherman): Fill in real values.
+      this.showMarksForUs('卌卌卌');
+      this.showMarksForThem('卌卌|||');
       this.showDeclaringTeam('Thus');
       this.showBid(this.gamedatas.bidValue);
       this.showTrumpSuit(this.gamedatas.trumpSuit);
@@ -113,13 +115,23 @@ define([
     },
 
     // TODO(isherman): Docs.
-    showPointsForUs: function(team) {
-      this.updateLabel('points-us', team);
+    showPointsForUs: function(points) {
+      this.updateLabel('our-points', points);
     },
 
     // TODO(isherman): Docs.
-    showPointsForThem: function(team) {
-      this.updateLabel('points-them', team);
+    showPointsForThem: function(points) {
+      this.updateLabel('their-points', points);
+    },
+
+    // TODO(isherman): Docs.
+    showMarksForUs: function(marks) {
+      this.updateLabel('our-marks', marks);
+    },
+
+    // TODO(isherman): Docs.
+    showMarksForThem: function(marks) {
+      this.updateLabel('their-marks', marks);
     },
 
     // TODO(isherman): Docs.
@@ -448,7 +460,7 @@ define([
 
       dojo.subscribe('newHand', this, 'onNewHand'); //No update necesary but clear non-mark fields
       dojo.subscribe('bid', this, 'onBid');
-      dojo.subscribe('bidWin', this, 'onBidWin'); // Update bid winner + bid
+      dojo.subscribe('bidWin', this, 'onBidWin'); // TODO(jasonptm): Check that I shouldn't be sending a human-readable name
       dojo.subscribe('setBidSuit', this, 'onSetBidSuit');
       dojo.subscribe('playCard', this, 'onPlayDomino');
 

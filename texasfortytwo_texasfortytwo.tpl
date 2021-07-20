@@ -49,16 +49,16 @@ BGA docs:
         <th>Them</th>
       </thead>
       <tbody>
-        <td>U marks</td>
-        <td>T marks</td>
+        <td id="our-marks-label"><span class="slot"><span> marks</td>
+        <td id="their-marks-label"><span class="slot"><span> marks</td>
       </tbody>
     </table>
 
     <p id="declaring-team-label">Declaring team: <span class="slot"></span></p>
     <p id="bid-label">Bid: <span class="slot"></span></p>
     <p id="trump-suit-label">Trump suit: <span class="slot"></span></p>
-    <p id="points-us-label">Current points for us: <span class="slot"></span></p>
-    <p id="points-them-label">Current points for them: <span class="slot"></span></p>
+    <p id="our-points-label">Current points for us: <span class="slot"></span></p>
+    <p id="their-points-label">Current points for them: <span class="slot"></span></p>
   </div>
 </div>
 

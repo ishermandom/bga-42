@@ -920,6 +920,7 @@ class TexasFortyTwo extends Table {
           // 'i18n' => array ('color_displayed','value_displayed' ),
           'player_id' => $player_id,
           'player_name' => $players[$highest_bidder]['player_name'],
+          'bidValue' => $bid_value,
         ]
       );
 
@@ -964,6 +965,14 @@ class TexasFortyTwo extends Table {
 
   private function getTeamForPlayer(int $player_id): int {
     return self::getPlayerNoById($player_id) % 2;
+  }
+
+  /**
+   * Returns the name of the declaring team: "Us" or "Them".
+   */
+  private function getDeclaringTeamName(): string {
+    // TODO(isherman): No really though.
+    return '';
   }
 
   /**
