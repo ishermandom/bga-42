@@ -54,7 +54,7 @@ BGA docs:
       </tbody>
     </table>
 
-    <p id="declaring-team">Winner of the bid: <span class="slot"></span></p>
+    <p id="declaring-team">Declaring team: <span class="slot"></span></p>
     <p id="trump-suit-label">Trump suit: <span class="slot"></span></p>
     <p id="points-label-us">Current points for us: <span class="slot"></span></p>
     <p id="points-label-them">Current points for them: <span class="slot"></span></p>
