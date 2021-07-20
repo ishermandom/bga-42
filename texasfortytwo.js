@@ -88,7 +88,9 @@ define([
 
       // TODO(isherman): Fill in real values.
       dojo.query('#declaring-team .slot')[0].innerText = 'Thus';
-      dojo.query('#trump-suit-label .slot')[0].innerText = 'Sevens';
+      dojo.query('#bid .slot')[0].innerText = this.gamedatas.bidValue;
+      dojo.query('#trump-suit-label .slot')[0].innerText =
+        this.gamedatas.trumpSuit;
       dojo.query('#points-label-us .slot')[0].innerText = '-1';
       dojo.query('#points-label-them .slot')[0].innerText = '50 :(';
 
