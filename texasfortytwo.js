@@ -126,12 +126,12 @@ define([
 
     // TODO(isherman): Docs.
     showMarksForUs: function(marks) {
-      this.updateLabel('our-marks', marks);
+      this.updateLabel('our-marks', marks, false);
     },
 
     // TODO(isherman): Docs.
     showMarksForThem: function(marks) {
-      this.updateLabel('their-marks', marks);
+      this.updateLabel('their-marks', marks, false);
     },
 
     // TODO(isherman): Docs.

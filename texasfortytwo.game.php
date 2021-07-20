@@ -478,6 +478,26 @@ class TexasFortyTwo extends Table {
   }
 
   /**
+   * Returns the amount of points each team has taken in tricks so far this hand.
+   * If no hand is in progress, point totals will be zero.
+   * @return array<int>
+   */
+  private function getCurrentPointTotals(): array {
+    $players = self::loadPlayersBasicInfos();
+
+    $team_points = [];
+    foreach (range(0, 1) as $team) {
+      $dominoes = $this->getDominoesInLocation(CardLocation::TEAM, $team);
+      $team_points[$team] = 0;
+      foreach ($dominoes as $domino) {
+        $team_points[$team] += $domino->getScore();
+      }
+      $team_points[$team] += count($dominoes) / count($players);
+    }
+    return $team_points;
+  }
+
+  /**
    * Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
    * @param CardLocation::* $location
    * @param int|string|null $location_arg
@@ -1056,7 +1076,7 @@ class TexasFortyTwo extends Table {
     // Count and score points, then end the game or go to the next hand.
     $players = self::loadPlayersBasicInfos();
 
-    $team_points = [];
+    /*$team_points = [];
     foreach (range(0, 1) as $team) {
       $dominoes = $this->getDominoesInLocation(CardLocation::TEAM, $team);
       $team_points[$team] = 0;
@@ -1064,7 +1084,8 @@ class TexasFortyTwo extends Table {
         $team_points[$team] += $domino->getScore();
       }
       $team_points[$team] += count($dominoes) / count($players);
-    }
+    }*/
+    $team_points = $this->getCurrentPointTotals();
     self::trace(print_r($team_points, true));
     $bidder = intval(self::getGameStateValue('highestBidder'));
     $bidder_team = intval(self::getTeamForPlayer($bidder));
