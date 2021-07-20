@@ -1053,6 +1053,7 @@ class TexasFortyTwo extends Table {
     // Note: we use 2 notifications here to pause the display during the first notification
     //  before we move all cards to the winner (during the second)
     $players = self::loadPlayersBasicInfos();
+    $team_points = $this->getCurrentPointTotals();
     self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), [
       'player_id' => $winning_player_id,
       'player_name' => $players[ $winning_player_id ]['player_name']
