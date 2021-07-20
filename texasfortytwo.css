@@ -100,7 +100,7 @@
 
 /*** player scores ***/
 
-#playerscores th, #playerscores td {
+#scores th, #scores td {
   border: solid;
   padding: 5px;
 }
