@@ -86,7 +86,87 @@ define([
 
       this.setUpNotifications();
 
+      // TODO(isherman): Fill in real values.
+      this.showMarksForUs('卌卌卌');
+      this.showMarksForThem('卌卌|||');
+      this.showDeclaringTeam('Thus');
+      this.showBid(this.gamedatas.bidValue);
+      this.showTrumpSuit(this.gamedatas.trumpSuit);
+      this.showPointsForUs('-1');
+      this.showPointsForThem('50 :(');
+
       console.log('Ending game setup');
+    },
+
+    // TODO(isherman): Organize this file better.
+    // TODO(isherman): Docs.
+    updateLabel: function(label, value, show = true) {
+      // TODO(isherman): Add error handling in case the slot is not found.
+      const slot = dojo.query(`#${label}-label .slot`)[0];
+      slot.innerText = value;
+      if (show) {
+        this.showLabel(label);
+      }
+    },
+
+    // TODO(isherman): Docs.
+    showDeclaringTeam: function(team) {
+      this.updateLabel('declaring-team', team);
+    },
+
+    // TODO(isherman): Docs.
+    showPointsForUs: function(points) {
+      this.updateLabel('our-points', points);
+    },
+
+    // TODO(isherman): Docs.
+    showPointsForThem: function(points) {
+      this.updateLabel('their-points', points);
+    },
+
+    // TODO(isherman): Docs.
+    showMarksForUs: function(marks) {
+      this.updateLabel('our-marks', marks, false);
+    },
+
+    // TODO(isherman): Docs.
+    showMarksForThem: function(marks) {
+      this.updateLabel('their-marks', marks, false);
+    },
+
+    // TODO(isherman): Docs.
+    showBid: function(bid) {
+      this.updateLabel('bid', bid);
+    },
+
+    // TODO(isherman): Docs.
+    showTrumpSuit: function(suit) {
+      this.updateLabel('trump-suit', suit);
+    },
+
+    // TODO(isherman): Docs.
+    toggleLabelVisibility: function(label) {
+      const element = this.getLabelElement(label);
+      if (dojo.style(element, 'display') === 'none') {
+        this.showLabel(label);
+      } else {
+        this.hideLabel(label);
+      }
+    },
+
+    // TODO(isherman): Docs.
+    showLabel: function(label) {
+      dojo.style(this.getLabelElement(label), 'display', 'block');
+    },
+
+    // TODO(isherman): Docs.
+    hideLabel: function(label) {
+      dojo.style(this.getLabelElement(label), 'display', 'none');
+    },
+
+    // TODO(isherman): Docs.
+    getLabelElement: function(label) {
+      return $(`${label}-label`);
     },
 
     ///////////////////////////////////////////////////
@@ -381,6 +461,7 @@ define([
       dojo.subscribe('newHand', this, 'onNewHand');
       dojo.subscribe('bid', this, 'onBid');
       dojo.subscribe('bidWin', this, 'onBidWin');
+      dojo.subscribe('setBidSuit', this, 'onSetBidSuit');
       dojo.subscribe('playCard', this, 'onPlayDomino');
 
       dojo.subscribe('trickWin', this, 'notif_trickWin');
@@ -415,6 +496,10 @@ define([
 
     onBidWin: function(data) {
       // TODO(sdspikes): update display with winning bid
+    },
+
+    onSetBidSuit: function(data) {
+      // TODO: update display with trump suit
     },
 
     notif_trickWin: function(notif) {

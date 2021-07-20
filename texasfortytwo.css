@@ -42,10 +42,15 @@
            Consequently, don't hesitate to put as many comments as necessary.
 */
 
-@import url(../../../css/csslayer.css); /* Note: you must not use any @import directive other than this one */
+/* Note: No other @import directives may be used. */
+@import url(../../../css/csslayer.css);
 
-/********* You can start writing your CSS below this line: **********/
 /** Table layout **/
+
+#tabletop {
+  display: flex;
+  justify-content: space-between;
+}
 
 #playertables {
     position: relative;
@@ -91,6 +96,13 @@
     margin-top: 5px;
     width: 194px;
     height: 104px;
+}
+
+/*** player scores ***/
+
+#scores th, #scores td {
+  border: solid;
+  padding: 5px;
 }
 
 /*** cards on table ***/

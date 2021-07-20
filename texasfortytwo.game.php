@@ -478,6 +478,26 @@ class TexasFortyTwo extends Table {
   }
 
   /**
+   * Returns the amount of points each team has taken in tricks so far this hand.
+   * If no hand is in progress, point totals will be zero.
+   * @return array<int>
+   */
+  private function getCurrentPointTotals(): array {
+    $players = self::loadPlayersBasicInfos();
+
+    $team_points = [];
+    foreach (range(0, 1) as $team) {
+      $dominoes = $this->getDominoesInLocation(CardLocation::TEAM, $team);
+      $team_points[$team] = 0;
+      foreach ($dominoes as $domino) {
+        $team_points[$team] += $domino->getScore();
+      }
+      $team_points[$team] += count($dominoes) / count($players);
+    }
+    return $team_points;
+  }
+
+  /**
    * Returns the dominoes in a location. Analogue to `Deck::getCardsInLocation`.
    * @param CardLocation::* $location
    * @param int|string|null $location_arg
@@ -920,6 +940,7 @@ class TexasFortyTwo extends Table {
           // 'i18n' => array ('color_displayed','value_displayed' ),
           'player_id' => $player_id,
           'player_name' => $players[$highest_bidder]['player_name'],
+          'bidValue' => $bid_value, //TODO(jasonptm): This should be the human-readable value
         ]
       );
 
@@ -964,6 +985,14 @@ class TexasFortyTwo extends Table {
 
   private function getTeamForPlayer(int $player_id): int {
     return self::getPlayerNoById($player_id) % 2;
+  }
+
+  /**
+   * Returns the name of the declaring team: "Us" or "Them".
+   */
+  private function getDeclaringTeamName(): string {
+    // TODO(isherman): No really though.
+    return '';
   }
 
   /**
@@ -1024,6 +1053,8 @@ class TexasFortyTwo extends Table {
     // Note: we use 2 notifications here to pause the display during the first notification
     //  before we move all cards to the winner (during the second)
     $players = self::loadPlayersBasicInfos();
+    //TODO(jasonptm):Send some kind of array with player -> score mapping
+    //$team_points = $this->getCurrentPointTotals();
     self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), [
       'player_id' => $winning_player_id,
       'player_name' => $players[ $winning_player_id ]['player_name']
@@ -1047,7 +1078,7 @@ class TexasFortyTwo extends Table {
     // Count and score points, then end the game or go to the next hand.
     $players = self::loadPlayersBasicInfos();
 
-    $team_points = [];
+    /*$team_points = [];
     foreach (range(0, 1) as $team) {
       $dominoes = $this->getDominoesInLocation(CardLocation::TEAM, $team);
       $team_points[$team] = 0;
@@ -1055,7 +1086,8 @@ class TexasFortyTwo extends Table {
         $team_points[$team] += $domino->getScore();
       }
       $team_points[$team] += count($dominoes) / count($players);
-    }
+    }*/
+    $team_points = $this->getCurrentPointTotals();
     self::trace(print_r($team_points, true));
     $bidder = intval(self::getGameStateValue('highestBidder'));
     $bidder_team = intval(self::getTeamForPlayer($bidder));
