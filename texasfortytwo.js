@@ -498,8 +498,9 @@ define([
       // TODO(sdspikes): update display with winning bid
     },
 
+    // Updates the display to show the current trump suit.
     onSetBidSuit: function(data) {
-      // TODO: update display with trump suit
+      this.showTrumpSuit(data.args.trump_suit);
     },
 
     notif_trickWin: function(notif) {
