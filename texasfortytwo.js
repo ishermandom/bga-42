@@ -500,6 +500,9 @@ define([
 
     onSetBidSuit: function(data) {
       // TODO: update display with trump suit
+      console.log('in onSetBidSuit with: ');
+      console.log(data);
+      //this.showTrumpSuit(this.gamedatas.trumpSuit);
     },
 
     notif_trickWin: function(notif) {
