@@ -557,7 +557,7 @@ class TexasFortyTwo extends Table {
     $result['bidValue'] = $this->getGameStateValue('bidValue');
     $result['highestBidder'] = $this->getGameStateValue('highestBidder');
     $result['bidType'] = $this->getGameStateValue('bidType');
-    $result['trumpSuit'] = self::getTrumpSuit();
+    $result['trumpSuit'] = self::SUIT_TO_DISPLAY_NAME[self::getTrumpSuit()];
     return $result;
   }
 
