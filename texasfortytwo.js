@@ -500,7 +500,7 @@ define([
 
     onSetBidSuit: function(data) {
       // TODO: update display with trump suit
-      console.log('in onSetBidSuit with: ');
+      console.log('in onSetBidSuit nowww with: ');
       console.log(data);
       this.showTrumpSuit(data.args.trump_suit);
     },
