@@ -502,7 +502,7 @@ define([
       // TODO: update display with trump suit
       console.log('in onSetBidSuit with: ');
       console.log(data);
-      //this.showTrumpSuit(this.gamedatas.trumpSuit);
+      this.showTrumpSuit(gamedatas.args.trump_suit);
     },
 
     notif_trickWin: function(notif) {
